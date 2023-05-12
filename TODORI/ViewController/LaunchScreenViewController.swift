@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class LaunchScreenViewController: UIViewController {
 
@@ -49,7 +50,5 @@ class LaunchScreenViewController: UIViewController {
             $0.centerX.equalToSuperview()
             $0.centerY.equalToSuperview().offset(37)
         }
-        
-        
     }
 }

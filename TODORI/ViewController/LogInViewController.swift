@@ -109,7 +109,6 @@ class LogInViewController: UIViewController {
         // 1
         let image = UIImage(named: "tick-circle")?.resize(to: CGSize(width: 17, height: 17))
         button.setImage(image, for: .normal)
-        
         // 2
         button.setImage(UIImage(named: "tick-circle2")?.resize(to: CGSize(width: 17, height: 17)), for: .selected)
         
@@ -156,9 +155,10 @@ class LogInViewController: UIViewController {
         
         emailTextField.delegate = self
         
-        loginButton.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
-        signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
         autoLoginButton.addTarget(self, action: #selector(autoLoginTapped), for: .touchUpInside)
+        loginButton.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
+        findPasswordButton.addTarget(self, action: #selector(findPasswordTapped), for: .touchUpInside)
+        signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
         
     }
     
@@ -227,7 +227,16 @@ class LogInViewController: UIViewController {
     
     @objc private func loginTapped() {
         if let email = emailTextField.text, let password = passwordTextField.text {
-            login(email: email, password: password)            
+            if autoLoginButton.isSelected {
+                print("isSelected")
+                UserDefaults.standard.set(true, forKey: "autoLogin")
+                saveLoginInfo(email: email, password: password)
+                login(email: email, password: password)
+            } else {
+                print("isNotSelected")
+                UserDefaults.standard.set(false, forKey: "autoLogin")
+                login(email: email, password: password)
+            }
         }
     }
     
@@ -238,8 +247,19 @@ class LogInViewController: UIViewController {
         present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
     }
     
+    func saveLoginInfo(email: String, password: String) {
+        UserDefaults.standard.setValue(email, forKey: "email")
+        UserDefaults.standard.setValue(password, forKey: "password")
+    }
+    
     @objc func autoLoginTapped(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
+    }
+    
+    @objc func findPasswordTapped(_ sender: UIButton) {
+        let navController = UINavigationController(rootViewController: FindPasswordViewController())
+        navController.modalPresentationStyle = .fullScreen
+        self.present(navController, animated: true, completion: nil)
     }
     
     @objc func closeCircleButtonTapped(_ sender: UIButton) {
@@ -315,6 +335,14 @@ extension LogInViewController {
                         self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
                     } else if resultCode == 500 {
                         print("오백")
+                        
+                        let popupView = CustomPopupView(title: "Popup 1", message: "This is Popup 1.", buttonText: "OK")
+                        self.view.addSubview(popupView)
+                        popupView.snp.makeConstraints { make in
+                            make.center.equalToSuperview()
+                            make.width.equalToSuperview().multipliedBy(0.8)
+                            make.height.equalTo(200.0)
+                        }
                     }
                     
                 }

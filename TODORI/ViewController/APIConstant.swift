@@ -15,5 +15,6 @@ enum APIConstant {
         static let login = baseURL + "/account/login/"
         static let logout = baseURL + "/account/logout/"
         static let register = baseURL + "/account/register/"
+        static let findPassword = baseURL + "/account/findpw/"
     }
 }

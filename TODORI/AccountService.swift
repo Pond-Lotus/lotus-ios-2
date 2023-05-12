@@ -114,6 +114,29 @@ class UserService {
             }
         }
     }
+    
+//    func findPassword(email: String, password: String, completion: @escaping(NetworkResult<Any>) -> Void) {
+//        let url = APIConstant.Account.login
+//        let headers: HTTPHeaders = ["Content-Type": "application/json"]
+//        let parameters: Parameters = [
+//            "email": email,
+//            "password": password
+//        ]
+//        
+//        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers)
+//            .validate(statusCode: 200..<300)
+//            .responseJSON { response in
+//            switch response.result {
+//            case .success(let value):
+//                if let json = value as? [String: Any] {
+//                    completion(.success(json))
+//                } else {
+//                }
+//            case .failure(let error):
+//                completion(.networkFail)
+//            }
+//        }
+//    }
 
 //
 //    private func judgeStatus(by statusCode: Int, _ data: Data, _ form: UserAPI) -> NetworkResult<Any> {
