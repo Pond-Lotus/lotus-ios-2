@@ -232,15 +232,10 @@ extension ChangePasswordViewController {
                     if resultCode == 200 {
                         print("이백")
                         self.presentPasswordErrorLabel.isHidden = true
-                        //                        let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-                        //                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-                        //                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-                        //                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
                     } else if resultCode == 500 {
                         print("오백")
                         self.presentPasswordErrorLabel.isHidden = false
                     }
-                    
                 }
             case .fail:
                 print("FUCKING fail")

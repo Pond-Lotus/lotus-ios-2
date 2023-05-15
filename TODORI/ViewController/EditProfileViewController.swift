@@ -102,12 +102,23 @@ class EditProfileViewController: UIViewController {
         return button
     }()
     
+    private let deleteAccountButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("계정 탈퇴하기", for: .normal)
+        button.setTitleColor( UIColor(red: 0.554, green: 0.554, blue: 0.554, alpha: 1), for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        button.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
+        button.layer.cornerRadius = 10
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
         editProfileImageButton.addTarget(self, action: #selector(editProfileImageButtonTapped), for: .touchUpInside)
         changePasswordButton.addTarget(self, action: #selector(changePasswordButtonTapped), for: .touchUpInside)
+        deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
         
         setupUI()
     }
@@ -150,6 +161,7 @@ class EditProfileViewController: UIViewController {
         view.addSubview(emailTitleLabel)
         view.addSubview(emailLabel)
         view.addSubview(changePasswordButton)
+        view.addSubview(deleteAccountButton)
         
         profileImageView.snp.makeConstraints { make in
             make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(26)
@@ -190,6 +202,13 @@ class EditProfileViewController: UIViewController {
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
             make.height.equalTo(45)
+        }
+        
+        deleteAccountButton.snp.makeConstraints { make in
+            make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-35)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(93)
+            make.height.equalTo(30)
         }
     }
     
@@ -233,6 +252,12 @@ class EditProfileViewController: UIViewController {
     
     @objc func changePasswordButtonTapped() {
         let navController = UINavigationController(rootViewController: ChangePasswordViewController())
+        navController.modalPresentationStyle = .fullScreen
+        self.present(navController, animated: true, completion: nil)
+    }
+    
+    @objc func deleteAccountButtonTapped() {
+        let navController = UINavigationController(rootViewController: DeleteAccountViewController())
         navController.modalPresentationStyle = .fullScreen
         self.present(navController, animated: true, completion: nil)
     }
