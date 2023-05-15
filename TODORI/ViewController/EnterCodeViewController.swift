@@ -182,27 +182,34 @@ class EnterCodeViewController: UIViewController {
         return button
     }()
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            self.view.endEditing(true)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
         
         codeTextField.delegate = self
         
-        setUI()
+        setupUI()
         
         codeTextField.becomeFirstResponder()
-//        let inputlabels = [firstLabel, secondLabel, thirdLabel, fourthLabel, fifthLabel, sixthLabel]
-//        inputlabels.forEach { label in
-//            label.isUserInteractionEnabled = true
-//            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped)) // 모든 라벨에 대해 제스처를 추가하기 위해서는 tapGesture 객체를 라벨마다 새로 생성해야 합니다.
-//            label.addGestureRecognizer(tapGesture)
-//        }
+        let inputlabels = [firstLabel, secondLabel, thirdLabel, fourthLabel, fifthLabel, sixthLabel]
+        inputlabels.forEach { label in
+            label.isUserInteractionEnabled = true
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped)) // 모든 라벨에 대해 제스처를 추가하기 위해서는 tapGesture 객체를 라벨마다 새로 생성해야 합니다.
+            label.addGestureRecognizer(tapGesture)
+        }
         
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
     
-    private func setUI() {
+    private func setupUI() {
         view.addSubview(numberLabel)
         view.addSubview(titleLabel)
         view.addSubview(subTitleLabel)
@@ -265,6 +272,10 @@ class EnterCodeViewController: UIViewController {
         }
     }
     
+    @objc func labelTapped() {
+            codeTextField.becomeFirstResponder()
+        }
+    
     @objc func backButtonTapped() {
         dismiss(animated: true, completion: nil) // 이전 뷰 컨트롤러로 이동
     }
@@ -307,16 +318,8 @@ extension EnterCodeViewController {
                         self.errorLabel.isHidden = false
                     }
                 }
-            case .requestErr(let err):
-                print(err)
-            case .pathErr:
-                print("pathErr")
-            case .serverErr:
-                print("serverErr")
-            case .networkFail:
-                print("networkFail")
-            case .decodeErr:
-                print("decodeErr")
+            case .fail:
+                print("FUCKING fail")
             }
         }
     }
@@ -350,7 +353,19 @@ extension EnterCodeViewController: UITextFieldDelegate {
             sixthLabel.text = ""
         } else if newString.count == 6 {
             sixthLabel.text = String(newString[newString.index(newString.startIndex, offsetBy: 5)])
+//            textField.resignFirstResponder()
         }
         return newString.count <= 6
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if fifthLabel.text != "" {
+            print("Fifth")
+        }
+        if sixthLabel.text !=  "" {
+            print("Sixth")
+            textField.resignFirstResponder()
+        }
+        return true
     }
 }

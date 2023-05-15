@@ -8,6 +8,7 @@
 import UIKit
 
 class EnterProfileViewController: UIViewController {
+    
     private let numberLabel: UILabel = {
         let label = UILabel()
         label.text = "3/3"
@@ -41,7 +42,6 @@ class EnterProfileViewController: UIViewController {
     
     private let emailBoxLabel: UILabel = {
         let label = UILabel()
-        
         if let email = UserDefaults.standard.string(forKey: "email") {
             label.text = "   " + email
         }
@@ -49,7 +49,6 @@ class EnterProfileViewController: UIViewController {
         label.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
         label.font = UIFont.systemFont(ofSize: 18, weight: .light)
         label.layer.cornerRadius = 8
-
         label.clipsToBounds = true
 
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -224,19 +223,24 @@ class EnterProfileViewController: UIViewController {
         return button
     }()
     
-    var stackView = UIStackView()
-        
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        setUI()
+        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
+        
+        nickNameTextField.delegate = self
+        passwordTextField.delegate = self
+        checkPasswordTextField.delegate = self
+        
+        setupUI()
         
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
     
-    private func setUI() {
+    private func setupUI() {
         let stackView = UIStackView(arrangedSubviews: [nickNameLabel, nickNameTextField, nickNameGenerationErrorLabel, passwordLabel, passwordTextField, passwordGenerationErrorLabel, checkPasswordLabel, checkPasswordTextField, passwordInconsistencyErrorLabel])
         stackView.axis = .vertical
         stackView.spacing = 10
@@ -277,16 +281,7 @@ class EnterProfileViewController: UIViewController {
         view.addSubview(titleLabel)
         view.addSubview(emailLabel)
         view.addSubview(emailBoxLabel)
-//        view.addSubview(nickNameLabel)
         view.addSubview(stackView)
-//        view.addSubview(nickNameTextField)
-//        view.addSubview(nickNameGenerationErrorLabel)
-//        view.addSubview(passwordLabel)
-//        view.addSubview(passwordTextField)
-//        view.addSubview(passwordGenerationErrorLabel)
-//        view.addSubview(checkPasswordLabel)
-//        view.addSubview(checkPasswordTextField)
-//        view.addSubview(passwordInconsistencyErrorLabel)
         view.addSubview(backButton)
         view.addSubview(nextButton)
         
@@ -308,61 +303,17 @@ class EnterProfileViewController: UIViewController {
         emailBoxLabel.snp.makeConstraints { make in
             make.top.equalTo(emailLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview().offset(25)
+            make.trailing.equalToSuperview().offset(-25)
             make.width.equalTo(340)
             make.height.equalTo(41)
         }
-        
-//        nickNameLabel.snp.makeConstraints { make in
-//            make.top.equalTo(emailBoxLabel.snp.bottom).offset(18)
-//            make.leading.equalToSuperview().offset(25)
-//        }
-        
-//        nickNameTextField.snp.makeConstraints { make in
-//            make.top.equalTo(nickNameLabel.snp.bottom).offset(10)
-//            make.leading.equalToSuperview().offset(25)
-//            make.trailing.equalToSuperview().offset(-25)
-//        }
-//
-//        nickNameGenerationErrorLabel.snp.makeConstraints { make in
-//            make.top.equalTo(nickNameTextField.snp.bottom).offset(10)
-//            make.leading.equalTo(nickNameTextField.snp.leading)
-//            make.trailing.equalTo(nickNameTextField.snp.trailing)
-//        }
         
         stackView.snp.makeConstraints { make in
             make.top.equalTo(emailBoxLabel.snp.bottom).offset(18)
             make.leading.equalToSuperview().offset(25)
             make.trailing.equalToSuperview().offset(-25)
         }
-        
-//        passwordLabel.snp.makeConstraints { make in
-//            make.top.equalTo(nickNameTextField.snp.bottom).offset(20)
-//            make.leading.equalToSuperview().offset(25)
-//        }
-//
-//        passwordTextField.snp.makeConstraints { make in
-//            make.top.equalTo(passwordLabel.snp.bottom).offset(10)
-//            make.leading.equalToSuperview().offset(25)
-//            make.trailing.equalToSuperview().offset(-25)
-//        }
-//
-//        checkPasswordLabel.snp.makeConstraints { make in
-//            make.top.equalTo(passwordTextField.snp.bottom).offset(20)
-//            make.leading.equalToSuperview().offset(25)
-//        }
-//
-//        checkPasswordTextField.snp.makeConstraints { make in
-//            make.top.equalTo(checkPasswordLabel.snp.bottom).offset(10)
-//            make.leading.equalToSuperview().offset(25)
-//            make.trailing.equalToSuperview().offset(-25)
-//        }
-//
-//        passwordInconsistencyErrorLabel.snp.makeConstraints { make in
-//            make.top.equalTo(checkPasswordTextField.snp.bottom).offset(10)
-//            make.leading.equalTo(checkPasswordTextField.snp.leading)
-//            make.trailing.equalTo(checkPasswordTextField.snp.trailing)
-//        }
-//
+
         backButton.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(-24)
             make.leading.equalToSuperview().offset(21)
@@ -384,16 +335,16 @@ class EnterProfileViewController: UIViewController {
     
     @objc func nextButtonTapped() {
         print("TAPPED")
-        
         if let nickname = nickNameTextField.text, let password = passwordTextField.text {
             if isValidNickName(nickname) {
                 nickNameGenerationErrorLabel.isHidden = true
+                UserDefaults.standard.set(nickname, forKey: "nickname")
                 if isValidPassword(password) {
                     passwordGenerationErrorLabel.isHidden = true
                     if passwordTextField.text == checkPasswordTextField.text {
                         passwordInconsistencyErrorLabel.isHidden = true
                         print("다음 OK")
-                        if let email = emailLabel.text {
+                        if let email = UserDefaults.standard.string(forKey: "email") {
                             register(nickname: nickname, email: email, password: password)                            
                         }
                     } else {
@@ -405,16 +356,7 @@ class EnterProfileViewController: UIViewController {
             } else {
                 nickNameGenerationErrorLabel.isHidden = false
             }
-            
         }
-        
-//        if let password = passwordTextField.text {
-//            if isValidPassword(password) {
-//                passwordGenerationErrorLabel.isHidden = true
-//            } else {
-//                passwordGenerationErrorLabel.isHidden = false
-//            }
-//        }
     }
     
     func isValidNickName(_ nickname: String) -> Bool {
@@ -453,17 +395,23 @@ extension EnterProfileViewController {
                         print("오백")
                     }
                 }
-            case .requestErr(let err):
-                print(err)
-            case .pathErr:
-                print("pathErr")
-            case .serverErr:
-                print("serverErr")
-            case .networkFail:
-                print("networkFail")
-            case .decodeErr:
-                print("decodeErr")
+            case .fail:
+                print("FUCKING fail")
             }
         }
+    }
+}
+
+extension EnterProfileViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        switch textField {
+        case nickNameTextField:
+            passwordTextField.becomeFirstResponder()
+        case passwordTextField:
+            checkPasswordTextField.becomeFirstResponder()
+        default:
+            textField.resignFirstResponder()
+        }
+        return true
     }
 }

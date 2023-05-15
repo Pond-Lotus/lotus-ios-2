@@ -27,44 +27,44 @@ class CustomPopupView: UIView {
     }
     
     private func setupUI() {
-        // 팝업뷰 설정
         backgroundColor = .white
-        layer.cornerRadius = 10
-        layer.masksToBounds = true
+        layer.cornerRadius = 15
+        layer.masksToBounds = true // 나가면 짤림
         
-        // 타이틀 레이블 설정
         titleLabel = UILabel()
-        titleLabel.textAlignment = .center
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        titleLabel.textAlignment = .left
+        titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .heavy)
+        titleLabel.textColor = UIColor(red: 0.171, green: 0.171, blue: 0.171, alpha: 1)
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
-            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalToSuperview().offset(15)
+            $0.leading.equalToSuperview().offset(16)
         }
         
-        // 메시지 레이블 설정
         messageLabel = UILabel()
         messageLabel.numberOfLines = 0
-        messageLabel.font = UIFont.systemFont(ofSize: 16)
+        messageLabel.font = UIFont.systemFont(ofSize: 12, weight: .light)
         addSubview(messageLabel)
         messageLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(20)
-            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(6)
+            $0.leading.equalToSuperview().offset(16)
+//            $0.trailing.equalToSuperview().inset(16)
         }
         
-        // 액션 버튼 설정
         actionButton = UIButton(type: .system)
-        actionButton.backgroundColor = .blue
-        actionButton.setTitleColor(.white, for: .normal)
-        actionButton.layer.cornerRadius = 5
+        actionButton.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
+        actionButton.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .heavy)
+        actionButton.setTitleColor(UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1), for: .normal)
+        actionButton.layer.cornerRadius = 13
         actionButton.layer.masksToBounds = true
         actionButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         addSubview(actionButton)
         actionButton.snp.makeConstraints {
-            $0.top.equalTo(messageLabel.snp.bottom).offset(20)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview().inset(20)
-            $0.height.equalTo(50)
+            $0.top.equalTo(messageLabel.snp.bottom).offset(12)
+            $0.trailing.equalToSuperview().offset(-16)
+            $0.bottom.equalToSuperview().offset(-16)
+            $0.width.equalTo(49)
+            $0.height.equalTo(24)
         }
     }
     

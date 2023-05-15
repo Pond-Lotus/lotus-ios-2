@@ -8,6 +8,7 @@
 import UIKit
 
 class FinishSignUpViewController: UIViewController {
+    
     private let finishLabel: UILabel = {
         let label = UILabel()
         label.text = "회원가입 완료!"
@@ -20,7 +21,9 @@ class FinishSignUpViewController: UIViewController {
 
     private let welcomeLabel: UILabel = {
         let label = UILabel()
-        label.text = "님, 환영합니다!"
+        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
+            label.text = "\(nickname)님, 환영합니다!"
+        }
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         label.textColor = .black
@@ -74,10 +77,8 @@ class FinishSignUpViewController: UIViewController {
     @objc func loginTapped(_ sender: UIButton) {
         let viewControllerToPresent = LogInViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
         viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
+//        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
 
         present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
     }
-
-
 }

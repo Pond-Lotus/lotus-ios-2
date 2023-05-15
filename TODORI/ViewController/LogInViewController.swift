@@ -9,14 +9,6 @@ import UIKit
 // import SnapKit 없어도 적용이 되는 이유?
 
 class LogInViewController: UIViewController {
-    
-    private var isEmailValid = false
-    
-    func isValidEmail(_ email: String) -> Bool {
-        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
-        return emailPredicate.evaluate(with: email)
-    }
 
     private let logoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -47,17 +39,6 @@ class LogInViewController: UIViewController {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 30))
         textField.leftView = paddingView
         textField.leftViewMode = .always
-                    
-//        let closeButton = UIButton(type: .custom)
-//        closeButton.setImage(UIImage(named: "close-circle")?.resize(to: CGSize(width: 24, height: 24)), for: .normal)
-//        closeButton.addTarget(self, action: #selector(closeCircleButtonTapped), for: .touchUpInside)
-//        closeButton.setImage(nil, for: .selected)
-//        closeButton.frame = CGRect(x: 0, y: (30 - 24) / 2, width: 24, height: 24) // 버튼 프레임 설정
-//
-//        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 39, height: 30))
-//        textField.rightView = rightPaddingView
-//        textField.rightViewMode = .always
-//        rightPaddingView.addSubview(closeButton) // 버튼을 rightPaddingView에 추가
         
         textField.backgroundColor = UIColor(red: 0.949, green: 0.949, blue: 0.949, alpha: 1)
         textField.layer.cornerRadius = 18
@@ -145,6 +126,10 @@ class LogInViewController: UIViewController {
         return button
     }()
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            self.view.endEditing(true)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -161,7 +146,6 @@ class LogInViewController: UIViewController {
         signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
         
     }
-    
     
     private func setupUI() {
         view.addSubview(logoImageView)
@@ -274,6 +258,7 @@ class LogInViewController: UIViewController {
     }
 }
 
+// 따로 빼야할 듯
 extension UIImage {
     func resize(to size: CGSize) -> UIImage? {
         let renderer = UIGraphicsImageRenderer(size: size)
@@ -336,26 +321,19 @@ extension LogInViewController {
                     } else if resultCode == 500 {
                         print("오백")
                         
-                        let popupView = CustomPopupView(title: "Popup 1", message: "This is Popup 1.", buttonText: "OK")
+                        let popupView = CustomPopupView(title: "로그인 실패", message: "이메일 혹은 비밀번호를 다시 확인해 주세요.", buttonText: "확인")
                         self.view.addSubview(popupView)
                         popupView.snp.makeConstraints { make in
                             make.center.equalToSuperview()
-                            make.width.equalToSuperview().multipliedBy(0.8)
-                            make.height.equalTo(200.0)
+                            //                            make.width.equalToSuperview().multipliedBy(0.8)
+                            make.width.equalTo(290)
+                            make.height.equalTo(104)
                         }
                     }
                     
                 }
-            case .requestErr(let err):
-                print(err)
-            case .pathErr:
-                print("pathErr")
-            case .serverErr:
-                print("serverErr")
-            case .networkFail:
-                print("networkFail")
-            case .decodeErr:
-                print("decodeErr")
+            case .fail:
+                print("FUCKING fail")
             }
         }
     }

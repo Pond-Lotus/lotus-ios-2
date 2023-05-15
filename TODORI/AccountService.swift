@@ -34,7 +34,7 @@ class UserService {
                     } else {
                     }
                 case .failure(let error):
-                    completion(.networkFail)
+                    completion(.fail)
                 }
             }
     }
@@ -59,7 +59,7 @@ class UserService {
                     } else {
                     }
                 case .failure(let error):
-                    completion(.networkFail)
+                    completion(.fail)
                 }
             }
     }
@@ -87,7 +87,7 @@ class UserService {
                         } else {
                         }
                     case .failure(let error):
-                        completion(.networkFail)
+                        completion(.fail)
                     }
             }
         }
@@ -110,33 +110,59 @@ class UserService {
                 } else {
                 }
             case .failure(let error):
-                completion(.networkFail)
+                completion(.fail)
             }
         }
     }
     
-//    func findPassword(email: String, password: String, completion: @escaping(NetworkResult<Any>) -> Void) {
-//        let url = APIConstant.Account.login
-//        let headers: HTTPHeaders = ["Content-Type": "application/json"]
-//        let parameters: Parameters = [
-//            "email": email,
-//            "password": password
-//        ]
-//        
-//        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers)
-//            .validate(statusCode: 200..<300)
-//            .responseJSON { response in
-//            switch response.result {
-//            case .success(let value):
-//                if let json = value as? [String: Any] {
-//                    completion(.success(json))
-//                } else {
-//                }
-//            case .failure(let error):
-//                completion(.networkFail)
-//            }
-//        }
-//    }
+    func findPassword(email: String, completion: @escaping(NetworkResult<Any>) -> Void) {
+        let url = APIConstant.Account.findPassword
+        let headers: HTTPHeaders = [
+            "Accept": "application/json"
+        ]
+        let body: Parameters = [
+            "email": email
+        ]
+        
+        AF.request(url, method: .get, parameters: body, headers: headers)
+            .validate(statusCode: 200..<300)
+            .responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        completion(.success(json))
+                    } else {
+                    }
+                case .failure(let error):
+                    completion(.fail)
+                }
+            }
+    }
+    
+    func changePassword(originPassword: String, newPassword: String ,completion: @escaping(NetworkResult<Any>) -> Void) {
+        let url = APIConstant.Account.changePassword
+        let headers: HTTPHeaders = [
+            "Accept": "application/json"
+        ]
+        let body: Parameters = [
+            "orginpw": originPassword,
+            "newpw": newPassword,
+        ]
+        
+        AF.request(url, method: .post, parameters: body, headers: headers)
+            .validate(statusCode: 200..<300)
+            .responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        completion(.success(json))
+                    } else {
+                    }
+                case .failure(let error):
+                    completion(.fail)
+                }
+            }
+    }
 
 //
 //    private func judgeStatus(by statusCode: Int, _ data: Data, _ form: UserAPI) -> NetworkResult<Any> {

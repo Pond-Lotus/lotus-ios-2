@@ -100,6 +100,7 @@ class EnterEmailViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
         button.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
         button.alpha = 0.5
+        button.isEnabled = false
         button.layer.cornerRadius = 18
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -179,6 +180,7 @@ class EnterEmailViewController: UIViewController {
     }
     
     @objc func nextButtonTapped() {
+        print("TAPPED")
         if let email = emailTextField.text {
             emailCheck(email: email)
         }
@@ -192,7 +194,6 @@ class EnterEmailViewController: UIViewController {
 }
 
 extension EnterEmailViewController {
-    
     func emailCheck(email: String) {
         UserService.shared.emailCheck(email: email) {
             response in
@@ -208,7 +209,7 @@ extension EnterEmailViewController {
                         if let email = self.emailTextField.text {
                             UserDefaults.standard.set(email, forKey: "email")
                         } else {
-                          print("이메일 저장 안 됨")
+                            print("이메일 저장 안 됨")
                         }
                         
                         let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
@@ -221,16 +222,8 @@ extension EnterEmailViewController {
                     }
                     
                 }
-            case .requestErr(let err):
-                print(err)
-            case .pathErr:
-                print("pathErr")
-            case .serverErr:
-                print("serverErr")
-            case .networkFail:
-                print("networkFail")
-            case .decodeErr:
-                print("decodeErr")
+            case .fail:
+                print("FUCKING fail")
             }
         }
     }
@@ -242,9 +235,9 @@ extension EnterEmailViewController: UITextFieldDelegate {
         let currentText = textField.text ?? ""
         let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
         
-//        print("currentText : \(currentText)")
-//        print("newText : \(newText)")
-
+        //        print("currentText : \(currentText)")
+        //        print("newText : \(newText)")
+        
         if isValidEmail(currentText) {
             let imageView = UIImageView()
             imageView.image = UIImage(named: "email-check")?.resize(to: CGSize(width: 28, height: 28))
@@ -261,6 +254,11 @@ extension EnterEmailViewController: UITextFieldDelegate {
             nextButton.isEnabled = false
             nextButton.alpha = 0.5
         }
+        return true
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
         return true
     }
 }

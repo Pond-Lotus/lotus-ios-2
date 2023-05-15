@@ -8,6 +8,7 @@
 import Foundation
 
 enum APIConstant {
+    
     static let baseURL = "https://plotustodo-ctzhc.run.goorm.io"
     
     enum Account {
@@ -16,5 +17,7 @@ enum APIConstant {
         static let logout = baseURL + "/account/logout/"
         static let register = baseURL + "/account/register/"
         static let findPassword = baseURL + "/account/findpw/"
+//        static let findPassword = baseURL + "/account/edit1/"
+        static let changePassword = baseURL + "/account/edit2/"
     }
 }

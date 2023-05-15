@@ -19,7 +19,7 @@ class FindPasswordViewController: UIViewController  {
         return label
     }()
     
-    private let subTitleLabel: UILabel = {
+    private let messageLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.text = "입한 이메일 주소를 입력해주세요.\n해당 이메일로 비밀번호 재설정을 위한 링크를 보내드립니다."
@@ -124,7 +124,7 @@ class FindPasswordViewController: UIViewController  {
 
     private func setupUI() {
         view.addSubview(titleLabel)
-        view.addSubview(subTitleLabel)
+        view.addSubview(messageLabel)
         view.addSubview(emailLabel)
         view.addSubview(emailTextField)
         view.addSubview(errorLabel)
@@ -135,13 +135,14 @@ class FindPasswordViewController: UIViewController  {
             make.leading.equalToSuperview().offset(33)
         }
         
-        subTitleLabel.snp.makeConstraints { make in
+        messageLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(13)
             make.leading.equalToSuperview().offset(33)
+//            make.trailing.equalToSuperview().offset(33)
         }
         
         emailLabel.snp.makeConstraints { make in
-            make.top.equalTo(subTitleLabel.snp.bottom).offset(54)
+            make.top.equalTo(messageLabel.snp.bottom).offset(54)
             make.leading.equalToSuperview().offset(33)
         }
         
@@ -170,5 +171,45 @@ class FindPasswordViewController: UIViewController  {
         let viewControllerToPresent = LogInViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
         viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
         present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+    }
+    
+    @objc func findButtonTapped() {
+        if let email = emailTextField.text {
+            findPassword(email: email)
+        }
+    }
+    
+//    func isValidEmail(_ email: String) -> Bool {
+//        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+//        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+//        return emailPredicate.evaluate(with: email)
+//    }
+}
+
+extension FindPasswordViewController {
+    func findPassword(email: String) {
+        UserService.shared.findPassword(email: email) {
+            response in
+            switch response {
+            case .success(let data):
+                if let json = data as? [String: Any],
+                   let resultCode = json["resultCode"] as? Int {
+                    if resultCode == 200 {
+                        print("이백")
+                        self.errorLabel.isHidden = true
+//                        let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
+//                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
+//                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
+//                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+                    } else if resultCode == 500 {
+                        print("오백")
+                        self.errorLabel.isHidden = false
+                    }
+                    
+                }
+            case .fail:
+                print("FUCKING fail")
+            }
+        }
     }
 }
