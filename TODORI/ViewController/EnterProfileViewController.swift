@@ -42,7 +42,7 @@ class EnterProfileViewController: UIViewController {
     
     private let emailBoxLabel: UILabel = {
         let label = UILabel()
-        if let email = UserDefaults.standard.string(forKey: "email") {
+        if let email = UserSession.shared.signUpEmail {
             label.text = "   " + email
         }
         label.textAlignment = .left
@@ -201,34 +201,17 @@ class EnterProfileViewController: UIViewController {
         return label
     }()
     
-    private let backButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("이전", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        button.backgroundColor = UIColor(red: 0.851, green: 0.851, blue: 0.851, alpha: 1)
-        button.layer.cornerRadius = 18
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private let nextButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("다음", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
-        button.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
-        button.layer.cornerRadius = 18
-        button.translatesAutoresizingMaskIntoConstraints = false
+        let button = UIButton(type: .custom)
+        let image = UIImage(named: "next-button")?.resize(to: CGSize(width: 43, height: 43))
+        button.setImage(image, for: .normal)
         return button
     }()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
-        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
-        view.addGestureRecognizer(tap)
         
         nickNameTextField.delegate = self
         passwordTextField.delegate = self
@@ -236,11 +219,19 @@ class EnterProfileViewController: UIViewController {
         
         setupUI()
         
-        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            self.view.endEditing(true)
+    }
+    
     private func setupUI() {
+        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
+        navigationItem.leftBarButtonItem = backButton
+        navigationController?.navigationBar.tintColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
+
         let stackView = UIStackView(arrangedSubviews: [nickNameLabel, nickNameTextField, nickNameGenerationErrorLabel, passwordLabel, passwordTextField, passwordGenerationErrorLabel, checkPasswordLabel, checkPasswordTextField, passwordInconsistencyErrorLabel])
         stackView.axis = .vertical
         stackView.spacing = 10
@@ -282,7 +273,6 @@ class EnterProfileViewController: UIViewController {
         view.addSubview(emailLabel)
         view.addSubview(emailBoxLabel)
         view.addSubview(stackView)
-        view.addSubview(backButton)
         view.addSubview(nextButton)
         
         numberLabel.snp.makeConstraints { make in
@@ -304,7 +294,6 @@ class EnterProfileViewController: UIViewController {
             make.top.equalTo(emailLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview().offset(25)
             make.trailing.equalToSuperview().offset(-25)
-            make.width.equalTo(340)
             make.height.equalTo(41)
         }
         
@@ -314,48 +303,46 @@ class EnterProfileViewController: UIViewController {
             make.trailing.equalToSuperview().offset(-25)
         }
 
-        backButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-24)
-            make.leading.equalToSuperview().offset(21)
-            make.width.equalTo(77)
-            make.height.equalTo(38)
-        }
-
         nextButton.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(-24)
             make.trailing.equalToSuperview().offset(-21)
-            make.width.equalTo(77)
-            make.height.equalTo(38)
         }
     }
     
     @objc func backButtonTapped() {
-        dismiss(animated: true, completion: nil) // 이전 뷰 컨트롤러로 이동
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func nextButtonTapped() {
-        print("TAPPED")
         if let nickname = nickNameTextField.text, let password = passwordTextField.text {
             if isValidNickName(nickname) {
                 nickNameGenerationErrorLabel.isHidden = true
-                UserDefaults.standard.set(nickname, forKey: "nickname")
-                if isValidPassword(password) {
-                    passwordGenerationErrorLabel.isHidden = true
-                    if passwordTextField.text == checkPasswordTextField.text {
-                        passwordInconsistencyErrorLabel.isHidden = true
-                        print("다음 OK")
-                        if let email = UserDefaults.standard.string(forKey: "email") {
-                            register(nickname: nickname, email: email, password: password)                            
-                        }
-                    } else {
-                        passwordInconsistencyErrorLabel.isHidden = false
-                    }
-                } else {
-                    passwordGenerationErrorLabel.isHidden = false
-                }
+                UserSession.shared.nickname = nickname
             } else {
                 nickNameGenerationErrorLabel.isHidden = false
             }
+            
+            if isValidPassword(password) {
+                passwordGenerationErrorLabel.isHidden = true
+            } else {
+                passwordGenerationErrorLabel.isHidden = false
+            }
+            
+            if passwordTextField.text == checkPasswordTextField.text {
+                passwordInconsistencyErrorLabel.isHidden = true
+            } else {
+                passwordInconsistencyErrorLabel.isHidden = false
+            }
+            
+            if isValidNickName(nickname) && isValidPassword(password) && passwordTextField.text == checkPasswordTextField.text {
+                if let email = UserSession.shared.signUpEmail {
+                    register(nickname: nickname, email: email, password: password)
+                    print("다음 OK")
+                }
+            } else {
+                print("다음 NO")
+            }
+
         }
     }
     
@@ -387,15 +374,19 @@ extension EnterProfileViewController {
 
                     if resultCode == 200 {
                         print("이백")
-                        let viewControllerToPresent = FinishSignUpViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+                        
+                        self.navigationController?.modalPresentationStyle = .fullScreen
+                        self.navigationController?.pushViewController(FinishSignUpViewController(), animated: true)
+                        
+//                        let viewControllerToPresent = FinishSignUpViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
+//                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
+//                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
+//                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
                     } else if resultCode == 500 {
                         print("오백")
                     }
                 }
-            case .fail:
+            case .failure:
                 print("FUCKING fail")
             }
         }

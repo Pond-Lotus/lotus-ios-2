@@ -8,33 +8,35 @@
 import UIKit
 
 class GroupSettingViewController: UIViewController {
-
-    private func createStackView(image: UIImage?, text: String) -> UIStackView {
+    
+    private func createStackView(image: String, text: String) -> UIStackView {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-//        stackView.spacing = 10
-//        stackView.distribution = .equalSpacing
-        stackView.backgroundColor = .yellow
+        //        stackView.spacing = 10
+        //        stackView.distribution = .equalSpacing
         
-        view.addSubview(stackView)
+//        view.addSubview(stackView)
         stackView.snp.makeConstraints() { make in
             make.width.equalTo(500)
             make.height.equalTo(60)
         }
         
-        let imageView = UIImageView(image: image)
+        let imageView = UIImageView(image: UIImage(named: image))
         imageView.contentMode = .scaleAspectFit
+        stackView.addSubview(imageView)
         imageView.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
             make.width.equalTo(23)
             make.height.equalTo(23)
         }
         
         let label = UILabel()
         label.text = text
-        label.backgroundColor = .blue
         
         let button = UIButton()
         button.setImage(UIImage(named: "edit-group")?.resize(to: CGSize(width: 19, height: 19)), for: .normal)
+        button.titleLabel?.text = image + "," + text
+        button.addTarget(self, action: #selector(groupTapped), for: .touchUpInside)
         
         stackView.addArrangedSubview(imageView)
         stackView.addArrangedSubview(label)
@@ -55,17 +57,16 @@ class GroupSettingViewController: UIViewController {
         
         let image = UIImage(named: "setting")?.resize(to: CGSize(width: 23, height: 23))
         button.setImage(image, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
-    
+  
         setupUI()
     }
-
+    
     private func setupUI() {
         // 네비게이션 바 설정
         let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
@@ -75,72 +76,78 @@ class GroupSettingViewController: UIViewController {
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton
         navigationController?.navigationBar.tintColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
-
+        
         let font = UIFont.systemFont(ofSize: 16, weight: .bold)
         let attributes = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: UIColor.black]
         let title = "그룹 설정"
         self.navigationController?.navigationBar.titleTextAttributes = attributes
         self.navigationItem.title = title
         
-//        let stackView1 = UIStackView(arrangedSubviews: [changePasswordButton, notificationButton, changeThemeButton])
+
+        //        let stackView1 = UIStackView(arrangedSubviews: [changePasswordButton, notificationButton, changeThemeButton])
         let mainStackView = UIStackView()
         mainStackView.axis = .vertical
         
-        let firstStackView = createStackView(image: UIImage(named: "redCircle"), text: "Label 1")
-        let secondStackView = createStackView(image: UIImage(named: "yellowCircle"), text: "Label 2")
-        let thirdStackView = createStackView(image: UIImage(named: "greenCircle"), text: "Label 3")
-        let thirdStackView2 = createStackView(image: UIImage(named: "greenCircle"), text: "Label 3")
-        let thirdStackView3 = createStackView(image: UIImage(named: "greenCircle"), text: "Label 3")
-        let thirdStackView4 = createStackView(image: UIImage(named: "greenCircle"), text: "Label 3")
-        let thirdStackView5 = createStackView(image: UIImage(named: "greenCircle"), text: "Label 3")
-        let thirdStackView6 = createStackView(image: UIImage(named: "greenCircle"), text: "Label 3")
-        let thirdStackView7 = createStackView(image: UIImage(named: "greenCircle"), text: "Label 3")
-        let thirdStackView8 = createStackView(image: UIImage(named: "greenCircle"), text: "Label 3")
-        
-        
+        let firstStackView = createStackView(image: "redCircle", text: "Group 1")
+        let secondStackView = createStackView(image: "yellowCircle", text: "Group 2")
+        let thirdStackView = createStackView(image: "greenCircle", text: "Group 3")
+        let fourthStackView = createStackView(image: "blueCircle", text: "Group 4")
+        let fifthStackView = createStackView(image: "pinkCircle", text: "Group 5")
+        let sixthStackView = createStackView(image: "purpleCircle", text: "Group 6")
+
         for _ in 1...6 { underlineViews.append(createUnderlineView()) }
         underlineViews.forEach { view.addSubview($0) }
-        
+
         mainStackView.addArrangedSubview(firstStackView)
         mainStackView.addArrangedSubview(underlineViews[0])
         mainStackView.addArrangedSubview(secondStackView)
         mainStackView.addArrangedSubview(underlineViews[1])
         mainStackView.addArrangedSubview(thirdStackView)
         mainStackView.addArrangedSubview(underlineViews[2])
-        mainStackView.addArrangedSubview(thirdStackView2)
-        mainStackView.addArrangedSubview(thirdStackView3)
-        mainStackView.addArrangedSubview(thirdStackView4)
-        mainStackView.addArrangedSubview(thirdStackView5)
-        mainStackView.addArrangedSubview(thirdStackView6)
-        mainStackView.addArrangedSubview(thirdStackView7)
-        mainStackView.addArrangedSubview(thirdStackView8)
-        
+        mainStackView.addArrangedSubview(fourthStackView)
+        mainStackView.addArrangedSubview(underlineViews[3])
+        mainStackView.addArrangedSubview(fifthStackView)
+        mainStackView.addArrangedSubview(underlineViews[4])
+        mainStackView.addArrangedSubview(sixthStackView)
+        mainStackView.addArrangedSubview(underlineViews[5])
 
         view.addSubview(mainStackView)
-        mainStackView.backgroundColor = .purple
         mainStackView.snp.makeConstraints { make in
             make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(0)
             make.leading.equalToSuperview().offset(28)
             make.trailing.equalToSuperview().offset(-28)
         }
-        
+
         underlineViews.forEach { underline in
             underline.snp.makeConstraints { make in
-//                make.leading.equalToSuperview().offset(17)
+                //                make.leading.equalToSuperview().offset(17)
                 make.height.equalTo(1.0)
             }
         }
     }
     
     @objc func backButtonTapped() {
-//        navigationController?.popViewController(animated: true)
-        let viewControllerToPresent = MyPageViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-        present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func groupTapped(_ sender: UIButton) {
+        if let string = sender.titleLabel?.text {
+            let components = string.components(separatedBy: ",")
+            let color = components[0]
+            let label = components[1]
+    
+            let editGroupSettingVC = EditGroupSettingViewController()
+            editGroupSettingVC.color = color
+            editGroupSettingVC.label = label
+            navigationController?.pushViewController(editGroupSettingVC, animated: true)
+            navigationController?.modalPresentationStyle = .fullScreen
+        } else {
+            print("문자열 에러")
+        }
     }
     
     private var underlineViews: [UIView] = []
-
+    
     private func createUnderlineView() -> UIView {
         let view = UIView()
         view.backgroundColor = UIColor(red: 0.851, green: 0.851, blue: 0.851, alpha: 1)

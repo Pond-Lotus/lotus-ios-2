@@ -9,14 +9,18 @@ import UIKit
 
 class FindPasswordViewController: UIViewController  {
 
-    private let titleLabel: UILabel = {
+    private let titleLabel: UIStackView = {
+        let imageView = UIImageView(image: UIImage(named: "sms")?.resize(to: CGSize(width: 18, height: 18)))
+        
         let label = UILabel()
         label.text = "안내드려요"
-        label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+        
+        let stackView = UIStackView(arrangedSubviews: [imageView, label])
+        stackView.alignment = .center
+        stackView.spacing = 5
+
+        return stackView
     }()
     
     private let messageLabel: UILabel = {
@@ -95,7 +99,7 @@ class FindPasswordViewController: UIViewController  {
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         button.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
-        button.layer.cornerRadius = 18
+        button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -118,8 +122,15 @@ class FindPasswordViewController: UIViewController  {
         let title = "비밀번호 찾기"
         self.navigationController?.navigationBar.titleTextAttributes = attributes
         self.navigationItem.title = title
+        
+        findPasswordButton.addTarget(self, action: #selector(findButtonTapped), for: .touchUpInside)
     
         setupUI()
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            self.view.endEditing(true)
     }
 
     private func setupUI() {
@@ -132,45 +143,43 @@ class FindPasswordViewController: UIViewController  {
 
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.15)
-            make.leading.equalToSuperview().offset(33)
+            make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
         
         messageLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(13)
-            make.leading.equalToSuperview().offset(33)
-//            make.trailing.equalToSuperview().offset(33)
+            make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
+            make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.06)
         }
         
         emailLabel.snp.makeConstraints { make in
             make.top.equalTo(messageLabel.snp.bottom).offset(54)
-            make.leading.equalToSuperview().offset(33)
+            make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
         
         emailTextField.snp.makeConstraints { make in
             make.top.equalTo(emailLabel.snp.bottom).offset(7)
-            make.leading.equalToSuperview().offset(33)
+            make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
             make.centerX.equalToSuperview()
             make.height.equalTo(45)
         }
         
         errorLabel.snp.makeConstraints { make in
             make.top.equalTo(emailTextField.snp.bottom).offset(7)
-            make.leading.equalToSuperview().offset(33)
+            make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
         
         findPasswordButton.snp.makeConstraints { make in
             make.top.equalTo(emailTextField.snp.bottom).offset(52)
-            make.leading.equalToSuperview().offset(33)
+            make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
             make.centerX.equalToSuperview()
             make.height.equalTo(50)
         }
     }
     
     @objc func backButtonTapped() {
-//        navigationController?.popViewController(animated: true)
-        let viewControllerToPresent = LogInViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-        present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+//        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func findButtonTapped() {
@@ -187,6 +196,7 @@ class FindPasswordViewController: UIViewController  {
 }
 
 extension FindPasswordViewController {
+    
     func findPassword(email: String) {
         UserService.shared.findPassword(email: email) {
             response in
@@ -197,17 +207,32 @@ extension FindPasswordViewController {
                     if resultCode == 200 {
                         print("이백")
                         self.errorLabel.isHidden = true
-//                        let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-//                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-//                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-//                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+                        
+                        let dimmingView = UIView(frame: UIScreen.main.bounds)
+                        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+                        dimmingView.alpha = 0
+                        self.view.addSubview(dimmingView)
+                                                
+                        let popupView = CustomPopupView(title: "메일 발송 완료", message: "재설정한 비밀번호로\n로그인 해주세요.", buttonText: "로그인", dimmingView: dimmingView)
+                        popupView.alpha = 0
+                        self.view.addSubview(popupView)
+                        
+                        UIView.animate(withDuration: 0.3) {
+                            popupView.alpha = 1
+                            dimmingView.alpha = 1
+                        }
+
+                        popupView.snp.makeConstraints { make in
+                            make.center.equalToSuperview()
+                            make.width.equalTo(264)
+                            make.height.equalTo(167)
+                        }
                     } else if resultCode == 500 {
                         print("오백")
                         self.errorLabel.isHidden = false
                     }
-                    
                 }
-            case .fail:
+            case .failure(let error):
                 print("FUCKING fail")
             }
         }

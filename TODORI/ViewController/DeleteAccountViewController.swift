@@ -25,16 +25,44 @@ class DeleteAccountViewController: UIViewController {
     }()
     
     private let profileImageView: UIImageView = {
-//        let imageView = UIImageView(image: UIImage(named: "edit-profile")?.circleMasked)
-        let imageView = UIImageView(image: UIImage(named: "default-profile")?.resize(to: CGSize(width: 41, height: 41)))
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        let imageView = UIImageView()
+        
+        if UserSession.shared.profileImage == nil {
+            imageView.image = UIImage(named: "default-profile")?.resize(to: CGSize(width: 89, height: 89))
+        } else {
+            if let base64String = UserSession.shared.profileImage {
+                if let imageData = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
+                    if let originalImage = UIImage(data: imageData) {
+                        // 이미지를 정사각형으로 잘라내기 위한 크기 계산
+                        let squareSize = min(originalImage.size.width, originalImage.size.height)
+                        let squareRect = CGRect(x: 0, y: 0, width: squareSize, height: squareSize)
+                        
+                        // 정사각형으로 잘라낸 이미지 생성
+                        if let croppedImage = originalImage.cgImage?.cropping(to: squareRect) {
+                            let croppedUIImage = UIImage(cgImage: croppedImage)
+                            
+                            // 원형 이미지 생성
+                            if let circularImage = croppedUIImage.circleMasked {
+                                imageView.contentMode = .scaleAspectFit
+                                imageView.layer.cornerRadius = imageView.frame.width / 2.0
+                                imageView.clipsToBounds = true
+                                imageView.layer.masksToBounds = true
+                                imageView.image = circularImage
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return imageView
     }()
     
     private let nickNameLabel: UILabel = {
         let label = UILabel()
-        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
+        if let nickname = UserSession.shared.nickname {
             label.text = nickname
+        } else {
+            label.text = "(NONE)"
         }
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -43,8 +71,10 @@ class DeleteAccountViewController: UIViewController {
     
     private let emailLabel: UILabel = {
         let label = UILabel()
-        if let email = UserDefaults.standard.string(forKey: "email") {
+        if let email = UserSession.shared.email {
             label.text = email
+        } else {
+            label.text = "(NONE)"
         }
         label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
@@ -97,7 +127,6 @@ class DeleteAccountViewController: UIViewController {
         button.setTitleColor(.black, for: .selected)
         button.setImage(UIImage(named: "checkbox-on")?.resize(to: CGSize(width: 16, height: 16)), for: .selected)
         
-        
         return button
     }()
     
@@ -124,9 +153,9 @@ class DeleteAccountViewController: UIViewController {
     
     private func setupUI() {
         // 네비게이션 바 설정
-        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
-        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-        navigationController?.navigationBar.addSubview(separatorView)
+//        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
+//        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+//        navigationController?.navigationBar.addSubview(separatorView)
         
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton
@@ -165,13 +194,14 @@ class DeleteAccountViewController: UIViewController {
         profileImageView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.leading.equalTo(accountInfo.snp.leading).offset(15)
-
+            make.width.equalTo(41)
+            make.height.equalTo(41)
         }
         
         accountInfo.addSubview(nickNameLabel)
         nickNameLabel.snp.makeConstraints { make in
             make.top.equalTo(accountInfo.snp.top).offset(15)
-            make.leading.equalTo(accountInfo.snp.trailing).offset(8)
+            make.leading.equalTo(profileImageView.snp.trailing).offset(8)
         }
 
         accountInfo.addSubview(emailLabel)
@@ -204,10 +234,7 @@ class DeleteAccountViewController: UIViewController {
     }
     
     @objc func backButtonTapped() {
-        //        navigationController?.popViewController(animated: true)
-        let viewControllerToPresent = EditProfileViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-        present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func checkLabelTapped(_ sender: UIButton) {
@@ -229,29 +256,27 @@ class DeleteAccountViewController: UIViewController {
 }
 
 extension DeleteAccountViewController {
-//    func findPassword(email: String) {
-//        UserService.shared.findPassword(email: email) {
-//            response in
-//            switch response {
-//            case .success(let data):
-//                if let json = data as? [String: Any],
-//                   let resultCode = json["resultCode"] as? Int {
-//                    if resultCode == 200 {
-//                        print("이백")
-//                        self.errorLabel.isHidden = true
-//                        //                        let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-//                        //                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-//                        //                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-//                        //                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
-//                    } else if resultCode == 500 {
-//                        print("오백")
-//                        self.errorLabel.isHidden = false
-//                    }
-//
-//                }
-//            case .fail:
-//                print("FUCKING fail")
-//            }
-//        }
-//    }
+    
+    func deleteAccount() {
+        UserService.shared.deleteAccount() {
+            response in
+            switch response {
+            case .success(let data):
+                if let json = data as? [String: Any],
+                   let resultCode = json["resultCode"] as? Int {
+                    if resultCode == 200 {
+                        print("이백")
+                        //                        let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
+                        //                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
+                        //                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
+                        //                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+                    } else if resultCode == 500 {
+                        print("오백")
+                    }
+                }
+            case .failure(let error):
+                print("FUCKING fail")
+            }
+        }
+    }
 }

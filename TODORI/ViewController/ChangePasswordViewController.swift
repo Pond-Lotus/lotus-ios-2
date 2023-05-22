@@ -133,7 +133,7 @@ class ChangePasswordViewController: UIViewController {
         button.setTitle("변경 완료", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        button.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
+        button.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
         button.layer.cornerRadius = 8
         return button
     }()
@@ -144,12 +144,17 @@ class ChangePasswordViewController: UIViewController {
         
         setupUI()
     }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            self.view.endEditing(true)
+    }
     
     private func setupUI() {
         // 네비게이션 바 설정
-        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
-        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-        navigationController?.navigationBar.addSubview(separatorView)
+//        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
+//        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+//        navigationController?.navigationBar.addSubview(separatorView)
         
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton
@@ -185,14 +190,10 @@ class ChangePasswordViewController: UIViewController {
     }
     
     @objc func backButtonTapped() {
-        //        navigationController?.popViewController(animated: true)
-        let viewControllerToPresent = EditProfileViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-        present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func findButtonTapped() {
-        print("TAPPED")
         if let password = presentPasswordTextField.text, let newPassword = newPasswordTextField.text {
             if isValidPassword(newPassword) {
                 newPasswordErrorLabel.isHidden = true
@@ -203,10 +204,8 @@ class ChangePasswordViewController: UIViewController {
                     checkNewPasswordErrorLabel.isHidden = false
                 }
             } else {
-                
                 newPasswordErrorLabel.isHidden = false
             }
-            
         } else {
             print("else")
         }
@@ -237,7 +236,7 @@ extension ChangePasswordViewController {
                         self.presentPasswordErrorLabel.isHidden = false
                     }
                 }
-            case .fail:
+            case .failure:
                 print("FUCKING fail")
             }
         }

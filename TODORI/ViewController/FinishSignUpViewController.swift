@@ -52,6 +52,8 @@ class FinishSignUpViewController: UIViewController {
     }
     
     private func setUI() {
+        navigationItem.setHidesBackButton(true, animated: false)
+
         view.addSubview(finishLabel)
         view.addSubview(welcomeLabel)
         view.addSubview(loginButton)
@@ -75,10 +77,8 @@ class FinishSignUpViewController: UIViewController {
     }
     
     @objc func loginTapped(_ sender: UIButton) {
-        let viewControllerToPresent = LogInViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-//        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-
-        present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+        if let navigationController = self.navigationController {
+            navigationController.popToRootViewController(animated: true)
+        }
     }
 }

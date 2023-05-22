@@ -82,50 +82,37 @@ class EnterEmailViewController: UIViewController {
         return label
     }()
     
-    private let backButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("이전", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        button.backgroundColor = UIColor(red: 0.851, green: 0.851, blue: 0.851, alpha: 1)
-        button.layer.cornerRadius = 18
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private let nextButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("다음", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
-        button.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
-        button.alpha = 0.5
+        let button = UIButton(type: .custom)
+        let image = UIImage(named: "next-button")?.resize(to: CGSize(width: 43, height: 43))
+        button.setImage(image, for: .normal)
         button.isEnabled = false
-        button.layer.cornerRadius = 18
-        button.translatesAutoresizingMaskIntoConstraints = false
+        button.alpha = 0.5
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-
+        
         setupUI()
         
-        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
         emailTextField.delegate = self
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            self.view.endEditing(true)
+    }
 
     private func setupUI() {
-        view.addSubview(numberLabel)
+        
         view.addSubview(titleLabel)
         view.addSubview(subTitleLabel)
         view.addSubview(emailTextField)
         view.addSubview(errorLabel)
-        view.addSubview(backButton)
         view.addSubview(nextButton)
         
         numberLabel.snp.makeConstraints { make in
@@ -153,34 +140,19 @@ class EnterEmailViewController: UIViewController {
             make.top.equalTo(emailTextField.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(25)
         }
-        
-        backButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-24)
-            make.leading.equalToSuperview().offset(21)
-            make.width.equalTo(77)
-            make.height.equalTo(38)
-        }
 
         nextButton.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(-24)
             make.trailing.equalToSuperview().offset(-21)
-            make.width.equalTo(77)
-            make.height.equalTo(38)
         }
     }
     
-    // ?
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-            super.touchesBegan(touches, with: event)
-            self.view.endEditing(true)
-        }
-    
     @objc func backButtonTapped() {
-        dismiss(animated: true, completion: nil) // 이전 뷰 컨트롤러로 이동
+        navigationController?.popViewController(animated: true)
+//        dismiss(animated: true, completion: nil) // 이전 뷰 컨트롤러로 이동
     }
     
     @objc func nextButtonTapped() {
-        print("TAPPED")
         if let email = emailTextField.text {
             emailCheck(email: email)
         }
@@ -207,22 +179,21 @@ extension EnterEmailViewController {
                         self.errorLabel.isHidden = true
                         
                         if let email = self.emailTextField.text {
-                            UserDefaults.standard.set(email, forKey: "email")
+                            UserSession.shared.signUpEmail = email
+                            print("UserSession(signUpEmail): 이메일 저장 완료")
                         } else {
-                            print("이메일 저장 안 됨")
+                            print("UserSession(signUpEmail): 이메일 저장 오류")
                         }
                         
-                        let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+                        self.navigationController?.modalPresentationStyle = .fullScreen
+                        self.navigationController?.pushViewController(EnterCodeViewController(), animated: true)
+                        
                     } else if resultCode == 500 {
                         print("오백")
                         self.errorLabel.isHidden = false
                     }
-                    
                 }
-            case .fail:
+            case .failure:
                 print("FUCKING fail")
             }
         }
@@ -235,10 +206,7 @@ extension EnterEmailViewController: UITextFieldDelegate {
         let currentText = textField.text ?? ""
         let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
         
-        //        print("currentText : \(currentText)")
-        //        print("newText : \(newText)")
-        
-        if isValidEmail(currentText) {
+        if isValidEmail(newText) {
             let imageView = UIImageView()
             imageView.image = UIImage(named: "email-check")?.resize(to: CGSize(width: 28, height: 28))
             imageView.contentMode = .scaleAspectFit

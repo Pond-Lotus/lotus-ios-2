@@ -7,5 +7,5 @@
 
 enum NetworkResult<T> {
     case success(T)
-    case fail
+    case failure(Error)
 }

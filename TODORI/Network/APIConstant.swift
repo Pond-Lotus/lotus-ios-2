@@ -19,7 +19,6 @@ enum APIConstant {
         static let findPassword = baseURL + "/account/findpw/"
         static let editProfile = baseURL + "/account/edit1/"
         static let changePassword = baseURL + "/account/edit2/"
-        
         static let withdrawal = baseURL + "/account/withdrawal/"
     }
     

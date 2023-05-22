@@ -159,33 +159,14 @@ class EnterCodeViewController: UIViewController {
         label.isHidden = true
         return label
     }()
-        
-    private let backButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("이전", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        button.backgroundColor = UIColor(red: 0.851, green: 0.851, blue: 0.851, alpha: 1)
-        button.layer.cornerRadius = 18
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
     
     private let nextButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("다음", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
-        button.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
-        button.layer.cornerRadius = 18
-        button.translatesAutoresizingMaskIntoConstraints = false
+        let button = UIButton(type: .custom)
+        let image = UIImage(named: "next-button")?.resize(to: CGSize(width: 43, height: 43))
+        button.setImage(image, for: .normal)
         return button
     }()
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-            super.touchesBegan(touches, with: event)
-            self.view.endEditing(true)
-    }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -194,6 +175,10 @@ class EnterCodeViewController: UIViewController {
         view.addGestureRecognizer(tap)
         
         codeTextField.delegate = self
+        
+        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
+        navigationItem.leftBarButtonItem = backButton
+        navigationController?.navigationBar.tintColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
         
         setupUI()
         
@@ -205,8 +190,13 @@ class EnterCodeViewController: UIViewController {
             label.addGestureRecognizer(tapGesture)
         }
         
-        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
+//        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            self.view.endEditing(true)
     }
     
     private func setupUI() {
@@ -222,7 +212,6 @@ class EnterCodeViewController: UIViewController {
         stackView.addArrangedSubview(fourthLabel)
         stackView.addArrangedSubview(fifthLabel)
         stackView.addArrangedSubview(sixthLabel)
-        view.addSubview(backButton)
         view.addSubview(nextButton)
         
         numberLabel.snp.makeConstraints { make in
@@ -257,18 +246,9 @@ class EnterCodeViewController: UIViewController {
             make.leading.equalToSuperview().offset(25)
         }
         
-        backButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-24)
-            make.leading.equalToSuperview().offset(21)
-            make.width.equalTo(77)
-            make.height.equalTo(38)
-        }
-
         nextButton.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(-24)
             make.trailing.equalToSuperview().offset(-21)
-            make.width.equalTo(77)
-            make.height.equalTo(38)
         }
     }
     
@@ -277,20 +257,17 @@ class EnterCodeViewController: UIViewController {
         }
     
     @objc func backButtonTapped() {
-        dismiss(animated: true, completion: nil) // 이전 뷰 컨트롤러로 이동
+        navigationController?.popViewController(animated: true)
+//        dismiss(animated: true, completion: nil) // 이전 뷰 컨트롤러로 이동
     }
     
     @objc func nextButtonTapped() {
-        if let code = codeTextField.text {
-            if let email = UserDefaults.standard.string(forKey: "email") {
-                print("email : \(email)")
-                print("code : \(code)")
-                codeCheck(email: email, code: code)
-            } else {
-                print("이메일 값이 없습니다.")
-            }
+        if let code = codeTextField.text, let email = UserSession.shared.signUpEmail {
+            print("email: \(email)")
+            print("code: \(code)")
+            codeCheck(email: email, code: code)
         } else {
-            print("코드 값이 없습니다.")
+            print("이메일 또는 코드 값이 없습니다.")
         }
     }
 }
@@ -304,22 +281,20 @@ extension EnterCodeViewController {
             case .success(let data):
                 if let json = data as? [String: Any],
                    let resultCode = json["resultCode"] as? Int {
-
                     if resultCode == 200 {
                         print("이백")
                         self.errorLabel.isHidden = true
-
-                        let viewControllerToPresent = EnterProfileViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+                        
+                        self.navigationController?.modalPresentationStyle = .fullScreen
+                        self.navigationController?.pushViewController(EnterProfileViewController(), animated: true)
+                        
                     } else if resultCode == 500 {
                         print("오백")
                         self.errorLabel.isHidden = false
                     }
                 }
-            case .fail:
-                print("FUCKING fail")
+            case .failure(let error):
+                print("FUCKING fail : \(error)")
             }
         }
     }
