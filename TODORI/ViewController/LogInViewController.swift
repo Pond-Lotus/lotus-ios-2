@@ -11,6 +11,7 @@ import UIKit
 class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
 
     private var overlayViewController: MyPageViewController?
+    var dimmingView: UIView?
     
     private let logoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -69,7 +70,7 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
                     
         let passwordVisionButton = UIButton(type: .custom)
         passwordVisionButton.setImage(UIImage(named: "password-invision")?.resize(to: CGSize(width: 24, height: 24)), for: .normal)
-        passwordVisionButton.addTarget(self, action: #selector(passwordVisionButtonTapped), for: .touchUpInside)
+        passwordVisionButton.addTarget(LogInViewController.self, action: #selector(passwordVisionButtonTapped), for: .touchUpInside)
         passwordVisionButton.setImage(UIImage(named: "password-vision")?.resize(to: CGSize(width: 24, height: 24)), for: .selected)
         passwordVisionButton.frame = CGRect(x: 0, y: (30 - 24) / 2, width: 24, height: 24) // 버튼 프레임 설정
         
@@ -97,18 +98,17 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         // 2
         button.setImage(UIImage(named: "tick-circle2")?.resize(to: CGSize(width: 17, height: 17)), for: .selected)
         
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let loginButton: UIButton = {
         let button = UIButton()
+        button.applyColorAnimation()
         button.setTitle("로그인", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         button.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
         button.layer.cornerRadius = 18
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -117,7 +117,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         button.setTitle("비밀번호 찾기", for: .normal)
         button.setTitleColor(UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -137,12 +136,12 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
     }()
     
     override func viewDidLoad() {
+        print("LogInViewController의 viewDidLoad() 입니다.")
         super.viewDidLoad()
         view.backgroundColor = .white
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
-        tapGesture.delegate = self
-        view.addGestureRecognizer(tapGesture)
+        self.view.addGestureRecognizer(tapGesture)
         
         setupUI()
         
@@ -156,31 +155,67 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         testButton.addTarget(self, action: #selector(testButtonTapped), for: .touchUpInside)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
     @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-        overlayViewController?.animateDismiss()
+        print("LogInViewController의 handleTapGesture")
+        UIView.animate(withDuration: 0.3, animations: {
+            self.overlayViewController?.view.frame = CGRect(x: self.view.frame.size.width, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
+            self.dimmingView?.alpha = 0
+        }) { (_) in
+            self.overlayViewController?.removeFromParent()
+            self.overlayViewController?.view.removeFromSuperview()
+            self.dimmingView?.removeFromSuperview()
+        }
     }
     
     @objc func testButtonTapped() {
-        let dimmingView = UIView(frame: LogInViewController().view.bounds)
-        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        dimmingView.alpha = 0
-        view.addSubview(dimmingView)
+        dimmingView = UIView(frame: UIScreen.main.bounds)
+        dimmingView?.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        dimmingView?.alpha = 0
+        if let dimmingView = dimmingView {
+            view.addSubview(dimmingView)
+        }
         
-        let overlayViewController = MyPageViewController()
-        overlayViewController.view.frame = CGRect(x: view.frame.size.width, y: 0, width: view.frame.size.width, height: view.frame.size.height)
-        addChild(overlayViewController)
-        view.addSubview(overlayViewController.view)
-        overlayViewController.dimmingView = dimmingView
+        overlayViewController = MyPageViewController()
+
+        overlayViewController?.view.frame = CGRect(x: view.frame.size.width, y: 0, width: view.frame.size.width, height: view.frame.size.height)
+        if let overlayViewController = overlayViewController {
+            addChild(overlayViewController)
+        }
+        if let x = overlayViewController?.view {
+            view.addSubview(x)
+        }
+        overlayViewController?.dimmingView = dimmingView
         
         UIView.animate(withDuration: 0.3) {
-            overlayViewController.view.frame = CGRect(x: 70, y: 0, width: self.view.frame.size.width - 70, height: self.view.frame.size.height)
-            dimmingView.alpha = 1
+            self.overlayViewController?.view.frame = CGRect(x: 70, y: 0, width: self.view.frame.size.width - 70, height: self.view.frame.size.height)
+            self.dimmingView?.alpha = 1
         }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-            super.touchesBegan(touches, with: event)
-            self.view.endEditing(true)
+        super.touchesBegan(touches, with: event)
+        self.view.endEditing(true)
+        
+        // MyPageViewController를 터치한 경우에는 아무 작업도 수행하지 않습니다.
+        guard let touch = touches.first, let view = touch.view else {
+            return
+        }
+        
+        if view == overlayViewController?.view {
+            return
+        }
     }
     
     private func setupUI() {
@@ -199,7 +234,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         view.addSubview(signupButton)
         
         logoImageView.snp.makeConstraints { make in
-//            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).multipliedBy(2)
             make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.17)
             make.centerX.equalToSuperview()
             make.width.equalTo(117)
@@ -250,12 +284,16 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    @objc func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+    
     @objc private func loginTapped() {
         if let email = emailTextField.text, let password = passwordTextField.text {
             if autoLoginButton.isSelected {
                 print("isSelected")
                 UserDefaults.standard.set(true, forKey: "autoLogin")
-                saveLoginInfo(email: email, password: password)
+//                saveLoginInfo(email: email, password: password)
                 login(email: email, password: password)
             } else {
                 print("isNotSelected")
@@ -266,11 +304,7 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc private func signupTapped() {
-        let navigationController = UINavigationController(rootViewController: LogInViewController())
-        navigationController.modalPresentationStyle = .fullScreen
-        navigationController.pushViewController(EnterEmailViewController(), animated: true)
-        
-        present(navigationController, animated: true, completion: nil)
+        navigationController?.pushViewController(EnterEmailViewController(), animated: true)
     }
 
     func saveLoginInfo(email: String, password: String) {
@@ -283,11 +317,7 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func findPasswordTapped(_ sender: UIButton) {
-        let navigationController = UINavigationController(rootViewController: LogInViewController())
-        navigationController.modalPresentationStyle = .fullScreen
-        navigationController.pushViewController(FindPasswordViewController(), animated: true)
-        
-        present(navigationController, animated: true, completion: nil)
+        navigationController?.pushViewController(FindPasswordViewController(), animated: true)
     }
     
     @objc func closeCircleButtonTapped(_ sender: UIButton) {
@@ -377,9 +407,16 @@ extension LogInViewController {
                             print("<null>: 기본 이미지 프로필")
                         }
                         
-                        let viewControllerToPresent = MyPageViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+//                        let viewControllerToPresent = MyPageViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
+//                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
+//                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+                        
+//                        let navController = UINavigationController(rootViewController: MyPageViewController())
+//                        navigationController?.pushViewController(navController, animated: true)
+//                        self.present(navController, animated: true, completion: nil)
+                        let myPageViewController = MyPageViewController()
+                        self.navigationController?.pushViewController(myPageViewController, animated: true)
+
                         
                     } else if resultCode == 500 {
                         print("오백")
@@ -404,7 +441,6 @@ extension LogInViewController {
                             make.height.equalTo(167)
                         }
                     }
-                    
                 }
             case .failure:
                 print("FUCKING fail")

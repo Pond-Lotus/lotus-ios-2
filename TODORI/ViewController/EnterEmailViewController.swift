@@ -102,13 +102,22 @@ class EnterEmailViewController: UIViewController {
         emailTextField.delegate = self
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-            super.touchesBegan(touches, with: event)
-            self.view.endEditing(true)
+        super.touchesBegan(touches, with: event)
+        self.view.endEditing(true)
     }
 
     private func setupUI() {
+        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
+        navigationItem.leftBarButtonItem = backButton
+        navigationController?.navigationBar.tintColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
         
+
+        view.addSubview(numberLabel)
         view.addSubview(titleLabel)
         view.addSubview(subTitleLabel)
         view.addSubview(emailTextField)
@@ -119,23 +128,23 @@ class EnterEmailViewController: UIViewController {
             make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.15)
             make.leading.equalToSuperview().offset(25)
         }
-        
+
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(numberLabel.snp.bottom).offset(16)
             make.leading.equalToSuperview().offset(25)
         }
-        
+
         subTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(40)
             make.leading.equalToSuperview().offset(25)
         }
-        
+
         emailTextField.snp.makeConstraints { make in
             make.top.equalTo(subTitleLabel.snp.bottom).offset(10)
             make.leading.equalToSuperview().offset(25)
             make.trailing.equalToSuperview().offset(-25)
         }
-        
+
         errorLabel.snp.makeConstraints { make in
             make.top.equalTo(emailTextField.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(25)
@@ -149,7 +158,6 @@ class EnterEmailViewController: UIViewController {
     
     @objc func backButtonTapped() {
         navigationController?.popViewController(animated: true)
-//        dismiss(animated: true, completion: nil) // 이전 뷰 컨트롤러로 이동
     }
     
     @objc func nextButtonTapped() {

@@ -10,6 +10,7 @@ import PhotosUI
 
 class EditProfileViewController: UIViewController {
     
+    private var separatorView: UIView?
     var tmpImage: UIImage?
     
     private var profileImageView: UIImageView = {
@@ -151,6 +152,13 @@ class EditProfileViewController: UIViewController {
         
         setupUI()
     }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        separatorView?.removeFromSuperview()
+        separatorView = nil
+    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
             super.touchesBegan(touches, with: event)
@@ -159,9 +167,9 @@ class EditProfileViewController: UIViewController {
     
     private func setupUI() {
         // 네비게이션 바 설정
-        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
-        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-        navigationController?.navigationBar.addSubview(separatorView)
+        separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
+        separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+        navigationController?.navigationBar.addSubview(separatorView!)
         
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton
@@ -249,8 +257,7 @@ class EditProfileViewController: UIViewController {
     }
     
     @objc func backButtonTapped() {
-//        navigationController?.popViewController(animated: true)
-        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func completeButtonTapped() {

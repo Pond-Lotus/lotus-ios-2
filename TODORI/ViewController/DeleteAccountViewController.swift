@@ -274,7 +274,7 @@ extension DeleteAccountViewController {
                         print("오백")
                     }
                 }
-            case .failure(let error):
+            case .failure(_):
                 print("FUCKING fail")
             }
         }

@@ -9,6 +9,8 @@ import UIKit
 
 class GroupSettingViewController: UIViewController {
     
+    private var separatorView: UIView?
+    
     private func createStackView(image: String, text: String) -> UIStackView {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -67,12 +69,28 @@ class GroupSettingViewController: UIViewController {
         setupUI()
     }
     
-    private func setupUI() {
-        // 네비게이션 바 설정
-        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
-        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-        navigationController?.navigationBar.addSubview(separatorView)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
+        separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
+        separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+        navigationController?.navigationBar.addSubview(separatorView!)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        separatorView?.removeFromSuperview()
+        separatorView = nil
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            super.touchesBegan(touches, with: event)
+            self.view.endEditing(true)
+    }
+    
+    private func setupUI() {
+
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton
         navigationController?.navigationBar.tintColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
@@ -113,7 +131,8 @@ class GroupSettingViewController: UIViewController {
 
         view.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { make in
-            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(0)
+//            make.top.equalTo(self.navigationController!.navigationBar.snp.bottom).offset(0)
+            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(7)
             make.leading.equalToSuperview().offset(28)
             make.trailing.equalToSuperview().offset(-28)
         }
@@ -127,7 +146,7 @@ class GroupSettingViewController: UIViewController {
     }
     
     @objc func backButtonTapped() {
-        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func groupTapped(_ sender: UIButton) {
@@ -140,7 +159,7 @@ class GroupSettingViewController: UIViewController {
             editGroupSettingVC.color = color
             editGroupSettingVC.label = label
             navigationController?.pushViewController(editGroupSettingVC, animated: true)
-            navigationController?.modalPresentationStyle = .fullScreen
+            
         } else {
             print("문자열 에러")
         }

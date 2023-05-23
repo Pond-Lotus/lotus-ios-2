@@ -13,7 +13,7 @@ class TokenManager {
     private let keychain: Keychain
     
     private init() {
-        keychain = Keychain(service: "lotus") // 고유한 식별자(service)를 지정합니다.
+        keychain = Keychain(service: "lotus")
     }
     
     func saveToken(_ token: String) {

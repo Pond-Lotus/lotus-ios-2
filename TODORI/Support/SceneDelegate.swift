@@ -18,20 +18,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window?.overrideUserInterfaceStyle = .light // light-mode
         
-        guard let _ = (scene as? UIWindowScene) else { return }
-
+//        guard let _ = (scene as? UIWindowScene) else { return }
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = LogInViewController()
+        
+        let navigationController = UINavigationController(rootViewController: LogInViewController())
+        
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
+        
         print("여기는 SceneDelegate 입니다.")
-  
-//        guard let windowScene = (scene as? UIWindowScene) else { return }
-//        window = UIWindow(windowScene: windowScene)
-//
-//        let navigationController = UINavigationController(rootViewController: FindPasswordViewController())
-//        window?.rootViewController = navigationController
-//        window?.makeKeyAndVisible()
 
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
 //            let mainViewController = LogInViewController()

@@ -9,6 +9,8 @@ import UIKit
 
 class EditGroupSettingViewController: UIViewController {
     
+    private var separatorView: UIView?
+    
     var color: String?
     var label: String?
     var groupName: String?
@@ -78,16 +80,27 @@ class EditGroupSettingViewController: UIViewController {
         setupUI()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
+        separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+        navigationController?.navigationBar.addSubview(separatorView!)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        separatorView?.removeFromSuperview()
+        separatorView = nil
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
             super.touchesBegan(touches, with: event)
             self.view.endEditing(true)
     }
-    
+
     private func setupUI() {
-        // 네비게이션 바 설정
-//        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
-//        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-//        navigationController?.navigationBar.addSubview(separatorView)
         
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton

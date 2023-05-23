@@ -103,18 +103,6 @@ class MyPageViewController: UIViewController {
         return button
     }()
     
-    private let changeThemeButton: UIButton = {
-        let button = UIButton()
-        button.setTitle(" 테마 변경", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        
-        let image = UIImage(named: "setting")?.resize(to: CGSize(width: 18, height: 18))
-        button.setImage(image, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private let titleLabel2: UILabel = {
         let label = UILabel()
         label.text = "그룹 설정"
@@ -161,15 +149,16 @@ class MyPageViewController: UIViewController {
     }
     
     override func viewDidLoad() {
+        print("MyPageViewController의 viewDidLoad() 입니다.")
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
         view.addGestureRecognizer(panGesture)
-        
+    
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
-               view.addGestureRecognizer(tapGesture)
-        
+        view.addGestureRecognizer(tapGesture)
+            
         editProfileButton.addTarget(self, action: #selector(editProfileButtonTapped), for: .touchUpInside)
         settingGroupButton.addTarget(self, action: #selector(settingGroupButtonTapped), for: .touchUpInside)
         logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
@@ -177,17 +166,11 @@ class MyPageViewController: UIViewController {
         setupUI()
     }
     
-    @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-        animateDismiss()
-    }
-    
-    func animateDismiss() {
-        UIView.animate(withDuration: 0.3) {
-            self.view.frame = CGRect(x: UIScreen.main.bounds.width, y: 0, width: UIScreen.main.bounds.width, height: self.view.frame.height)
-        } completion: { _ in
-            self.view.removeFromSuperview()
-            self.removeFromParent()
-        }
+    @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
+        // MyPageViewController의 뷰를 터치한 경우에만 아래 코드가 실행됩니다.
+        // 터치 이벤트를 소비하여 상위 뷰 컨트롤러로 전달되지 않도록 합니다.
+        print("MyPageViewController의 handleTapGesture")
+        gesture.cancelsTouchesInView = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -224,10 +207,18 @@ class MyPageViewController: UIViewController {
         if let nickname = UserSession.shared.nickname {
             nickNameLabel.text = nickname
         }
+
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
     private func setupUI() {
-        let stackView1 = UIStackView(arrangedSubviews: [changePasswordButton, notificationButton, changeThemeButton])
+        let stackView1 = UIStackView(arrangedSubviews: [changePasswordButton, notificationButton])
         stackView1.axis = .vertical
         stackView1.spacing = 22
         stackView1.alignment = .leading
@@ -340,73 +331,81 @@ class MyPageViewController: UIViewController {
     }
     
     @objc func editProfileButtonTapped() {
-        let navController = UINavigationController(rootViewController: MyPageViewController())
-        navController.modalPresentationStyle = .fullScreen
-        navController.pushViewController(EditProfileViewController(), animated: true)
-        self.present(navController, animated: true, completion: nil)
+//        let navController = UINavigationController(rootViewController: MyPageViewController())
+//        navController.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(EditProfileViewController(), animated: true)
+//        self.present(navController, animated: true, completion: nil)
     }
     
     @objc func settingGroupButtonTapped() {
-        let navController = UINavigationController(rootViewController: MyPageViewController())
-        navController.modalPresentationStyle = .fullScreen
-        navController.pushViewController(GroupSettingViewController(), animated: true)
-        self.present(navController, animated: true, completion: nil)
+//        let navController = UINavigationController(rootViewController: MyPageViewController())
+//        navController.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(GroupSettingViewController(), animated: true)
+//        self.present(navController, animated: true, completion: nil)
     }
     
     @objc func logoutButtonTapped() {
-        let dimmingView = UIView(frame: UIScreen.main.bounds)
-        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        dimmingView.alpha = 0
-        self.view.addSubview(dimmingView)
-                                
-        let popupView = LogoutPopupView(title: "로그아웃", message: "로그아웃 하시겠습니까?", buttonText1: "취소", buttonText2: "로그아웃", dimmingView: dimmingView)
-        popupView.delegate = self // 중요
-        popupView.alpha = 0
-        self.view.addSubview(popupView)
-        
-        UIView.animate(withDuration: 0.3) {
-            popupView.alpha = 1
-            dimmingView.alpha = 1
-        }
-
-        popupView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.width.equalTo(264)
-            make.height.equalTo(167)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) {
+            
+            let dimmingView = UIView(frame: keyWindow.bounds)
+            dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+            dimmingView.alpha = 0
+            keyWindow.addSubview(dimmingView)
+            
+            let popupView = LogoutPopupView(title: "로그아웃", message: "로그아웃 하시겠습니까?", buttonText1: "취소", buttonText2: "로그아웃", dimmingView: dimmingView)
+            popupView.delegate = self // 중요
+            popupView.alpha = 0
+            keyWindow.addSubview(popupView)
+            popupView.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.width.equalTo(264)
+                make.height.equalTo(167)
+            }
+            
+            UIView.animate(withDuration: 0.2) {
+                popupView.alpha = 1
+                dimmingView.alpha = 1
+            }
         }
     }
     
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-            let translation = gesture.translation(in: view)
-            
-            switch gesture.state {
-            case .began:
-                initialPosition = view.center
-            case .changed:
-                view.center = CGPoint(x: initialPosition.x + translation.x, y: initialPosition.y)
-            case .ended, .cancelled:
-                let screenWidth = UIScreen.main.bounds.width
-                
-                if view.center.x > screenWidth / 2 {
-                    // 오른쪽으로 당겨졌으므로 다시 들어가도록 애니메이션 처리
-                    UIView.animate(withDuration: 0.2) {
-                        self.view.frame = CGRect(x: screenWidth, y: 0, width: screenWidth, height: self.view.frame.height)
-                    } completion: { _ in
-                        self.view.removeFromSuperview()
-                        self.removeFromParent()
-                        self.dimmingView?.isHidden = true
-
-                    }
-                } else {
-                    // 왼쪽으로 당겨지지 않았으므로 초기 위치로 되돌림
-                    UIView.animate(withDuration: 0.3) {
-                        self.view.center = self.initialPosition
-                    }
-                }
-            default:
-                break
+        let translation = gesture.translation(in: view)
+        
+        switch gesture.state {
+        case .began:
+            initialPosition = view.center
+        case .changed:
+//            view.center = CGPoint(x: initialPosition.x + translation.x, y: initialPosition.y)
+            let newX = initialPosition.x + translation.x
+            if newX > initialPosition.x {
+                view.center = CGPoint(x: newX, y: initialPosition.y)
             }
+        case .ended, .cancelled:
+            let screenWidth = UIScreen.main.bounds.width
+            
+            if view.center.x > screenWidth / 2 {
+                // 오른쪽으로 당겨졌으므로 다시 들어가도록 애니메이션 처리
+                UIView.animate(withDuration: 0.2) {
+                    self.view.frame = CGRect(x: screenWidth, y: 0, width: screenWidth, height: self.view.frame.height)
+                } completion: { _ in
+                    self.view.removeFromSuperview()
+                    self.removeFromParent()
+                    self.dimmingView?.isHidden = true
+                    
+                }
+            } else {
+                // 왼쪽으로 당겨지지 않았으므로 초기 위치로 되돌림
+                UIView.animate(withDuration: 0.3) {
+                    self.view.center = self.initialPosition
+                }
+            }
+        default:
+            break
         }
+    }
+    
 }
 
 extension MyPageViewController {

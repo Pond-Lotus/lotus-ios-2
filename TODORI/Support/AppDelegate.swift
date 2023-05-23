@@ -14,15 +14,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        //        if UserDefaults.standard.bool(forKey: "autoLogin") {
+        //            let id = UserDefaults.standard.string(forKey: "id") ?? ""
+        //            let password = UserDefaults.standard.string(forKey: "password") ?? ""
+        //            print("HELLO")
+        //        }
+        //        if let appDomain = Bundle.main.bundleIdentifier {
+        //            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+        //        }
 
-//        if UserDefaults.standard.bool(forKey: "autoLogin") {
-//            let id = UserDefaults.standard.string(forKey: "id") ?? ""
-//            let password = UserDefaults.standard.string(forKey: "password") ?? ""
-//            print("HELLO")
-//        }
-//        if let appDomain = Bundle.main.bundleIdentifier {
-//            UserDefaults.standard.removePersistentDomain(forName: appDomain)
-//        }
+
         print("여기는 AppDelegate 입니다.")
         return true
     }

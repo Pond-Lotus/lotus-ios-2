@@ -7,8 +7,10 @@
 
 import UIKit
 
-class FindPasswordViewController: UIViewController  {
+class FindPasswordViewController: UIViewController {
 
+    private var separatorView: UIView?
+    
     private let titleLabel: UIStackView = {
         let imageView = UIImageView(image: UIImage(named: "sms")?.resize(to: CGSize(width: 18, height: 18)))
         
@@ -108,24 +110,22 @@ class FindPasswordViewController: UIViewController  {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
-        // 네비게이션 바 설정
-        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
-        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-        navigationController?.navigationBar.addSubview(separatorView)
-        
-        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
-        navigationItem.leftBarButtonItem = backButton
-        navigationController?.navigationBar.tintColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
-
-        let font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        let attributes = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: UIColor.black]
-        let title = "비밀번호 찾기"
-        self.navigationController?.navigationBar.titleTextAttributes = attributes
-        self.navigationItem.title = title
-        
         findPasswordButton.addTarget(self, action: #selector(findButtonTapped), for: .touchUpInside)
     
         setupUI()
+    }
+    
+    
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        separatorView?.removeFromSuperview()
+        separatorView = nil
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -134,13 +134,27 @@ class FindPasswordViewController: UIViewController  {
     }
 
     private func setupUI() {
+        separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
+        separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+        navigationController?.navigationBar.addSubview(separatorView!)
+        
+        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
+        navigationItem.leftBarButtonItem = backButton
+        navigationController?.navigationBar.tintColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
+        
+        let font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        let attributes = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: UIColor.black]
+        let title = "비밀번호 찾기"
+        self.navigationController?.navigationBar.titleTextAttributes = attributes
+        self.navigationItem.title = title
+        
         view.addSubview(titleLabel)
         view.addSubview(messageLabel)
         view.addSubview(emailLabel)
         view.addSubview(emailTextField)
         view.addSubview(errorLabel)
         view.addSubview(findPasswordButton)
-
+        
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.15)
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
@@ -178,7 +192,6 @@ class FindPasswordViewController: UIViewController  {
     }
     
     @objc func backButtonTapped() {
-//        dismiss(animated: true, completion: nil)
         navigationController?.popViewController(animated: true)
     }
     
@@ -232,7 +245,7 @@ extension FindPasswordViewController {
                         self.errorLabel.isHidden = false
                     }
                 }
-            case .failure(let error):
+            case .failure(_):
                 print("FUCKING fail")
             }
         }
