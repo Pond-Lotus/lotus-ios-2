@@ -24,6 +24,13 @@ class UserSession {
     private let emailKey = "email"
     private let profileImageKey = "image"
     
+    func imageToBase64String(image: UIImage) -> String? {
+        guard let imageData = image.jpegData(compressionQuality: 1.0) else {
+            return nil
+        }
+        let base64String = imageData.base64EncodedString(options: [])
+        return base64String
+    }
     
     private init() {
         // Singleton 객체의 생성자를 private으로 설정하여 외부에서 직접 인스턴스를 생성하는 것을 방지합니다.

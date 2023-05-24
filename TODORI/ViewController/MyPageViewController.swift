@@ -49,6 +49,8 @@ class MyPageViewController: UIViewController {
         let label = UILabel()
         if let nickname = UserSession.shared.nickname {
             label.text = nickname
+        } else {
+            label.text = "(UNKNOWN)"
         }
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -59,6 +61,8 @@ class MyPageViewController: UIViewController {
         let label = UILabel()
         if let email = UserSession.shared.email {
             label.text = email
+        } else {
+            label.text = "(UNKNOWN)"
         }
         label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -206,6 +210,10 @@ class MyPageViewController: UIViewController {
         
         if let nickname = UserSession.shared.nickname {
             nickNameLabel.text = nickname
+        }
+        
+        if let email = UserSession.shared.email {
+            emailLabel.text = email
         }
 
         navigationController?.setNavigationBarHidden(true, animated: animated)

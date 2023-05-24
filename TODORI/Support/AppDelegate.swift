@@ -11,7 +11,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
@@ -23,8 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //        if let appDomain = Bundle.main.bundleIdentifier {
         //            UserDefaults.standard.removePersistentDomain(forName: appDomain)
         //        }
-
-
+        
         print("여기는 AppDelegate 입니다.")
         return true
     }

@@ -152,6 +152,14 @@ class EditProfileViewController: UIViewController {
         
         setupUI()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
+        separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+        navigationController?.navigationBar.addSubview(separatorView!)
+    }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -166,10 +174,6 @@ class EditProfileViewController: UIViewController {
     }
     
     private func setupUI() {
-        // 네비게이션 바 설정
-        separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
-        separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-        navigationController?.navigationBar.addSubview(separatorView!)
         
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton
@@ -261,23 +265,39 @@ class EditProfileViewController: UIViewController {
     }
     
     @objc func completeButtonTapped() {
-        if let nickname = nickNameTextField.text, let image = UserSession.shared.image {
+        if let nickname = nickNameTextField.text {
             if nickname == "" {
-                if let nickname = UserSession.shared.nickname {
-                    if UserSession.shared.profileImage == nil {
-                        self.editProfile(image: image, nickname: nickname, imdel: true)
-                    } else {
-                        self.editProfile(image: image, nickname: nickname, imdel: false)
-                    }
-                }
+                print("\"\"")
             } else {
-                if UserSession.shared.profileImage == nil {
-                    self.editProfile(image: image, nickname: nickname, imdel: true)
-                } else {
-                    self.editProfile(image: image, nickname: nickname, imdel: false)
-                }
+                print("nickname")
             }
+        } else {
+            print("Error: nickname")
         }
+        
+        if let image = UserSession.shared.profileImage {
+            
+        } else {
+            print("Error: image")
+        }
+
+//            if let image = UserSession.shared.image
+//            if nickname == "" {
+//                if let nickname = UserSession.shared.nickname {
+//                    if UserSession.shared.profileImage == nil {
+//                        self.editProfile(image: image, nickname: nickname, imdel: true)
+//                    } else {
+//                        self.editProfile(image: image, nickname: nickname, imdel: false)
+//                    }
+//                }
+//            } else {
+//                if UserSession.shared.profileImage == nil {
+//                    self.editProfile(image: image, nickname: nickname, imdel: true)
+//                } else {
+//                    self.editProfile(image: image, nickname: nickname, imdel: false)
+//                }
+//            }
+     
     }
 
     @objc func editProfileImageButtonTapped() {
@@ -309,12 +329,12 @@ class EditProfileViewController: UIViewController {
     }
     
     @objc func changePasswordButtonTapped() {
-        navigationController?.modalPresentationStyle = .fullScreen
+//        navigationController?.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(ChangePasswordViewController(), animated: true)
     }
     
     @objc func deleteAccountButtonTapped() {
-        navigationController?.modalPresentationStyle = .fullScreen
+//        navigationController?.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(DeleteAccountViewController(), animated: true)
     }
 }

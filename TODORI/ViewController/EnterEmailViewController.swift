@@ -111,6 +111,7 @@ class EnterEmailViewController: UIViewController {
         self.view.endEditing(true)
     }
 
+    
     private func setupUI() {
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton

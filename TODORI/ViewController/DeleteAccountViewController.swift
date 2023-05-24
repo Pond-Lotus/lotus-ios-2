@@ -9,6 +9,8 @@ import UIKit
 
 class DeleteAccountViewController: UIViewController {
     
+    private var separatorView: UIView?
+    
     private let titleLabel1: UILabel = {
         let label = UILabel()
         label.text = "계정 정보"
@@ -149,6 +151,21 @@ class DeleteAccountViewController: UIViewController {
         
         checkLabelButton.addTarget(self, action: #selector(checkLabelTapped), for: .touchUpInside)
         deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
+        separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+        navigationController?.navigationBar.addSubview(separatorView!)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        separatorView?.removeFromSuperview()
+        separatorView = nil
     }
     
     private func setupUI() {

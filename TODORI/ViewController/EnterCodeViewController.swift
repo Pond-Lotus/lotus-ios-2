@@ -303,35 +303,32 @@ extension EnterCodeViewController {
 
 extension EnterCodeViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        guard let oldString = textField.text, let newRange = Range(range, in: oldString) else { return true }
+        let updatedText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
+
+        print("updatedText : \(updatedText)")
         
-        let inputString = string.trimmingCharacters(in: .whitespacesAndNewlines)
-        let newString = oldString.replacingCharacters(in: newRange, with: inputString).trimmingCharacters(in: .whitespacesAndNewlines)
-        print("inputString : \(inputString)")
-        print("newString : \(newString)")
-        
-        if newString.isEmpty {
+        if updatedText.isEmpty {
             firstLabel.text = ""
-        } else if newString.count == 1 {
-            firstLabel.text = String(newString[newString.index(newString.startIndex, offsetBy: 0)])
+        } else if updatedText.count == 1 {
+            firstLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 0)])
             secondLabel.text = ""
-        } else if newString.count == 2 {
-            secondLabel.text = String(newString[newString.index(newString.startIndex, offsetBy: 1)])
+        } else if updatedText.count == 2 {
+            secondLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 1)])
             thirdLabel.text = ""
-        } else if newString.count == 3 {
-            thirdLabel.text = String(newString[newString.index(newString.startIndex, offsetBy: 2)])
+        } else if updatedText.count == 3 {
+            thirdLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 2)])
             fourthLabel.text = ""
-        } else if newString.count == 4 {
-            fourthLabel.text = String(newString[newString.index(newString.startIndex, offsetBy: 3)])
+        } else if updatedText.count == 4 {
+            fourthLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 3)])
             fifthLabel.text = ""
-        } else if newString.count == 5 {
-            fifthLabel.text = String(newString[newString.index(newString.startIndex, offsetBy: 4)])
+        } else if updatedText.count == 5 {
+            fifthLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 4)])
             sixthLabel.text = ""
-        } else if newString.count == 6 {
-            sixthLabel.text = String(newString[newString.index(newString.startIndex, offsetBy: 5)])
+        } else if updatedText.count == 6 {
+            sixthLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 5)])
 //            textField.resignFirstResponder()
         }
-        return newString.count <= 6
+        return updatedText.count <= 6
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

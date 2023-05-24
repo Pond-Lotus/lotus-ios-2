@@ -11,26 +11,53 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     
+    func isAutoLogin() -> Bool {
+        return UserDefaults.standard.bool(forKey: "autoLogin")
+    }
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        
+
         window?.overrideUserInterfaceStyle = .light // light-mode
         
 //        guard let _ = (scene as? UIWindowScene) else { return }
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
+
+        let mainViewController = LaunchScreenViewController()
+        self.window?.rootViewController = mainViewController
+        self.window?.makeKeyAndVisible()
         
-        let navigationController = UINavigationController(rootViewController: LogInViewController())
-        
-        window?.rootViewController = navigationController
-        window?.makeKeyAndVisible()
+        if isAutoLogin() {
+            let email = UserDefaults.standard.string(forKey: "email") ?? ""
+            let password = UserDefaults.standard.string(forKey: "password") ?? ""
+            
+            LogInViewController().login(email: email, password: password)
+               
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                let navigationController = UINavigationController(rootViewController: MyPageViewController())
+                self.window?.rootViewController = navigationController
+                self.window?.makeKeyAndVisible()
+            }
+            
+            print("isAutoLogin: true")
+            
+        } else {
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                let navigationController = UINavigationController(rootViewController: LogInViewController())
+                self.window?.rootViewController = navigationController
+                self.window?.makeKeyAndVisible()
+            }
+            print("isAutoLogin: false")
+        }
         
         print("여기는 SceneDelegate 입니다.")
 
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//            let mainViewController = LogInViewController()
+//            let mainViewController = LaunchScreenViewController()
 //            self.window?.rootViewController = mainViewController
 //        }
     }

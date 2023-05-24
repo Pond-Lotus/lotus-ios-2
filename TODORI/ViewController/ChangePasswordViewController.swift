@@ -9,6 +9,8 @@ import UIKit
 
 class ChangePasswordViewController: UIViewController {
     
+    private var separatorView: UIView?
+    
     private let presentPasswordLabel: UILabel = {
         let label = UILabel()
         label.text = "현재 비밀번호"
@@ -19,6 +21,7 @@ class ChangePasswordViewController: UIViewController {
     
     private let presentPasswordTextField: UITextField = {
         let textField = UITextField()
+        textField.isSecureTextEntry = true
         
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 30))
         textField.leftView = paddingView
@@ -133,8 +136,9 @@ class ChangePasswordViewController: UIViewController {
         button.setTitle("변경 완료", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        button.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
+        button.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
         button.layer.cornerRadius = 8
+        button.isEnabled = false
         return button
     }()
     
@@ -142,7 +146,26 @@ class ChangePasswordViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
+        presentPasswordTextField.delegate = self
+        newPasswordTextField.delegate = self
+        checkNewPasswordTextField.delegate = self
+        
         setupUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
+        separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+        navigationController?.navigationBar.addSubview(separatorView!)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        separatorView?.removeFromSuperview()
+        separatorView = nil
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -151,10 +174,6 @@ class ChangePasswordViewController: UIViewController {
     }
     
     private func setupUI() {
-        // 네비게이션 바 설정
-//        let separatorView = UIView(frame: CGRect(x: 0, y: navigationController?.navigationBar.frame.maxY ?? 0 - 1, width: view.frame.width, height: 1))
-//        separatorView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-//        navigationController?.navigationBar.addSubview(separatorView)
         
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
         navigationItem.leftBarButtonItem = backButton
@@ -194,6 +213,7 @@ class ChangePasswordViewController: UIViewController {
     }
     
     @objc func findButtonTapped() {
+        print("TAPPED")
         if let password = presentPasswordTextField.text, let newPassword = newPasswordTextField.text {
             if isValidPassword(newPassword) {
                 newPasswordErrorLabel.isHidden = true
@@ -219,6 +239,48 @@ class ChangePasswordViewController: UIViewController {
     }
 }
 
+
+extension ChangePasswordViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+//        let textField2Text = (newPasswordTextField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
+//        let textField3Text = (checkNewPasswordTextField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
+//        let updatedText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
+                
+    
+        if textField == newPasswordTextField {
+            let textFieldText = (newPasswordTextField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
+            print("textFieldText: \(textFieldText)")
+            
+            if isValidPassword(textFieldText) {
+                finishButton.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
+                finishButton.isEnabled = true
+            } else {
+                finishButton.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
+                finishButton.isEnabled = false
+            }
+        }
+//        } else if textField == newPasswordTextField {
+//            // textField2의 조건에 따라 버튼 조작
+//            if textField2Text.count >= 5 {
+//                finishButton.backgroundColor = .blue
+//                finishButton.isEnabled = true
+//            } else {
+//                finishButton.backgroundColor = .gray
+//                finishButton.isEnabled = false
+//            }
+//        } else if textField == checkNewPasswordTextField {
+//            // textField3의 조건에 따라 버튼 조작
+//            if textField3Text.isEmpty {
+//                finishButton.backgroundColor = .red
+//                finishButton.isEnabled = true
+//            } else {
+//                finishButton.backgroundColor = .gray
+//                finishButton.isEnabled = false
+//            }
+//        }
+        return true
+    }
+}
 extension ChangePasswordViewController {
     
     func changePassword(originPassword: String, newPassword: String) {

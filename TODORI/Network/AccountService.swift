@@ -115,6 +115,37 @@ class UserService {
         }
     }
     
+    func loginUser(email: String, password: String, completion: @escaping (Result<LoginResponse, Error>) -> Void) {
+        let url = APIConstant.Account.login
+        let parameters: [String: Any] = [
+            "email": email,
+            "password": password
+        ]
+        
+        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default)
+            .responseDecodable(of: LoginResponse.self) { response in
+                switch response.result {
+                case .success(let loginResponse):
+                    // 성공적으로 디코딩된 응답을 처리하는 코드
+                    if loginResponse.resultCode == 200 {
+                        // 로그인 성공
+                        print("로그인 성공 in UserService")
+                        completion(.success(loginResponse))
+                    } else {
+                        // 로그인 실패
+                        print("로그인 실패 in UserService")
+                        let error = NSError(domain: "TODORI", code: loginResponse.resultCode, userInfo: nil)
+                        completion(.failure(error))
+                    }
+                case .failure(let error):
+                    // 요청 실패 또는 디코딩 오류 처리 코드
+                    print("에러: \(error)")
+                    completion(.failure(error))
+                }
+            }
+    }
+
+    
     func logout(completion: @escaping(NetworkResult<Any>) -> Void) {
         let url = APIConstant.Account.logout
         guard let token = TokenManager.shared.getToken() else {
