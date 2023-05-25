@@ -11,10 +11,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     
-    func isAutoLogin() -> Bool {
-        return UserDefaults.standard.bool(forKey: "autoLogin")
-    }
-    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
@@ -29,29 +25,35 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mainViewController = LaunchScreenViewController()
         self.window?.rootViewController = mainViewController
         self.window?.makeKeyAndVisible()
-        
-        if isAutoLogin() {
-            let email = UserDefaults.standard.string(forKey: "email") ?? ""
-            let password = UserDefaults.standard.string(forKey: "password") ?? ""
-            
-            LogInViewController().login(email: email, password: password)
-               
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                let navigationController = UINavigationController(rootViewController: MyPageViewController())
-                self.window?.rootViewController = navigationController
-                self.window?.makeKeyAndVisible()
-            }
-            
-            print("isAutoLogin: true")
-            
-        } else {
+//        UserDefaults.standard.set(false, forKey: "autoLogin")
 
+        if UserDefaults.standard.bool(forKey: "autoLogin") {
+            print("isAutoLogin: true")
+            UserService.shared.checkToken() { result in
+                switch result {
+                case .success(let response):
+                    if response.resultCode == 200 {
+                        print("이백")
+                        if let token = TokenManager.shared.getToken() {
+                            print("토큰: \(token)")
+                        }   
+                        let navigationController = UINavigationController(rootViewController: MyPageViewController())
+                        self.window?.rootViewController = navigationController
+                        self.window?.makeKeyAndVisible()
+                    } else {
+                        print("토큰 유효성 검증 실패 : \(response)")
+                    }
+                case .failure(_):
+                    print("failure")
+                }
+            }
+        } else {
+            print("isAutoLogin: false")
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 let navigationController = UINavigationController(rootViewController: LogInViewController())
                 self.window?.rootViewController = navigationController
                 self.window?.makeKeyAndVisible()
             }
-            print("isAutoLogin: false")
         }
         
         print("여기는 SceneDelegate 입니다.")
@@ -60,6 +62,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //            let mainViewController = LaunchScreenViewController()
 //            self.window?.rootViewController = mainViewController
 //        }
+        
+//        let domain = Bundle.main.bundleIdentifier!
+//        UserDefaults.standard.removePersistentDomain(forName: domain)
+//        UserDefaults.standard.synchronize()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

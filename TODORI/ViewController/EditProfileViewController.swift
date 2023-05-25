@@ -13,37 +13,8 @@ class EditProfileViewController: UIViewController {
     private var separatorView: UIView?
     var tmpImage: UIImage?
     
-    private var profileImageView: UIImageView = {
-//        let imageView = UIImageView(image: UIImage(named: "default-profile")?.resize(to: CGSize(width: 89, height: 89)))
+    private let profileImageView: UIImageView = {
         let imageView = UIImageView()
-        
-        if UserSession.shared.profileImage == nil {
-            imageView.image = UIImage(named: "default-profile")?.resize(to: CGSize(width: 89, height: 89))
-        } else {
-            if let base64String = UserSession.shared.profileImage {
-                if let imageData = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
-                    if let originalImage = UIImage(data: imageData) {
-                        // 이미지를 정사각형으로 잘라내기 위한 크기 계산
-                        let squareSize = min(originalImage.size.width, originalImage.size.height)
-                        let squareRect = CGRect(x: 0, y: 0, width: squareSize, height: squareSize)
-                        
-                        // 정사각형으로 잘라낸 이미지 생성
-                        if let croppedImage = originalImage.cgImage?.cropping(to: squareRect) {
-                            let croppedUIImage = UIImage(cgImage: croppedImage)
-                            
-                            // 원형 이미지 생성
-                            if let circularImage = croppedUIImage.circleMasked {
-                                imageView.contentMode = .scaleAspectFit
-                                imageView.layer.cornerRadius = imageView.frame.width / 2.0
-                                imageView.clipsToBounds = true
-                                imageView.layer.masksToBounds = true
-                                imageView.image = circularImage
-                            }
-                        }
-                    }
-                }
-            }
-        }
         return imageView
     }()
     
@@ -70,12 +41,11 @@ class EditProfileViewController: UIViewController {
         ]
         
         let attributedPlaceholder: NSAttributedString?
-        if let nickname = UserSession.shared.nickname {
+        if let nickname = UserDefaults.standard.string(forKey: "nickname")  {
             attributedPlaceholder = NSAttributedString(string: nickname, attributes: attributes)
         } else {
-            attributedPlaceholder = NSAttributedString(string: "(UNKNOWN)", attributes: attributes)
+            attributedPlaceholder = NSAttributedString(string: "(NONE)", attributes: attributes)
         }
-        
         textField.attributedPlaceholder = attributedPlaceholder
         
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 30))
@@ -89,7 +59,6 @@ class EditProfileViewController: UIViewController {
         textField.layer.cornerRadius = 8
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
-        textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
@@ -97,13 +66,12 @@ class EditProfileViewController: UIViewController {
         let label = UILabel()
         label.text = "이메일"
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let emailLabel: UILabel = {
         let label = UILabel()
-        if let email = UserSession.shared.email {
+        if let email = UserDefaults.standard.string(forKey: "email")  {
             label.text = "   " + email
         } else {
             label.text = "   " + "(NONE)"
@@ -115,8 +83,6 @@ class EditProfileViewController: UIViewController {
         label.backgroundColor = UIColor(red: 0.946, green: 0.946, blue: 0.946, alpha: 1)
         label.layer.cornerRadius = 8
         label.clipsToBounds = true
-
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -128,7 +94,6 @@ class EditProfileViewController: UIViewController {
         button.layer.borderWidth = 0.5
         button.layer.borderColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1).cgColor
         button.layer.cornerRadius = 8
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -154,11 +119,27 @@ class EditProfileViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
         super.viewWillAppear(animated)
         
         separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
         separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
         navigationController?.navigationBar.addSubview(separatorView!)
+        
+        if let image = UserDefaults.standard.string(forKey: "image") {
+            if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
+                let squareImage = originalImage.squareImage()
+                let roundedImage = squareImage?.roundedImage()
+                profileImageView.image = roundedImage
+            }
+        } else {
+            print("UserDefaults에 image 없음.")
+        }
+        if let email = UserDefaults.standard.string(forKey: "email")  {
+            emailLabel.text = "   " + email
+        } else {
+            emailLabel.text = "   " + "(NONE)"
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -265,39 +246,33 @@ class EditProfileViewController: UIViewController {
     }
     
     @objc func completeButtonTapped() {
+        
         if let nickname = nickNameTextField.text {
-            if nickname == "" {
-                print("\"\"")
+            if let image = UserSession.shared.image {
+                UserDefaults.standard.set(image, forKey: "image")
+                let image = UserSession.shared.base64StringToImage(base64String: image)
+                if nickname == "" {
+                    if let nickname = UserDefaults.standard.string(forKey: "nickname") {
+                        self.editProfile(image: image, nickname: nickname, imdel: false)
+                    }
+                } else {
+                    self.editProfile(image: image, nickname: nickname, imdel: false)
+                }
             } else {
-                print("nickname")
+                if let image = UserDefaults.standard.string(forKey: "image") {
+                    let image = UserSession.shared.base64StringToImage(base64String: image)
+                    if nickname == "" {
+                        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
+                            self.editProfile(image: image, nickname: nickname, imdel: false)
+                        }
+                    } else {
+                        self.editProfile(image: image, nickname: nickname, imdel: false)
+                    }
+                }
             }
         } else {
-            print("Error: nickname")
+            print("프로필 수정 완료 못함.")
         }
-        
-        if let image = UserSession.shared.profileImage {
-            
-        } else {
-            print("Error: image")
-        }
-
-//            if let image = UserSession.shared.image
-//            if nickname == "" {
-//                if let nickname = UserSession.shared.nickname {
-//                    if UserSession.shared.profileImage == nil {
-//                        self.editProfile(image: image, nickname: nickname, imdel: true)
-//                    } else {
-//                        self.editProfile(image: image, nickname: nickname, imdel: false)
-//                    }
-//                }
-//            } else {
-//                if UserSession.shared.profileImage == nil {
-//                    self.editProfile(image: image, nickname: nickname, imdel: true)
-//                } else {
-//                    self.editProfile(image: image, nickname: nickname, imdel: false)
-//                }
-//            }
-     
     }
 
     @objc func editProfileImageButtonTapped() {
@@ -314,9 +289,10 @@ class EditProfileViewController: UIViewController {
         }
         
         let defaultImageAction = UIAlertAction(title: "기본 이미지로 설정", style: .default) { _ in
-            self.profileImageView.image = UIImage(named: "default-profile")
-//            UserSession.shared.image = UIImage(named: "default-profile")
-            UserSession.shared.profileImage = nil
+            if let defaultImage = UIImage(named: "default-profile") {
+                self.profileImageView.image = defaultImage // 완료 버튼 누르기 전까지 서버에 변경사항 요청하지 않음
+                UserSession.shared.image = UserSession.shared.imageToBase64String(image: defaultImage)
+            }
         }
         
         let cancelAction = UIAlertAction(title: "닫기", style: .cancel, handler: nil)
@@ -354,14 +330,34 @@ extension EditProfileViewController {
 
                             if let data = json["data"] as? [String: Any] {
                                 if let nickname = data["nickname"] as? String {
-                                    UserSession.shared.nickname = nickname
+                                    UserDefaults.standard.set(nickname, forKey: "nickname")
                                 } else { print("닉네임 저장 오류")}
                                 if let image = data["image"] as? String {
-                                    UserSession.shared.profileImage = image
+                                    print("이미지 저장 완료")
+                                    UserDefaults.standard.set(image, forKey: "image")
+                                    
+                                    let dimmingView = UIView(frame: UIScreen.main.bounds)
+                                    dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+                                    dimmingView.alpha = 0
+                                    self.view.addSubview(dimmingView)
+                                    
+                                    let popupView = CustomPopupView(title: "프로필 수정", message: "프로필 수정이 완료되었습니다.", buttonText: "확인", dimmingView: dimmingView)
+                                    popupView.alpha = 0
+                                    self.view.addSubview(popupView)
+                                    popupView.snp.makeConstraints { make in
+                                        make.center.equalToSuperview()
+                                        make.width.equalTo(264)
+                                        make.height.equalTo(167)
+                                    }
+                                    UIView.animate(withDuration: 0.3) {
+                                        popupView.alpha = 1
+                                        dimmingView.alpha = 1
+                                    }
                                 } else {
                                     print("이미지 저장 오류")
-                                    UserSession.shared.profileImage = nil
-                                    UserSession.shared.image = UIImage(named: "default-profile")
+                                    if let image = UIImage(named: "default-profile") {
+                                        UserDefaults.standard.set(image, forKey: "image")
+                                    }
                                 }
                             } else {
                                 print("데이터 저장 오류")
@@ -375,7 +371,7 @@ extension EditProfileViewController {
                 }
             }
         } else {
-            print("FUCKKK")
+            print("뭐고")
         }
     }
 }
@@ -393,8 +389,7 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
             itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in // 4
                 DispatchQueue.main.async {
                     if let image = image as? UIImage {
-                        UserSession.shared.image = image
-                        print("UserSession.shared.image 저장 완료")
+                        UserSession.shared.image = UserSession.shared.imageToBase64String(image: image) // 완료 눌렀을 때를 위한 임시 저장
                         
                         if let imageData = image.pngData() {
                             // base64String을 서버로 전송하거나 다른 처리에 사용할 수 있습니다.
@@ -408,15 +403,12 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
                                     // 정사각형으로 잘라낸 이미지 생성
                                     if let croppedImage = originalImage.cgImage?.cropping(to: squareRect) {
                                         let croppedUIImage = UIImage(cgImage: croppedImage)
-                                        
+
                                         // 원형 이미지 생성
-                                        if let circularImage = croppedUIImage.circleMasked {
-                                            self.profileImageView.contentMode = .scaleAspectFit
-                                            self.profileImageView.layer.cornerRadius = self.profileImageView.frame.width / 2.0
-                                            self.profileImageView.clipsToBounds = true
-                                            self.profileImageView.layer.masksToBounds = true
-                                            self.profileImageView.image = circularImage
-                                        }
+                                        self.profileImageView.layer.cornerRadius = self.profileImageView.frame.width / 2.0
+                                        self.profileImageView.clipsToBounds = true
+                                        self.profileImageView.image = croppedUIImage
+                                        
                                     }
                                 }
                             }
@@ -429,21 +421,3 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
         }
     }
 }
-
-
-
-
-//                        guard let imageDataString = image else {
-//                            print("이미지 데이터가 없습니다.")
-//                            return
-//                        }
-// 이미지 데이터로 변환
-//                        guard let imageData = Data(base64Encoded: imageDataString, options: .ignoreUnknownCharacters) else {
-//                            print("이미지 데이터를 변환할 수 없습니다.")
-//                            return
-//                        }
-
-//                        if let data = Data(base64Encoded: json["data"], options: .ignoreUnknownCharacters) {
-//                            let decodedImg = UIImage(data: data)
-//                            self.profileView.image = decodedImg
-//                        }

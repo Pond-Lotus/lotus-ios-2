@@ -10,8 +10,6 @@ import UIKit
 extension UIButton {
     
     func applyColorAnimation() {
-        print("applyColorAnimation 입니다.")
-
         addTarget(self, action: #selector(buttonTouchDown), for: .touchDown)
         addTarget(self, action: #selector(buttonTouchUpInside), for: .touchUpInside)
         addTarget(self, action: #selector(buttonTouchUpOutside), for: .touchUpOutside)

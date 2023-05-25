@@ -14,3 +14,14 @@ struct LoginResponse: Decodable {
     let email: String?
     let image: String?
 }
+
+struct CheckTokenResponse: Decodable {
+    let resultCode: Int
+}
+
+struct ToDoResponse: Decodable {
+    let resultCode: Int
+    let data: [String: String]
+}
+
+

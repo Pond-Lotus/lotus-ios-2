@@ -13,6 +13,8 @@ class EditGroupSettingViewController: UIViewController {
     
     var color: String?
     var label: String?
+    var index: String?
+    
     var groupName: String?
     
     private func createStackView(image: String, text: String) -> UIStackView {
@@ -157,10 +159,32 @@ class EditGroupSettingViewController: UIViewController {
     
     @objc func completeButtonTapped() {
         print("TAPPED")
-        if let name = groupName {
-            print("name is \(name)")
-        } else {
-            print("name is nil")
+        let groupSettingVC = GroupSettingViewController()
+        guard let first = groupSettingVC.firstGroupName,
+              let second = groupSettingVC.secondGroupName,
+              let third = groupSettingVC.thirdGroupName,
+              let fourth = groupSettingVC.fourthGroupName,
+              let fifth = groupSettingVC.fifthGroupName,
+              let sixth = groupSettingVC.sixthGroupName
+        else { return }
+
+        if let index = index {
+            switch index {
+            case "1":
+                editGroupName(first: groupName ?? "(NONE)", second: second, third: third, fourth: fourth, fifth: fifth, sixth: sixth)
+            case "2":
+                editGroupName(first: first, second: groupName ?? "(NONE)", third: third, fourth: fourth, fifth: fifth, sixth: sixth)
+            case "3":
+                editGroupName(first: first, second: second, third: groupName ?? "(NONE)", fourth: fourth, fifth: fifth, sixth: sixth)
+            case "4":
+                editGroupName(first: first, second: second, third: third, fourth: groupName ?? "(NONE)", fifth: fifth, sixth: sixth)
+            case "5":
+                editGroupName(first: first, second: second, third: third, fourth: fourth, fifth: groupName ?? "(NONE)", sixth: sixth)
+            case "6":
+                editGroupName(first: first, second: second, third: third, fourth: fourth, fifth: fifth, sixth: groupName ?? "(NONE)")
+            default:
+                print("스위치문 오류")
+            }
         }
     }
     
@@ -174,52 +198,50 @@ class EditGroupSettingViewController: UIViewController {
     }
 }
 
-extension GroupSettingViewController {
-    //    func findPassword(email: String) {
-    //        UserService.shared.findPassword(email: email) {
-    //            response in
-    //            switch response {
-    //            case .success(let data):
-    //                if let json = data as? [String: Any],
-    //                   let resultCode = json["resultCode"] as? Int {
-    //                    if resultCode == 200 {
-    //                        print("이백")
-    //                        self.errorLabel.isHidden = true
-    ////                        let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-    ////                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-    ////                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-    ////                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
-    //                    } else if resultCode == 500 {
-    //                        print("오백")
-    //                        self.errorLabel.isHidden = false
-    //                    }
-    //
-    //                }
-    //            case .requestErr(let err):
-    //                print(err)
-    //            case .pathErr:
-    //                print("pathErr")
-    //            case .serverErr:
-    //                print("serverErr")
-    //            case .networkFail:
-    //                print("networkFail")
-    //            case .decodeErr:
-    //                print("decodeErr")
-    //            }
-    //        }
-    //    }
+extension EditGroupSettingViewController {
+    func editGroupName(first: String, second: String, third: String, fourth: String, fifth: String, sixth: String) {
+        TodoService.shared.editGroupName(first: first, second: second, third: third, fourth: fourth, fifth: fifth, sixth: sixth) { response in
+            switch response {
+            case .success(let data):
+                if let json = data as? ToDoResponse {
+                    if json.resultCode == 200 {
+                        print("이백")
+                        
+                        let dimmingView = UIView(frame: UIScreen.main.bounds)
+                        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+                        dimmingView.alpha = 0
+                        self.view.addSubview(dimmingView)
+                        
+                        let popupView = CustomPopupView(title: "그룹 이름 변경", message: "그룹 이름 변경이 완료되었습니다.", buttonText: "확인", dimmingView: dimmingView)
+                        popupView.alpha = 0
+                        self.view.addSubview(popupView)
+                        popupView.snp.makeConstraints { make in
+                            make.center.equalToSuperview()
+                            make.width.equalTo(264)
+                            make.height.equalTo(167)
+                        }
+                        UIView.animate(withDuration: 0.3) {
+                            popupView.alpha = 1
+                            dimmingView.alpha = 1
+                        }
+                    } else if json.resultCode == 500 {
+                        print("오백")
+                    }
+                }
+            case .failure(let err):
+                print(err)
+            }
+        }
+    }
 }
 
 extension EditGroupSettingViewController: UITextFieldDelegate {
     
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        let currentText = textField.text ?? ""
-//        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
-//        print("currentText : \(currentText)")
-//        print("newText : \(newText)")
-//
-//        return true
-//    }
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
+        return true
+    }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         if let enteredText = textField.text {

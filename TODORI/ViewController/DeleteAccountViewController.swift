@@ -15,7 +15,6 @@ class DeleteAccountViewController: UIViewController {
         let label = UILabel()
         label.text = "계정 정보"
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-//        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -28,44 +27,11 @@ class DeleteAccountViewController: UIViewController {
     
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
-        
-        if UserSession.shared.profileImage == nil {
-            imageView.image = UIImage(named: "default-profile")?.resize(to: CGSize(width: 89, height: 89))
-        } else {
-            if let base64String = UserSession.shared.profileImage {
-                if let imageData = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
-                    if let originalImage = UIImage(data: imageData) {
-                        // 이미지를 정사각형으로 잘라내기 위한 크기 계산
-                        let squareSize = min(originalImage.size.width, originalImage.size.height)
-                        let squareRect = CGRect(x: 0, y: 0, width: squareSize, height: squareSize)
-                        
-                        // 정사각형으로 잘라낸 이미지 생성
-                        if let croppedImage = originalImage.cgImage?.cropping(to: squareRect) {
-                            let croppedUIImage = UIImage(cgImage: croppedImage)
-                            
-                            // 원형 이미지 생성
-                            if let circularImage = croppedUIImage.circleMasked {
-                                imageView.contentMode = .scaleAspectFit
-                                imageView.layer.cornerRadius = imageView.frame.width / 2.0
-                                imageView.clipsToBounds = true
-                                imageView.layer.masksToBounds = true
-                                imageView.image = circularImage
-                            }
-                        }
-                    }
-                }
-            }
-        }
         return imageView
     }()
     
     private let nickNameLabel: UILabel = {
         let label = UILabel()
-        if let nickname = UserSession.shared.nickname {
-            label.text = nickname
-        } else {
-            label.text = "(NONE)"
-        }
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -159,6 +125,28 @@ class DeleteAccountViewController: UIViewController {
         separatorView = UIView(frame: CGRect(x: 0, y: 50, width: view.frame.width, height: 1))
         separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
         navigationController?.navigationBar.addSubview(separatorView!)
+        
+        if let image = UserDefaults.standard.string(forKey: "image") {
+            if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
+                let squareImage = originalImage.squareImage()
+                let roundedImage = squareImage?.roundedImage()
+                profileImageView.image = roundedImage
+            }
+        } else {
+            print("UserDefaults에 image 없음.")
+        }
+        
+        if let email = UserDefaults.standard.string(forKey: "email")  {
+            emailLabel.text = email
+        } else {
+            emailLabel.text = "(NONE)"
+        }
+        
+        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
+            nickNameLabel.text = nickname
+        } else {
+            nickNameLabel.text = "(NONE)"
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -268,7 +256,29 @@ class DeleteAccountViewController: UIViewController {
     }
     
     @objc func deleteAccountButtonTapped() {
-        print("TAPPED")
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) {
+            
+            let dimmingView = UIView(frame: keyWindow.bounds)
+            dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+            dimmingView.alpha = 0
+            keyWindow.addSubview(dimmingView)
+            
+            let popupView = LogoutPopupView(title: "정말 떠나시나요?😢", message: "다음에 또 만나길 기대할게요.", buttonText1: "취소", buttonText2: "확인", dimmingView: dimmingView)
+            popupView.delegate = self // 중요
+            popupView.alpha = 0
+            keyWindow.addSubview(popupView)
+            popupView.snp.makeConstraints { make in
+                make.center.equalToSuperview()
+                make.width.equalTo(264)
+                make.height.equalTo(167)
+            }
+            
+            UIView.animate(withDuration: 0.2) {
+                popupView.alpha = 1
+                dimmingView.alpha = 1
+            }
+        }
     }
 }
 
@@ -283,10 +293,14 @@ extension DeleteAccountViewController {
                    let resultCode = json["resultCode"] as? Int {
                     if resultCode == 200 {
                         print("이백")
-                        //                        let viewControllerToPresent = EnterCodeViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-                        //                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-                        //                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-                        //                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
+                        
+                        let domain = Bundle.main.bundleIdentifier!
+                        UserDefaults.standard.removePersistentDomain(forName: domain)
+                        UserDefaults.standard.synchronize()
+
+                        let viewControllerToPresent = LogInViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
+                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
+                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
                     } else if resultCode == 500 {
                         print("오백")
                     }
@@ -295,5 +309,11 @@ extension DeleteAccountViewController {
                 print("FUCKING fail")
             }
         }
+    }
+}
+
+extension DeleteAccountViewController: LogoutPopupViewDelegate {
+    func logoutButtonTappedDelegate() {
+        deleteAccount()
     }
 }

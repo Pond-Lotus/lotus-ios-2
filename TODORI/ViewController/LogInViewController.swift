@@ -145,7 +145,7 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         setupUI()
         
         emailTextField.delegate = self
-        
+    
         autoLoginButton.addTarget(self, action: #selector(autoLoginTapped), for: .touchUpInside)
         loginButton.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
         findPasswordButton.addTarget(self, action: #selector(findPasswordTapped), for: .touchUpInside)
@@ -163,6 +163,9 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        emailTextField.text = ""
+        passwordTextField.text = ""
 
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
@@ -188,7 +191,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         
         overlayViewController = MyPageViewController()
-
         overlayViewController?.view.frame = CGRect(x: view.frame.size.width, y: 0, width: view.frame.size.width, height: view.frame.size.height)
         if let overlayViewController = overlayViewController {
             addChild(overlayViewController)
@@ -288,29 +290,13 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         navigationController?.popViewController(animated: true)
     }
     
-    func saveLoginInfo(email: String, password: String) {
-        UserDefaults.standard.set(email, forKey: "email")
-        UserDefaults.standard.setValue(password, forKey: "password")
-    }
-    
-    func removeLoginInfo() {
-        UserDefaults.standard.removeObject(forKey: "email")
-        UserDefaults.standard.removeObject(forKey: "password")
-    }
-    
     @objc private func loginTapped() {
-        if let email = emailTextField.text, let password = passwordTextField.text {
-            if autoLoginButton.isSelected {
-                print("자동로그인 O")
-                UserDefaults.standard.set(true, forKey: "autoLogin")
-                saveLoginInfo(email: email, password: password)
-                login(email: email, password: password)
-            } else {
-                print("자동로그인 X")
-                UserDefaults.standard.set(false, forKey: "autoLogin")
-                removeLoginInfo()
+        if emailTextField.text != "", passwordTextField.text != "" {
+            if let email = emailTextField.text, let password = passwordTextField.text {
                 login(email: email, password: password)
             }
+        } else {
+            print("로그인 탭 에러")
         }
     }
     
@@ -377,55 +363,43 @@ extension LogInViewController: UITextFieldDelegate {
 extension LogInViewController {
     
     func login(email: String, password: String) {
-        //        UserService.shared.login(email: email, password: password) {
         UserService.shared.loginUser(email: email, password: password) { result in
             switch result {
-            case .success(let loginResponse):
-                if loginResponse.resultCode == 200 {
-                    guard let token = loginResponse.token,
-                          let email = loginResponse.email,
-                          let nickname = loginResponse.nickname
-//                          let image = loginResponse.image
+            case .success(let response):
+                if response.resultCode == 200 {
+                    guard let token = response.token,
+                          let email = response.email,
+                          let nickname = response.nickname
                     else { return }
+                    
+                    if self.autoLoginButton.isSelected {
+                        UserDefaults.standard.set(true, forKey: "autoLogin")
+                        print("자동로그인 O : \(UserDefaults.standard.bool(forKey: "autoLogin"))")
+                    } else {
+                        UserDefaults.standard.set(false, forKey: "autoLogin")
+                        print("자동로그인 X : \(UserDefaults.standard.bool(forKey: "autoLogin"))")
+                    }
                     
                     TokenManager.shared.saveToken(token)
                     print("토큰 저장 완료 : \(token)")
                     UserDefaults.standard.set(email, forKey: "email")
                     UserDefaults.standard.set(nickname, forKey: "nickname")
                     
-                    if let image = loginResponse.image {
+                    if let image = response.image {
                         UserDefaults.standard.set(image, forKey: "image")
                         print("사용자 이미지")
-                    } else {
+                    } else { // image == nil
                         if let defaultImage = UIImage(named: "default-profile") {
                             let image = UserSession.shared.imageToBase64String(image: defaultImage)
                             UserDefaults.standard.set(image, forKey: "image")
                             print("기본 이미지")
                         }
                     }
-
-                    UserSession.shared.email = email
-                    UserSession.shared.nickname = nickname
-                    
-//                    if let myImage = image as? String {
-//                        UserSession.shared.profileImage = myImage
-//                        print("사용자 이미지 프로필 String")
-//
-//                        if let imageData = Data(base64Encoded: myImage, options: .ignoreUnknownCharacters) {
-//                            let image = UIImage(data: imageData)
-//                            UserSession.shared.image = image
-//                            print("사용자 이미지 프로필 UIImage")
-//                        }
-//                    } else {
-//                        print("<null>: 기본 이미지 프로필")
-//                    }
-                    
                     DispatchQueue.main.async {
-                        let myPageViewController = MyPageViewController()
-                        self.navigationController?.pushViewController(myPageViewController, animated: true)
+                        self.navigationController?.pushViewController(MyPageViewController(), animated: true)
                     }
                 } else {
-                    print("로그인 실패 : \(loginResponse)")
+                    print("로그인 실패 : \(response)")
                 }
             case .failure(_):
                 let dimmingView = UIView(frame: UIScreen.main.bounds)
@@ -436,88 +410,86 @@ extension LogInViewController {
                 let popupView = CustomPopupView(title: "로그인 실패", message: "이메일 혹은 비밀번호를\n다시 확인해 주세요.", buttonText: "확인", dimmingView: dimmingView)
                 popupView.alpha = 0
                 self.view.addSubview(popupView)
-                
-                UIView.animate(withDuration: 0.3) {
-                    popupView.alpha = 1
-                    dimmingView.alpha = 1
-                }
-                
                 popupView.snp.makeConstraints { make in
                     make.center.equalToSuperview()
                     make.width.equalTo(264)
                     make.height.equalTo(167)
                 }
+                UIView.animate(withDuration: 0.3) {
+                    popupView.alpha = 1
+                    dimmingView.alpha = 1
+                }
             }
         }
     }
     
-    func login2(email: String, password: String) {
-        UserService.shared.login(email: email, password: password) {
-            response in
-            switch response {
-            case .success(let data):
-                if let json = data as? [String: Any], let resultCode = json["resultCode"] as? Int {
-                    if resultCode == 200 {
-                        print("이백")
-                        guard let token = json["token"] as? String,
-                              let nickname = json["nickname"] as? String,
-                              let email = json["email"] as? String,
-                              let image = json["image"] else {
-                            print("데이터 저장 오류")
-                            return
-                        }
-                        
-                        TokenManager.shared.saveToken(token)
-                        print("토큰 저장 완료 : \(token)")
-                        
-                        UserSession.shared.nickname = nickname
-                        UserSession.shared.email = email
-                        
-                        if let myImage = image as? String {
-                            UserSession.shared.profileImage = myImage
-                            print("사용자 이미지 프로필 String")
-                            
-                            if let imageData = Data(base64Encoded: myImage, options: .ignoreUnknownCharacters) {
-                                let image = UIImage(data: imageData)
-                                UserSession.shared.image = image
-                                print("사용자 이미지 프로필 UIImage")
-                            }
-                        } else {
-                            print("<null>: 기본 이미지 프로필")
-                        }
-                        
-                        DispatchQueue.main.async {
-                            let myPageViewController = MyPageViewController()
-                            self.navigationController?.pushViewController(myPageViewController, animated: true)
-                        }
-                    } else if resultCode == 500 {
-                        print("오백")
-                        
-                        let dimmingView = UIView(frame: UIScreen.main.bounds)
-                        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-                        dimmingView.alpha = 0
-                        self.view.addSubview(dimmingView)
-                        
-                        let popupView = CustomPopupView(title: "로그인 실패", message: "이메일 혹은 비밀번호를\n다시 확인해 주세요.", buttonText: "확인", dimmingView: dimmingView)
-                        popupView.alpha = 0
-                        self.view.addSubview(popupView)
-                        
-                        UIView.animate(withDuration: 0.3) {
-                            popupView.alpha = 1
-                            dimmingView.alpha = 1
-                        }
-                        
-                        popupView.snp.makeConstraints { make in
-                            make.center.equalToSuperview()
-                            make.width.equalTo(264)
-                            make.height.equalTo(167)
-                        }
-                    }
-                }
-            case .failure:
-                print("FUCKING fail")
-            }
-        }
-        
-    }
+//    func login2(email: String, password: String) {
+//        UserService.shared.login(email: email, password: password) {
+//            response in
+//            switch response {
+//            case .success(let data):
+//                if let json = data as? [String: Any], let resultCode = json["resultCode"] as? Int {
+//                    if resultCode == 200 {
+//                        print("이백")
+//                        guard let token = json["token"] as? String,
+//                              let nickname = json["nickname"] as? String,
+//                              let email = json["email"] as? String,
+//                              let image = json["image"] else {
+//                            print("데이터 저장 오류")
+//                            return
+//                        }
+//
+//                        TokenManager.shared.saveToken(token)
+//                        print("토큰 저장 완료 : \(token)")
+//                        
+//                        UserSession.shared.nickname = nickname
+//                        UserSession.shared.email = email
+//                        
+//                        if let myImage = image as? String {
+//                            UserSession.shared.profileImage = myImage
+//                            print("사용자 이미지 프로필 String")
+//                            
+//                            if let imageData = Data(base64Encoded: myImage, options: .ignoreUnknownCharacters) {
+//                                let image = UIImage(data: imageData)
+//                                UserSession.shared.image = image
+//                                print("사용자 이미지 프로필 UIImage")
+//                            }
+//                        } else {
+//                            print("<null>: 기본 이미지 프로필")
+//                        }
+//                        
+//                        DispatchQueue.main.async {
+//                            let myPageViewController = MyPageViewController()
+//                            self.navigationController?.pushViewController(myPageViewController, animated: true)
+//                        }
+//                    } else if resultCode == 500 {
+//                        print("오백")
+//                        
+//                        let dimmingView = UIView(frame: UIScreen.main.bounds)
+//                        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+//                        dimmingView.alpha = 0
+//                        self.view.addSubview(dimmingView)
+//                        
+//                        let popupView = CustomPopupView(title: "로그인 실패", message: "이메일 혹은 비밀번호를\n다시 확인해 주세요.", buttonText: "확인", dimmingView: dimmingView)
+//                        popupView.alpha = 0
+//                        self.view.addSubview(popupView)
+//                        
+//                        UIView.animate(withDuration: 0.3) {
+//                            popupView.alpha = 1
+//                            dimmingView.alpha = 1
+//                        }
+//                        
+//                        popupView.snp.makeConstraints { make in
+//                            make.center.equalToSuperview()
+//                            make.width.equalTo(264)
+//                            make.height.equalTo(167)
+//                        }
+//                    }
+//                }
+//            case .failure:
+//                print("FUCKING fail")
+//            }
+//        }
+//        
+//    }
 }

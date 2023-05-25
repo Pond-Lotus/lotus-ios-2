@@ -72,7 +72,7 @@ class EnterProfileViewController: UIViewController {
             .font: UIFont.systemFont(ofSize: 15, weight: .regular),
             .foregroundColor: UIColor(red: 0.837, green: 0.837, blue: 0.837, alpha: 1)
         ]
-        let attributedPlaceholder = NSAttributedString(string: "2~6 글자로 입력해 주세요", attributes: attributes)
+        let attributedPlaceholder = NSAttributedString(string: "2~6자 이하로 입력해 주세요", attributes: attributes)
         textField.attributedPlaceholder = attributedPlaceholder
         
         textField.autocapitalizationType = .none
@@ -120,7 +120,7 @@ class EnterProfileViewController: UIViewController {
             .font: UIFont.systemFont(ofSize: 15, weight: .regular),
             .foregroundColor: UIColor(red: 0.837, green: 0.837, blue: 0.837, alpha: 1)
         ]
-        let attributedPlaceholder = NSAttributedString(string: "8자 이상 대문자, 소문자, 특수문자를 포함해 주세요.", attributes: attributes)
+        let attributedPlaceholder = NSAttributedString(string: "8~15자 이내의 영문자, 숫자, 특수문자를 포함해 주세요", attributes: attributes)
         textField.attributedPlaceholder = attributedPlaceholder
         
         textField.isSecureTextEntry = true
@@ -169,7 +169,7 @@ class EnterProfileViewController: UIViewController {
             .font: UIFont.systemFont(ofSize: 15, weight: .regular),
             .foregroundColor: UIColor(red: 0.837, green: 0.837, blue: 0.837, alpha: 1)
         ]
-        let attributedPlaceholder = NSAttributedString(string: "8자 이상 대문자, 소문자, 특수문자를 포함해 주세요.", attributes: attributes)
+        let attributedPlaceholder = NSAttributedString(string: "8~15자 이내의 영문자, 숫자, 특수문자를 포함해 주세요", attributes: attributes)
         textField.attributedPlaceholder = attributedPlaceholder
 
         textField.isSecureTextEntry = true

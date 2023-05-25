@@ -17,7 +17,7 @@ class UserSession {
     var nickname: String?
     var email: String?
     var profileImage: String?
-    var image: UIImage?
+    var image: String?
     
     private let userDefaults = UserDefaults.standard
     private let nicknameKey = "nickname"
@@ -30,6 +30,14 @@ class UserSession {
         }
         let base64String = imageData.base64EncodedString(options: [])
         return base64String
+    }
+    
+    func base64StringToImage(base64String: String) -> UIImage? {
+        guard let imageData = Data(base64Encoded: base64String) else {
+            return nil
+        }
+        let image = UIImage(data: imageData)
+        return image
     }
     
     private init() {

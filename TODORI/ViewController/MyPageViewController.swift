@@ -14,43 +14,15 @@ class MyPageViewController: UIViewController {
     
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
-        
-        if UserSession.shared.profileImage == nil {
-            imageView.image = UIImage(named: "default-profile")?.resize(to: CGSize(width: 89, height: 89))
-        } else {
-            if let base64String = UserSession.shared.profileImage {
-                if let imageData = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
-                    if let originalImage = UIImage(data: imageData) {
-                        // 이미지를 정사각형으로 잘라내기 위한 크기 계산
-                        let squareSize = min(originalImage.size.width, originalImage.size.height)
-                        let squareRect = CGRect(x: 0, y: 0, width: squareSize, height: squareSize)
-                        
-                        // 정사각형으로 잘라낸 이미지 생성
-                        if let croppedImage = originalImage.cgImage?.cropping(to: squareRect) {
-                            let croppedUIImage = UIImage(cgImage: croppedImage)
-                            
-                            // 원형 이미지 생성
-                            if let circularImage = croppedUIImage.circleMasked {
-                                imageView.contentMode = .scaleAspectFit
-                                imageView.layer.cornerRadius = imageView.frame.width / 2.0
-                                imageView.clipsToBounds = true
-                                imageView.layer.masksToBounds = true
-                                imageView.image = circularImage
-                            }
-                        }
-                    }
-                }
-            }
-        }
         return imageView
     }()
     
     private let nickNameLabel: UILabel = {
         let label = UILabel()
-        if let nickname = UserSession.shared.nickname {
+        if let nickname = UserDefaults.standard.string(forKey: "nickname")  {
             label.text = nickname
         } else {
-            label.text = "(UNKNOWN)"
+            label.text = "(NONE)"
         }
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -59,10 +31,10 @@ class MyPageViewController: UIViewController {
     
     private let emailLabel: UILabel = {
         let label = UILabel()
-        if let email = UserSession.shared.email {
+        if let email = UserDefaults.standard.string(forKey: "email")  {
             label.text = email
         } else {
-            label.text = "(UNKNOWN)"
+            label.text = "(NONE)"
         }
         label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -153,7 +125,6 @@ class MyPageViewController: UIViewController {
     }
     
     override func viewDidLoad() {
-        print("MyPageViewController의 viewDidLoad() 입니다.")
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
@@ -170,61 +141,35 @@ class MyPageViewController: UIViewController {
         setupUI()
     }
     
-    @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-        // MyPageViewController의 뷰를 터치한 경우에만 아래 코드가 실행됩니다.
-        // 터치 이벤트를 소비하여 상위 뷰 컨트롤러로 전달되지 않도록 합니다.
-        print("MyPageViewController의 handleTapGesture")
-        gesture.cancelsTouchesInView = true
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if UserSession.shared.profileImage == nil {
-            profileImageView.image = UIImage(named: "default-profile")?.resize(to: CGSize(width: 89, height: 89))
-        } else {
-            if let base64String = UserSession.shared.profileImage {
-                if let imageData = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters) {
-                    if let originalImage = UIImage(data: imageData) {
-                        // 이미지를 정사각형으로 잘라내기 위한 크기 계산
-                        let squareSize = min(originalImage.size.width, originalImage.size.height)
-                        let squareRect = CGRect(x: 0, y: 0, width: squareSize, height: squareSize)
-                        
-                        // 정사각형으로 잘라낸 이미지 생성
-                        if let croppedImage = originalImage.cgImage?.cropping(to: squareRect) {
-                            let croppedUIImage = UIImage(cgImage: croppedImage)
-                            
-                            // 원형 이미지 생성
-                            if let circularImage = croppedUIImage.circleMasked {
-                                profileImageView.contentMode = .scaleAspectFit
-                                profileImageView.layer.cornerRadius = profileImageView.frame.width / 2.0
-                                profileImageView.clipsToBounds = true
-                                profileImageView.layer.masksToBounds = true
-                                profileImageView.image = circularImage
-                            }
-                        }
-                    }
-                }
+        if let image = UserDefaults.standard.string(forKey: "image") {
+            if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
+                let squareImage = originalImage.squareImage()
+                let roundedImage = squareImage?.roundedImage()
+                profileImageView.image = roundedImage
             }
+        } else {
+            print("UserDefaults에 image 없음2.")
         }
         
-        if let nickname = UserSession.shared.nickname {
+        if let email = UserDefaults.standard.string(forKey: "email")  {
+            emailLabel.text = email
+        }
+        
+        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
             nickNameLabel.text = nickname
         }
         
-        if let email = UserSession.shared.email {
-            emailLabel.text = email
-        }
-
         navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
-    
+
     private func setupUI() {
         let stackView1 = UIStackView(arrangedSubviews: [changePasswordButton, notificationButton])
         stackView1.axis = .vertical
@@ -338,18 +283,19 @@ class MyPageViewController: UIViewController {
         }
     }
     
+    @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
+        // MyPageViewController의 뷰를 터치한 경우에만 아래 코드가 실행됩니다.
+        // 터치 이벤트를 소비하여 상위 뷰 컨트롤러로 전달되지 않도록 합니다.
+        print("MyPageViewController의 handleTapGesture")
+        gesture.cancelsTouchesInView = true
+    }
+    
     @objc func editProfileButtonTapped() {
-//        let navController = UINavigationController(rootViewController: MyPageViewController())
-//        navController.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(EditProfileViewController(), animated: true)
-//        self.present(navController, animated: true, completion: nil)
     }
     
     @objc func settingGroupButtonTapped() {
-//        let navController = UINavigationController(rootViewController: MyPageViewController())
-//        navController.modalPresentationStyle = .fullScreen
-        navigationController?.pushViewController(GroupSettingViewController(), animated: true)
-//        self.present(navController, animated: true, completion: nil)
+        inquireGroup()
     }
     
     @objc func logoutButtonTapped() {
@@ -400,8 +346,7 @@ class MyPageViewController: UIViewController {
                 } completion: { _ in
                     self.view.removeFromSuperview()
                     self.removeFromParent()
-                    self.dimmingView?.isHidden = true
-                    
+                    self.dimmingView?.isHidden = true   
                 }
             } else {
                 // 왼쪽으로 당겨지지 않았으므로 초기 위치로 되돌림
@@ -413,23 +358,36 @@ class MyPageViewController: UIViewController {
             break
         }
     }
-    
 }
 
 extension MyPageViewController {
     
     func logout() {
-        UserService.shared.logout() {
-            response in
+        UserService.shared.logout() { response in
             switch response {
             case .success(let data):
                 if let json = data as? [String: Any], let resultCode = json["resultCode"] as? Int {
                     if resultCode == 200 {
-                        print("이백")
-                        let navController = UINavigationController(rootViewController: LogInViewController())
-                        navController.modalPresentationStyle = .fullScreen
-                        self.present(navController, animated: true, completion: nil)
+                        print("로그아웃 이백")
+                        UserDefaults.standard.set(false, forKey: "autoLogin")
                         
+                        if let navigationController = self.navigationController {
+                            navigationController.setViewControllers([], animated: false)
+                            navigationController.pushViewController(LogInViewController(), animated: true)
+                        }
+                        
+                        
+
+//                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                              let sceneDelegate = windowScene.delegate as? SceneDelegate else {
+//                            return
+//                        }
+//
+//                        let navigationController = UINavigationController(rootViewController: LogInViewController())
+//                        sceneDelegate.window?.rootViewController = navigationController
+//                        sceneDelegate.window?.makeKeyAndVisible()
+//                        self.navigationController?.popToRootViewController(animated: true)
+
                     } else if resultCode == 500 {
                         print("오백")
                         print("로그아웃 실패")
@@ -437,6 +395,45 @@ extension MyPageViewController {
                 }
             case .failure:
                 print("FUCKING fail")
+            }
+        }
+    }
+    
+    func inquireGroup() {
+        TodoService.shared.inquireGroupName() { response in
+            switch response {
+            case .success(let data):
+                if let json = data as? ToDoResponse {
+                    if json.resultCode == 200 {
+                        print("이백")
+                        
+                        let groupSettingVC = GroupSettingViewController()
+                        if let group1 = json.data["1"] {
+                            groupSettingVC.firstGroupName = group1
+                        }
+                        if let group2 = json.data["2"] {
+                            groupSettingVC.secondGroupName = group2
+                        }
+                        if let group3 = json.data["3"] {
+                            groupSettingVC.thirdGroupName = group3
+                        }
+                        if let group4 = json.data["4"] {
+                            groupSettingVC.fourthGroupName = group4
+                        }
+                        if let group5 = json.data["5"] {
+                            groupSettingVC.fifthGroupName = group5
+                        }
+                        if let group6 = json.data["6"] {
+                            groupSettingVC.sixthGroupName = group6
+                        }
+                        self.navigationController?.pushViewController(groupSettingVC, animated: true)
+                        
+                    } else if json.resultCode == 500 {
+                        print("오백")
+                    }
+                }
+            case .failure(let err):
+                print(err)
             }
         }
     }

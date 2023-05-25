@@ -20,6 +20,7 @@ enum APIConstant {
         static let editProfile = baseURL + "/account/edit1/"
         static let changePassword = baseURL + "/account/edit2/"
         static let withdrawal = baseURL + "/account/withdrawal/"
+        static let checkToken = baseURL + "/account/cktoken/"
     }
     
     enum ToDo {

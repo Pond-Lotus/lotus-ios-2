@@ -41,3 +41,32 @@ extension UIImage {
         return maskedImage
     }
 }
+
+extension UIImage {
+    func roundedImage() -> UIImage? {
+        let rect = CGRect(origin: .zero, size: self.size)
+        UIGraphicsBeginImageContextWithOptions(self.size, false, 0.0)
+        UIBezierPath(roundedRect: rect, cornerRadius: self.size.width/2).addClip()
+        self.draw(in: rect)
+        let roundedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return roundedImage
+    }
+}
+
+extension UIImage {
+    func squareImage() -> UIImage? {
+        let originalWidth = self.size.width
+        let originalHeight = self.size.height
+        let edgeLength = min(originalWidth, originalHeight)
+        let posX = (originalWidth - edgeLength) / 2.0
+        let posY = (originalHeight - edgeLength) / 2.0
+        let cropRect = CGRect(x: posX, y: posY, width: edgeLength, height: edgeLength)
+        
+        if let imageRef = self.cgImage?.cropping(to: cropRect) {
+            return UIImage(cgImage: imageRef, scale: self.scale, orientation: self.imageOrientation)
+        }
+        
+        return nil
+    }
+}
