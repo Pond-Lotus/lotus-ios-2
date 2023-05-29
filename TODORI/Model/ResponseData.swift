@@ -1,8 +1,8 @@
 //
 //  ResponseData.swift
-//  ToDo
+//  TODORI
 //
-//  Created by 제임스 on 2023/01/09.
+//  Created by Dasol on 2023/05/29.
 //
 
 import Foundation
@@ -78,7 +78,7 @@ struct ImageAndNickname:Codable{
 
 struct PriorityResponseData:Codable{
     let resultCode:Int
-    let data:String
+    let data:Category
 }
 
 struct SearchColorArrayResponseData:Codable{

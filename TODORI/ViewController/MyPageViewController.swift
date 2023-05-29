@@ -144,14 +144,16 @@ class MyPageViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if let image = UserDefaults.standard.string(forKey: "image") {
-            if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
-                let squareImage = originalImage.squareImage()
-                let roundedImage = squareImage?.roundedImage()
-                profileImageView.image = roundedImage
+        DispatchQueue.main.async {
+            if let image = UserDefaults.standard.string(forKey: "image") {
+                if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
+                    let squareImage = originalImage.squareImage()
+                    let roundedImage = squareImage?.roundedImage()
+                    self.profileImageView.image = roundedImage
+                }
+            } else {
+                print("UserDefaults에 image 없음2.")
             }
-        } else {
-            print("UserDefaults에 image 없음2.")
         }
         
         if let email = UserDefaults.standard.string(forKey: "email")  {
@@ -286,7 +288,6 @@ class MyPageViewController: UIViewController {
     @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
         // MyPageViewController의 뷰를 터치한 경우에만 아래 코드가 실행됩니다.
         // 터치 이벤트를 소비하여 상위 뷰 컨트롤러로 전달되지 않도록 합니다.
-        print("MyPageViewController의 handleTapGesture")
         gesture.cancelsTouchesInView = true
     }
     
@@ -375,8 +376,6 @@ extension MyPageViewController {
                             navigationController.setViewControllers([], animated: false)
                             navigationController.pushViewController(LogInViewController(), animated: true)
                         }
-                        
-                        
 
 //                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
 //                              let sceneDelegate = windowScene.delegate as? SceneDelegate else {

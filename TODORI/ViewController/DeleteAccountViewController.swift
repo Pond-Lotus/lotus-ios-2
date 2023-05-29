@@ -126,14 +126,16 @@ class DeleteAccountViewController: UIViewController {
         separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
         navigationController?.navigationBar.addSubview(separatorView!)
         
-        if let image = UserDefaults.standard.string(forKey: "image") {
-            if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
-                let squareImage = originalImage.squareImage()
-                let roundedImage = squareImage?.roundedImage()
-                profileImageView.image = roundedImage
+        DispatchQueue.main.async {
+            if let image = UserDefaults.standard.string(forKey: "image") {
+                if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
+                    let squareImage = originalImage.squareImage()
+                    let roundedImage = squareImage?.roundedImage()
+                    self.profileImageView.image = roundedImage
+                }
+            } else {
+                print("UserDefaults에 image 없음2.")
             }
-        } else {
-            print("UserDefaults에 image 없음.")
         }
         
         if let email = UserDefaults.standard.string(forKey: "email")  {

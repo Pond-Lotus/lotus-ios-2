@@ -9,3 +9,8 @@ enum NetworkResult<T> {
     case success(T)
     case failure(Error)
 }
+
+enum AFResult<T> {
+    case success(T)
+    case failure(T)
+}

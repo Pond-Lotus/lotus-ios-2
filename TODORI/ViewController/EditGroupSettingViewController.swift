@@ -16,6 +16,13 @@ class EditGroupSettingViewController: UIViewController {
     var index: String?
     
     var groupName: String?
+
+    var firstGroupName: String?
+    var secondGroupName: String?
+    var thirdGroupName: String?
+    var fourthGroupName: String?
+    var fifthGroupName: String?
+    var sixthGroupName: String?
     
     private func createStackView(image: String, text: String) -> UIStackView {
         let stackView = UIStackView()
@@ -159,13 +166,13 @@ class EditGroupSettingViewController: UIViewController {
     
     @objc func completeButtonTapped() {
         print("TAPPED")
-        let groupSettingVC = GroupSettingViewController()
-        guard let first = groupSettingVC.firstGroupName,
-              let second = groupSettingVC.secondGroupName,
-              let third = groupSettingVC.thirdGroupName,
-              let fourth = groupSettingVC.fourthGroupName,
-              let fifth = groupSettingVC.fifthGroupName,
-              let sixth = groupSettingVC.sixthGroupName
+        
+        guard let first = firstGroupName,
+              let second = secondGroupName,
+              let third = thirdGroupName,
+              let fourth = fourthGroupName,
+              let fifth = fifthGroupName,
+              let sixth = sixthGroupName
         else { return }
 
         if let index = index {
@@ -203,7 +210,7 @@ extension EditGroupSettingViewController {
         TodoService.shared.editGroupName(first: first, second: second, third: third, fourth: fourth, fifth: fifth, sixth: sixth) { response in
             switch response {
             case .success(let data):
-                if let json = data as? ToDoResponse {
+                if let json = data as? CheckTokenResponse {
                     if json.resultCode == 200 {
                         print("이백")
                         
@@ -237,11 +244,11 @@ extension EditGroupSettingViewController {
 
 extension EditGroupSettingViewController: UITextFieldDelegate {
     
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let currentText = textField.text ?? ""
-        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
-        return true
-    }
+//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+//        let currentText = textField.text ?? ""
+//        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
+//        return true
+//    }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         if let enteredText = textField.text {

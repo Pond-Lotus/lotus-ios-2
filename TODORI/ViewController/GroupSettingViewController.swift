@@ -170,6 +170,13 @@ class GroupSettingViewController: UIViewController {
             editGroupSettingVC.color = color
             editGroupSettingVC.label = label
             editGroupSettingVC.index = index
+    
+            editGroupSettingVC.firstGroupName = self.firstGroupName
+            editGroupSettingVC.secondGroupName = self.secondGroupName
+            editGroupSettingVC.thirdGroupName = self.thirdGroupName
+            editGroupSettingVC.fourthGroupName = self.fourthGroupName
+            editGroupSettingVC.fifthGroupName = self.fifthGroupName
+            editGroupSettingVC.sixthGroupName = self.sixthGroupName
             
             navigationController?.pushViewController(editGroupSettingVC, animated: true)
         } else {

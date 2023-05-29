@@ -211,13 +211,14 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         self.view.endEditing(true)
         
         // MyPageViewController를 터치한 경우에는 아무 작업도 수행하지 않습니다.
-        guard let touch = touches.first, let view = touch.view else {
-            return
-        }
-        
-        if view == overlayViewController?.view {
-            return
-        }
+//        guard let touch = touches.first, let view = touch.view else {
+//            return
+//        }
+//        
+//        if view == overlayViewController?.view {
+//            print("FUCK")
+//            return
+//        }
     }
     
     private func setupUI() {
@@ -396,7 +397,9 @@ extension LogInViewController {
                         }
                     }
                     DispatchQueue.main.async {
-                        self.navigationController?.pushViewController(MyPageViewController(), animated: true)
+                        let nextVC = TodoMainViewController()
+                        nextVC.modalPresentationStyle = .fullScreen
+                        self.present(nextVC, animated: false, completion: nil)
                     }
                 } else {
                     print("로그인 실패 : \(response)")
