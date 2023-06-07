@@ -160,6 +160,18 @@ class TodoMainViewController : UIViewController {
         searchTodo(date: calendarView.selectedDate!) //투두 조회
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
     private func addFunctionToComponent(){
         let tapTableViewGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tapTableViewGesture.delegate = self // delegate 설정
@@ -624,7 +636,6 @@ class TodoMainViewController : UIViewController {
                 }
             case .failure(let meassage):
                 print("failure", meassage)
-                
             }
         }
     }
@@ -763,21 +774,22 @@ class TodoMainViewController : UIViewController {
             return todo1.id < todo2.id
         }
     }
-    
-    @objc private func tapHamburgerButton(){
+        
+    @objc private func tapHamburgerButton() {
         dimmingView = UIView(frame: UIScreen.main.bounds)
         dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         dimmingView.alpha = 0
         view.addSubview(dimmingView)
-    
+        
         overlayViewController = MyPageViewController()
         overlayViewController?.view.frame = CGRect(x: view.frame.size.width, y: 0, width: view.frame.size.width, height: view.frame.size.height)
+        
         if let overlayViewController = overlayViewController {
             addChild(overlayViewController)
+            view.addSubview(overlayViewController.view)
+            overlayViewController.didMove(toParent: self)
         }
-        if let x = overlayViewController?.view {
-            view.addSubview(x)
-        }
+        
         overlayViewController?.dimmingView = dimmingView
         
         UIView.animate(withDuration: 0.3) {
@@ -1182,8 +1194,10 @@ extension TodoMainViewController: TodoTableViewCellDelegate {
         tableView.reloadData()
     }
 }
+
 extension TodoMainViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         return touch.view == tableView || touch.view == tableView.tableHeaderView || touch.view == calendarBackgroundView
     }
 }
+

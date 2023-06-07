@@ -7,10 +7,6 @@
 
 import Foundation
 
-struct CheckEmailResponse: Codable {
-    let resultCode: Int
-}
-
 //class MySingleton {
 //    static let shared = MySingleton() // Singleton 인스턴스
 //

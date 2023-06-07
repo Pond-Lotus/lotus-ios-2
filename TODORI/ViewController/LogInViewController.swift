@@ -139,9 +139,9 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
-        self.view.addGestureRecognizer(tapGesture)
-        
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
+//        self.view.addGestureRecognizer(tapGesture)
+        navigationController?.delegate = self
         setupUI()
         
         emailTextField.delegate = self
@@ -157,7 +157,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        
         navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
@@ -170,17 +169,17 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
-    @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-        print("LogInViewController의 handleTapGesture")
-        UIView.animate(withDuration: 0.3, animations: {
-            self.overlayViewController?.view.frame = CGRect(x: self.view.frame.size.width, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
-            self.dimmingView?.alpha = 0
-        }) { (_) in
-            self.overlayViewController?.removeFromParent()
-            self.overlayViewController?.view.removeFromSuperview()
-            self.dimmingView?.removeFromSuperview()
-        }
-    }
+//    @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
+//        print("LogInViewController의 handleTapGesture")
+//        UIView.animate(withDuration: 0.3, animations: {
+//            self.overlayViewController?.view.frame = CGRect(x: self.view.frame.size.width, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
+//            self.dimmingView?.alpha = 0
+//        }) { (_) in
+//            self.overlayViewController?.removeFromParent()
+//            self.overlayViewController?.view.removeFromSuperview()
+//            self.dimmingView?.removeFromSuperview()
+//        }
+//    }
     
     @objc func testButtonTapped() {
         dimmingView = UIView(frame: UIScreen.main.bounds)
@@ -277,26 +276,25 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         
         findPasswordButton.snp.makeConstraints { make in
-            make.top.equalTo(loginButton.snp.bottom).offset(13)
+            make.top.equalTo(loginButton.snp.bottom).offset(10)
             make.leading.equalTo(loginButton.snp.leading).offset(0)
         }
         
         signupButton.snp.makeConstraints { make in
-            make.top.equalTo(loginButton.snp.bottom).offset(13)
+            make.top.equalTo(loginButton.snp.bottom).offset(10)
             make.trailing.equalTo(loginButton.snp.trailing).offset(0)
         }
     }
     
-    @objc func backButtonTapped() {
-        navigationController?.popViewController(animated: true)
-    }
-    
     @objc private func loginTapped() {
+        print("탭")
+        loginButton.isEnabled = false
         if emailTextField.text != "", passwordTextField.text != "" {
             if let email = emailTextField.text, let password = passwordTextField.text {
                 login(email: email, password: password)
             }
         } else {
+            loginButton.isEnabled = true
             print("로그인 탭 에러")
         }
     }
@@ -396,32 +394,41 @@ extension LogInViewController {
                             print("기본 이미지")
                         }
                     }
+                    
+//                    defer {
+//                        DispatchQueue.main.async {
+//                            self.loginButton.isEnabled = true
+//                        }
+//                    }
+                    
                     DispatchQueue.main.async {
                         let nextVC = TodoMainViewController()
                         nextVC.modalPresentationStyle = .fullScreen
-                        self.present(nextVC, animated: false, completion: nil)
+                        self.present(nextVC, animated: false)
                     }
                 } else {
                     print("로그인 실패 : \(response)")
+                    let dimmingView = UIView(frame: UIScreen.main.bounds)
+                    dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+                    dimmingView.alpha = 0
+                    self.view.addSubview(dimmingView)
+                    
+                    let popupView = CustomPopupView(title: "로그인 실패", message: "이메일 혹은 비밀번호를\n다시 확인해 주세요.", buttonText: "확인", dimmingView: dimmingView)
+                    popupView.alpha = 0
+                    self.view.addSubview(popupView)
+                    popupView.snp.makeConstraints { make in
+                        make.center.equalToSuperview()
+                        make.width.equalTo(264)
+                        make.height.equalTo(167)
+                    }
+                    UIView.animate(withDuration: 0.3) {
+                        popupView.alpha = 1
+                        dimmingView.alpha = 1
+                    }
+                    self.loginButton.isEnabled = true
                 }
             case .failure(_):
-                let dimmingView = UIView(frame: UIScreen.main.bounds)
-                dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-                dimmingView.alpha = 0
-                self.view.addSubview(dimmingView)
-                
-                let popupView = CustomPopupView(title: "로그인 실패", message: "이메일 혹은 비밀번호를\n다시 확인해 주세요.", buttonText: "확인", dimmingView: dimmingView)
-                popupView.alpha = 0
-                self.view.addSubview(popupView)
-                popupView.snp.makeConstraints { make in
-                    make.center.equalToSuperview()
-                    make.width.equalTo(264)
-                    make.height.equalTo(167)
-                }
-                UIView.animate(withDuration: 0.3) {
-                    popupView.alpha = 1
-                    dimmingView.alpha = 1
-                }
+                print("FUCKING ERROR")
             }
         }
     }
@@ -495,4 +502,16 @@ extension LogInViewController {
 //        }
 //        
 //    }
+}
+
+extension LogInViewController: UINavigationControllerDelegate {
+    
+    // Implement the willShow method of the UINavigationControllerDelegate
+    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+        // Check if the viewController is the rootViewController
+        let isRootViewController = viewController == navigationController.viewControllers.first
+        
+        // Enable or disable the interactivePopGestureRecognizer based on the isRootViewController flag
+        navigationController.interactivePopGestureRecognizer?.isEnabled = !isRootViewController
+    }
 }

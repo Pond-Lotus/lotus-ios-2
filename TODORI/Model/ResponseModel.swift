@@ -7,6 +7,11 @@
 
 import Foundation
 
+
+struct ResultCodeResponse: Decodable {
+    let resultCode: Int
+}
+
 struct LoginResponse: Decodable {
     let resultCode: Int
     let token: String?

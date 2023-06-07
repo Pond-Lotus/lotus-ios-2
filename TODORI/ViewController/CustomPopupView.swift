@@ -41,8 +41,6 @@ class CustomPopupView: UIView {
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(27)
             $0.width.equalToSuperview()
-//            $0.leading.equalToSuperview().offset(16)
-            
         }
         
         messageLabel = UILabel()
@@ -53,14 +51,12 @@ class CustomPopupView: UIView {
         messageLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(11)
             $0.width.equalToSuperview()
-//            $0.leading.equalToSuperview().offset(16)
-//            $0.trailing.equalToSuperview().inset(16)
         }
         
         actionButton = UIButton(type: .system)
-        actionButton.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
+        actionButton.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
         actionButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .heavy)
-        actionButton.setTitleColor(UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1), for: .normal)
+        actionButton.setTitleColor(.black, for: .normal)
         actionButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         
         addSubview(actionButton)
