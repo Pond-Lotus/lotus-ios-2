@@ -88,7 +88,7 @@ class EnterEmailViewController: UIViewController {
         button.setImage(image, for: .normal)
         button.isEnabled = false
         button.alpha = 0.5
-
+        
         return button
     }()
     
@@ -118,11 +118,13 @@ class EnterEmailViewController: UIViewController {
         view.addSubview(emailTextField)
         view.addSubview(errorLabel)
         view.addSubview(nextButton)
-        
+
+        navigationController?.navigationBar.backgroundColor = .blue
         numberLabel.snp.makeConstraints { make in
             if let navigationBarHeight = navigationController?.navigationBar.frame.height {
-                make.top.equalToSuperview().offset(navigationBarHeight + 40)
+//                make.top.equalToSuperview().offset(navigationBarHeight + 40)
             }
+            make.top.equalToSuperview().offset(0)
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
 

@@ -51,7 +51,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } else {
             print("isAutoLogin: false")
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                let navigationController = UINavigationController(rootViewController: EnterProfileViewController())
+                let navigationController = UINavigationController(rootViewController: LogInViewController())
                 self.window?.rootViewController = navigationController
                 self.window?.makeKeyAndVisible()
             }

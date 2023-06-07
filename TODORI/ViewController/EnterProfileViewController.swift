@@ -253,10 +253,17 @@ class EnterProfileViewController: UIViewController {
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        
+        scrollView.backgroundColor = .purple
+        contentView.backgroundColor = .blue
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            
+            if let topSafeAreaHeight = UIApplication.shared.windows.first?.safeAreaInsets.top {
+                // topSafeAreaHeight 변수에 상단 Safe Area의 높이가 저장됨
+                make.height.equalTo(view.frame.height - topSafeAreaHeight - (navigationController?.navigationBar.frame.height)!)
+                // 이곳에서 topSafeAreaHeight 값을 사용할 수 있습니다.
+            }
+            make.left.right.top.bottom.equalToSuperview()
         }
 
         stackView = UIStackView(arrangedSubviews: [nickNameLabel, nickNameTextField, nickNameGenerationErrorLabel, passwordLabel, passwordTextField, passwordGenerationErrorLabel, checkPasswordLabel, checkPasswordTextField, passwordInconsistencyErrorLabel])
@@ -276,10 +283,10 @@ class EnterProfileViewController: UIViewController {
         contentView.addSubview(emailLabel)
         contentView.addSubview(emailBoxLabel)
         contentView.addSubview(stackView)
-//        contentView.addSubview(nextButton)
+        contentView.addSubview(nextButton)
         
         numberLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(40)
+                make.top.equalToSuperview().offset(40)
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
         
@@ -306,13 +313,18 @@ class EnterProfileViewController: UIViewController {
             make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.06)
         }
         
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
         nextButton.snp.makeConstraints { make in
-//            make.trailing.equalTo(view.snp.trailing).offset(-UIScreen.main.bounds.width * 0.04)
-//            make.bottom.equalTo(view.snp.bottom).offset(-UIScreen.main.bounds.height * 0.02)
-//            make.trailing.equalToSuperview().offset(0)
-//            make.bottom.equalToSuperview().offset(0)
+            let width = scrollView.frame.width - contentView.frame.width
+            make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.04 + width)
+            make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
         }
     }
+
     
     @objc func backButtonTapped() {
         navigationController?.popViewController(animated: true)
