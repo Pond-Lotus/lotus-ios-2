@@ -8,16 +8,12 @@
 import UIKit
 
 class EnterEmailViewController: UIViewController {
-
-//    private var isEmailValid = false
-    
     private let numberLabel: UILabel = {
         let label = UILabel()
         label.text = "1/3"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
@@ -28,7 +24,6 @@ class EnterEmailViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 28, weight: .bold)
         label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -38,7 +33,6 @@ class EnterEmailViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
         label.textColor = UIColor(red: 0.502, green: 0.502, blue: 0.502, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
@@ -49,15 +43,15 @@ class EnterEmailViewController: UIViewController {
             .font: UIFont.systemFont(ofSize: 16, weight: .medium),
             .foregroundColor: UIColor(red: 0.663, green: 0.663, blue: 0.663, alpha: 1)
         ]
-        let attributedPlaceholder = NSAttributedString(string: "ex) todori@example.com", attributes: attributes)
+        let attributedPlaceholder = NSAttributedString(string: "ex) example@todori.com", attributes: attributes)
         textField.attributedPlaceholder = attributedPlaceholder
         
+        textField.keyboardType = .emailAddress
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         
         let underlineView = UIView()
         underlineView.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
-        underlineView.translatesAutoresizingMaskIntoConstraints = false
         textField.addSubview(underlineView)
 
         underlineView.snp.makeConstraints { make in
@@ -66,8 +60,6 @@ class EnterEmailViewController: UIViewController {
             make.leading.equalTo(textField.snp.leading)
             make.trailing.equalTo(textField.snp.trailing)
         }
-        
-        textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
@@ -77,7 +69,6 @@ class EnterEmailViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
         return label
     }()
@@ -94,6 +85,7 @@ class EnterEmailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("viewDidLoad 입니다.")
         view.backgroundColor = .white
         
         setupUI()
@@ -101,6 +93,19 @@ class EnterEmailViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
         emailTextField.delegate = self
+        navigationController?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+    }
+    
+    @objc func handleSwipeGesture(_ gesture: UISwipeGestureRecognizer) {
+        if gesture.direction == .right {
+            navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        emailTextField.becomeFirstResponder()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -108,7 +113,6 @@ class EnterEmailViewController: UIViewController {
         self.view.endEditing(true)
     }
 
-    
     private func setupUI() {
         NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction: #selector(backButtonTapped), title: "", showSeparator: false)
 
@@ -119,12 +123,8 @@ class EnterEmailViewController: UIViewController {
         view.addSubview(errorLabel)
         view.addSubview(nextButton)
 
-        navigationController?.navigationBar.backgroundColor = .blue
         numberLabel.snp.makeConstraints { make in
-            if let navigationBarHeight = navigationController?.navigationBar.frame.height {
-//                make.top.equalToSuperview().offset(navigationBarHeight + 40)
-            }
-            make.top.equalToSuperview().offset(0)
+            make.top.equalToSuperview().offset(111)
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
 
@@ -161,6 +161,7 @@ class EnterEmailViewController: UIViewController {
     
     @objc func nextButtonTapped() {
         if let email = emailTextField.text {
+            nextButton.isEnabled = false
             emailCheck(email: email)
         }
     }
@@ -176,7 +177,8 @@ extension EnterEmailViewController {
     func emailCheck(email: String) {
         UserService.shared.emailCheck(email: email) { result in
             switch result {
-            case .success(let data as ResultCodeResponse):
+            case .success(let data ):
+                self.nextButton.isEnabled = true
                 if data.resultCode == 200 {
                     print("이백")
                     self.errorLabel.isHidden = true
@@ -194,9 +196,7 @@ extension EnterEmailViewController {
                     self.errorLabel.isHidden = false
                 }
             case .failure:
-                print("FUCKING failure: 유효하지 않은 이메일")
-            case .success(_):
-                print("Nothing")
+                print("FUCKING failure")
             }
         }
     }
@@ -228,6 +228,24 @@ extension EnterEmailViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        return true
+    }
+}
+
+extension EnterEmailViewController: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if viewController == self {
+//            print("현재 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        } else {
+//            print("다른 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = false
+        }
+    }
+}
+
+extension EnterEmailViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
 }

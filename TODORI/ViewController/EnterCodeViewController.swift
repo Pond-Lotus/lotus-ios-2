@@ -15,7 +15,6 @@ class EnterCodeViewController: UIViewController {
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -26,7 +25,6 @@ class EnterCodeViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 28, weight: .bold)
         label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -36,7 +34,6 @@ class EnterCodeViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
         label.textColor = UIColor(red: 0.502, green: 0.502, blue: 0.502, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -45,7 +42,6 @@ class EnterCodeViewController: UIViewController {
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         textField.keyboardType = .numberPad
-        textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
@@ -211,10 +207,8 @@ class EnterCodeViewController: UIViewController {
         view.addSubview(nextButton)
         
         numberLabel.snp.makeConstraints { make in
-            if let navigationBarHeight = navigationController?.navigationBar.frame.height {
-                make.top.equalToSuperview().offset(navigationBarHeight + 40)
-            }
 //            make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.15)
+            make.top.equalToSuperview().offset(111)
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
         
@@ -257,13 +251,11 @@ class EnterCodeViewController: UIViewController {
     
     @objc func backButtonTapped() {
         navigationController?.popViewController(animated: true)
-        //        dismiss(animated: true, completion: nil) // 이전 뷰 컨트롤러로 이동
     }
     
     @objc func nextButtonTapped() {
         if let code = codeTextField.text, let email = UserSession.shared.signUpEmail {
-            print("email: \(email)")
-            print("code: \(code)")
+            self.nextButton.isEnabled = false
             codeCheck(email: email, code: code)
         } else {
             print("이메일 또는 코드 값이 없습니다.")
@@ -276,15 +268,14 @@ extension EnterCodeViewController {
         UserService.shared.codeCheck(email: email, code: code) { result in
             switch result {
             case .success(let data):
-                if let data = data as? ResultCodeResponse {
-                    if data.resultCode == 200 {
-                        print("이백")
-                        self.errorLabel.isHidden = true
-                        self.navigationController?.pushViewController(EnterProfileViewController(), animated: true)
-                    } else if data.resultCode == 500 {
-                        print("오백")
-                        self.errorLabel.isHidden = false
-                    }
+                self.nextButton.isEnabled = true
+                if data.resultCode == 200 {
+                    print("이백")
+                    self.errorLabel.isHidden = true
+                    self.navigationController?.pushViewController(EnterProfileViewController(), animated: true)
+                } else if data.resultCode == 500 {
+                    print("오백")
+                    self.errorLabel.isHidden = false
                 }
             case .failure:
                 print("FUCKING failure")

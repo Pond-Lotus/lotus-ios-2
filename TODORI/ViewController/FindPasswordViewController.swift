@@ -33,17 +33,13 @@ class FindPasswordViewController: UIViewController {
         
         let underlineView = UIView()
         underlineView.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
-        underlineView.translatesAutoresizingMaskIntoConstraints = false
         label.addSubview(underlineView)
-
         underlineView.snp.makeConstraints { make in
             make.height.equalTo(1)
             make.top.equalTo(label.snp.bottom).offset(27)
             make.leading.equalTo(label.snp.leading)
             make.trailing.equalTo(label.snp.trailing)
         }
-        
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -53,7 +49,6 @@ class FindPasswordViewController: UIViewController {
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
@@ -71,7 +66,6 @@ class FindPasswordViewController: UIViewController {
         textField.layer.cornerRadius = 8
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
-        textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
@@ -81,7 +75,6 @@ class FindPasswordViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
         return label
     }()
@@ -93,7 +86,6 @@ class FindPasswordViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         button.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
         button.layer.cornerRadius = 8
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -184,45 +176,44 @@ class FindPasswordViewController: UIViewController {
 }
 
 extension FindPasswordViewController {
-    
     func findPassword(email: String) {
-        UserService.shared.findPassword(email: email) {
-            response in
-            switch response {
-            case .success(let data):
-                if let json = data as? [String: Any],
-                   let resultCode = json["resultCode"] as? Int {
-                    if resultCode == 200 {
-                        print("이백")
-                        self.errorLabel.isHidden = true
-                        
-                        let dimmingView = UIView(frame: UIScreen.main.bounds)
-                        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-                        dimmingView.alpha = 0
-                        self.view.addSubview(dimmingView)
-                                                
-                        let popupView = CustomPopupView(title: "메일 발송 완료", message: "재설정한 비밀번호로\n로그인 해주세요.", buttonText: "로그인", dimmingView: dimmingView)
-                        popupView.alpha = 0
-                        self.view.addSubview(popupView)
-                        
-                        UIView.animate(withDuration: 0.3) {
-                            popupView.alpha = 1
-                            dimmingView.alpha = 1
-                        }
-
-                        popupView.snp.makeConstraints { make in
-                            make.center.equalToSuperview()
-                            make.width.equalTo(264)
-                            make.height.equalTo(167)
-                        }
-                    } else if resultCode == 500 {
-                        print("오백")
-                        self.errorLabel.isHidden = false
+        UserService.shared.findPassword(email: email) { result in
+            switch result {
+            case .success(let response):
+                if response.resultCode == 200 {
+                    print("이백")
+                    self.errorLabel.isHidden = true
+                    
+                    let dimmingView = UIView(frame: UIScreen.main.bounds)
+                    dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+                    dimmingView.alpha = 0
+                    self.view.addSubview(dimmingView)
+                    let popupView = CustomPopupView2(title: "메일 발송 완료", message: "재설정한 비밀번호로\n로그인 해주세요.", buttonText: "로그인", dimmingView: dimmingView)
+                    popupView.delegate = self // 중요
+                    popupView.alpha = 0
+                    self.view.addSubview(popupView)
+                    UIView.animate(withDuration: 0.3) {
+                        popupView.alpha = 1
+                        dimmingView.alpha = 1
                     }
+                    popupView.snp.makeConstraints { make in
+                        make.center.equalToSuperview()
+                        make.width.equalTo(264)
+                        make.height.equalTo(167)
+                    }
+                } else if response.resultCode == 500 {
+                    print("오백")
+                    self.errorLabel.isHidden = false
                 }
             case .failure(_):
                 print("FUCKING fail")
             }
         }
+    }
+}
+
+extension FindPasswordViewController: CustomPopupView2Delegate {
+    func loginButtonTappedDelegate() {
+        navigationController?.popViewController(animated: true)
     }
 }

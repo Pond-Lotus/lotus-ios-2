@@ -37,12 +37,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                         if let token = TokenManager.shared.getToken() {
                             print("토큰: \(token)")
                         }
-
                         self.window?.rootViewController = TodoMainViewController()
                         self.window?.makeKeyAndVisible()
-                        
-                    } else {
-                        print("토큰 유효성 검증 실패 : \(response)")
+                    } else if response.resultCode == 500{
+                        print("오백 : 토큰 유효성 검증 실패")
                     }
                 case .failure(_):
                     print("failure")
@@ -60,13 +58,35 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     static func logout() {
-        let loginViewController = LogInViewController()
+        let domain = Bundle.main.bundleIdentifier!
+        UserDefaults.standard.removePersistentDomain(forName: domain)
+        UserDefaults.standard.synchronize()
+
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
             let sceneDelegate = windowScene.delegate as? SceneDelegate
         else {
             return
         }
         
+        let loginViewController = UINavigationController(rootViewController: LogInViewController())
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = loginViewController
+        sceneDelegate.window = window
+        window.makeKeyAndVisible()
+    }
+    
+    static func withdrawal() {
+        let domain = Bundle.main.bundleIdentifier!
+        UserDefaults.standard.removePersistentDomain(forName: domain)
+        UserDefaults.standard.synchronize()
+
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let sceneDelegate = windowScene.delegate as? SceneDelegate
+        else {
+            return
+        }
+        
+        let loginViewController = UINavigationController(rootViewController: LogInViewController())
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController = loginViewController
         sceneDelegate.window = window

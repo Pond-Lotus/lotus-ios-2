@@ -20,3 +20,16 @@ struct Todo {
     var time: String
     var description: String
 }
+
+class GroupData {
+    static let shared = GroupData() // 싱글톤 인스턴스
+    
+    var firstGroupName: String?
+    var secondGroupName: String?
+    var thirdGroupName: String?
+    var fourthGroupName: String?
+    var fifthGroupName: String?
+    var sixthGroupName: String?
+    
+    private init() {}
+}

@@ -12,7 +12,7 @@ import FSCalendar
 class TodoMainViewController : UIViewController {
 
     private var overlayViewController: MyPageViewController?
-    var dimmingView: UIView = UIView()
+    var dimmingView: UIView?
     
     var calendarView: FSCalendar = FSCalendar(frame: CGRect(x: 0, y: 0, width: 330, height: 270))
     var segmentedControl: UISegmentedControl = UISegmentedControl()
@@ -162,13 +162,11 @@ class TodoMainViewController : UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
@@ -182,7 +180,7 @@ class TodoMainViewController : UIViewController {
         floatingButton.isUserInteractionEnabled = true
         floatingButton.addGestureRecognizer(tapGesture)
         blackViewOfBottomSheet.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleBottomSheetBlackViewDismiss)))
-        dimmingView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture)))
+//        dimmingView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture)))
         hambuergerButton.addTarget(self, action: #selector(tapHamburgerButton), for: .touchDown)
         redCircleButton.addTarget(self, action: #selector(tapColorCircleButton(_:)), for: .touchDown)
         yellowCircleButton.addTarget(self, action: #selector(tapColorCircleButton(_:)), for: .touchDown)
@@ -777,24 +775,26 @@ class TodoMainViewController : UIViewController {
         
     @objc private func tapHamburgerButton() {
         dimmingView = UIView(frame: UIScreen.main.bounds)
-        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        dimmingView.alpha = 0
-        view.addSubview(dimmingView)
+        dimmingView?.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        dimmingView?.alpha = 0
+        if let dimmingView = dimmingView {
+            view.addSubview(dimmingView)
+        }
         
         overlayViewController = MyPageViewController()
         overlayViewController?.view.frame = CGRect(x: view.frame.size.width, y: 0, width: view.frame.size.width, height: view.frame.size.height)
-        
         if let overlayViewController = overlayViewController {
             addChild(overlayViewController)
-            view.addSubview(overlayViewController.view)
-            overlayViewController.didMove(toParent: self)
         }
-        
+        if let x = overlayViewController?.view {
+            view.addSubview(x)
+        }
         overlayViewController?.dimmingView = dimmingView
-        
-        UIView.animate(withDuration: 0.3) {
-            self.overlayViewController?.view.frame = CGRect(x: 70, y: 0, width: self.view.frame.size.width - 70, height: self.view.frame.size.height)
-            self.dimmingView.alpha = 1
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.3) {
+                self.overlayViewController?.view.frame = CGRect(x: 70, y: 0, width: self.view.frame.size.width - 70, height: self.view.frame.size.height)
+                self.dimmingView?.alpha = 1
+            }
         }
     }
     
@@ -956,15 +956,13 @@ extension TodoMainViewController:UITableViewDelegate{
         print("TodoMainViewController의 handleTapGesture")
         UIView.animate(withDuration: 0.3, animations: {
             self.overlayViewController?.view.frame = CGRect(x: self.view.frame.size.width, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
-            self.dimmingView.alpha = 0
+//            self.dimmingView.alpha = 0
         }) { (_) in
             self.overlayViewController?.removeFromParent()
             self.overlayViewController?.view.removeFromSuperview()
-            self.dimmingView.removeFromSuperview()
+//            self.dimmingView.removeFromSuperview()
         }
     }
-    
-    
 }
 
 extension TodoMainViewController:UITableViewDataSource{

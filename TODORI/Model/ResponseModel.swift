@@ -12,6 +12,11 @@ struct ResultCodeResponse: Decodable {
     let resultCode: Int
 }
 
+struct RegisterResponse: Decodable {
+    let resultCode: Int
+    let account: [String: String]
+}
+
 struct LoginResponse: Decodable {
     let resultCode: Int
     let token: String?
@@ -20,9 +25,11 @@ struct LoginResponse: Decodable {
     let image: String?
 }
 
-struct CheckTokenResponse: Decodable {
+struct EditAccountResponse: Decodable {
     let resultCode: Int
+    let data: [String: String]
 }
+
 
 struct ToDoResponse: Decodable {
     let resultCode: Int

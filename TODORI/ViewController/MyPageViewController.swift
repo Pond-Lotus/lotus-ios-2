@@ -8,12 +8,12 @@
 import UIKit
 
 class MyPageViewController: UIViewController {
-    
     private var initialPosition: CGPoint = .zero
     var dimmingView: UIView?
     
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -25,7 +25,6 @@ class MyPageViewController: UIViewController {
             label.text = "(NONE)"
         }
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -38,7 +37,6 @@ class MyPageViewController: UIViewController {
         }
         label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -53,7 +51,6 @@ class MyPageViewController: UIViewController {
         let label = UILabel()
         label.text = "환경 설정"
         label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -65,7 +62,6 @@ class MyPageViewController: UIViewController {
         
         let image = UIImage(named: "setting")?.resize(to: CGSize(width: 18, height: 18))
         button.setImage(image, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -77,7 +73,6 @@ class MyPageViewController: UIViewController {
         
         let image = UIImage(named: "setting")?.resize(to: CGSize(width: 18, height: 18))
         button.setImage(image, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -85,7 +80,6 @@ class MyPageViewController: UIViewController {
         let label = UILabel()
         label.text = "그룹 설정"
         label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -114,7 +108,6 @@ class MyPageViewController: UIViewController {
     private func createUnderlineView() -> UIView {
         let view = UIView()
         view.backgroundColor = UIColor(red: 0.851, green: 0.851, blue: 0.851, alpha: 1)
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }
     
@@ -122,7 +115,6 @@ class MyPageViewController: UIViewController {
     
     private func createColorView(_ filename: String) -> UIImageView {
         let imageView = UIImageView(image: UIImage(named: filename))
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }
     
@@ -146,27 +138,26 @@ class MyPageViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+    
+        guard let email = UserDefaults.standard.string(forKey: "email"),
+              let nickname = UserDefaults.standard.string(forKey: "nickname")
+        else { return }
         
         DispatchQueue.main.async {
-            if let image = UserDefaults.standard.string(forKey: "image") {
-                if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
-                    let squareImage = originalImage.squareImage()
-                    let roundedImage = squareImage?.roundedImage()
-                    self.profileImageView.image = roundedImage
-                }
+            if let imageData = UserDefaults.standard.data(forKey: "image") {
+                self.profileImageView.image = UIImage(data: imageData)
             } else {
-                print("UserDefaults에 image 없음2.")
+                self.profileImageView.image = UIImage(named: "default-profile")
             }
         }
-        
-        if let email = UserDefaults.standard.string(forKey: "email")  {
-            emailLabel.text = email
-        }
-        
-        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
-            nickNameLabel.text = nickname
-        }
+        emailLabel.text = email
+        nickNameLabel.text = nickname
+    }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let cornerRadius = min(self.profileImageView.bounds.width, self.profileImageView.bounds.height) / 2
+        self.profileImageView.layer.cornerRadius = cornerRadius
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -293,19 +284,20 @@ class MyPageViewController: UIViewController {
     }
     
     @objc func editProfileButtonTapped() {
-        let nextViewController = EditProfileViewController()
-        let navigationController = UINavigationController(rootViewController: nextViewController)
-        navigationController.modalPresentationStyle = .fullScreen
-        navigationController.modalTransitionStyle = .crossDissolve
-        present(navigationController, animated: true, completion: nil)
+        navigationController?.pushViewController(EditProfileViewController(), animated: false)
+//        let navigationController = UINavigationController(rootViewController: nextViewController)
+//        navigationController.modalPresentationStyle = .fullScreen
+//        navigationController.modalTransitionStyle = .crossDissolve
+//        present(navigationController, animated: true, completion: nil)
     }
         
     @objc func changePasswordButtonTapped() {
-        let nextViewController = ChangePasswordViewController()
-        let navigationController = UINavigationController(rootViewController: nextViewController)
-        navigationController.modalPresentationStyle = .fullScreen
-        navigationController.modalTransitionStyle = .crossDissolve
-        present(navigationController, animated: true, completion: nil)
+        navigationController?.pushViewController(ChangePasswordViewController(), animated: false)
+//        let nextViewController = ChangePasswordViewController()
+//        let navigationController = UINavigationController(rootViewController: nextViewController)
+//        navigationController.modalPresentationStyle = .fullScreen
+//        navigationController.modalTransitionStyle = .crossDissolve
+//        present(navigationController, animated: true, completion: nil)
     }
     
     @objc func settingGroupButtonTapped() {
@@ -376,23 +368,21 @@ class MyPageViewController: UIViewController {
 
 extension MyPageViewController {
     func logout() {
-        UserService.shared.logout() { response in
-            switch response {
-            case .success(let data):
-                if let json = data as? [String: Any], let resultCode = json["resultCode"] as? Int {
-                    if resultCode == 200 {
-                        print("로그아웃 이백")
-                        UserDefaults.standard.set(false, forKey: "autoLogin")
-                        
-                        let domain = Bundle.main.bundleIdentifier!
-                        UserDefaults.standard.removePersistentDomain(forName: domain)
-                        UserDefaults.standard.synchronize()
-                        
-                        SceneDelegate.logout()
-                    } else if resultCode == 500 {
-                        print("오백")
-                        print("로그아웃 실패")
-                    }
+        UserService.shared.logout() { result in
+            switch result {
+            case .success(let response):
+                if response.resultCode == 200 {
+                    print("로그아웃 이백")
+                    UserDefaults.standard.set(false, forKey: "autoLogin")
+                    
+                    let domain = Bundle.main.bundleIdentifier!
+                    UserDefaults.standard.removePersistentDomain(forName: domain)
+                    UserDefaults.standard.synchronize()
+                    
+                    SceneDelegate.logout()
+                } else if response.resultCode == 500 {
+                    print("오백")
+                    print("로그아웃 실패")
                 }
             case .failure:
                 print("FUCKING fail")
@@ -401,41 +391,37 @@ extension MyPageViewController {
     }
     
     func inquireGroup() {
-        TodoService.shared.inquireGroupName() { response in
-            switch response {
-            case .success(let data):
-                if let json = data as? ToDoResponse {
-                    if json.resultCode == 200 {
-                        print("이백")
-                        
-                        let groupSettingVC = GroupSettingViewController()
-                        if let group1 = json.data["1"] {
-                            groupSettingVC.firstGroupName = group1
-                        }
-                        if let group2 = json.data["2"] {
-                            groupSettingVC.secondGroupName = group2
-                        }
-                        if let group3 = json.data["3"] {
-                            groupSettingVC.thirdGroupName = group3
-                        }
-                        if let group4 = json.data["4"] {
-                            groupSettingVC.fourthGroupName = group4
-                        }
-                        if let group5 = json.data["5"] {
-                            groupSettingVC.fifthGroupName = group5
-                        }
-                        if let group6 = json.data["6"] {
-                            groupSettingVC.sixthGroupName = group6
-                        }
-                        
-                        let navigationController = UINavigationController(rootViewController: groupSettingVC)
-                        navigationController.modalPresentationStyle = .fullScreen
-                        navigationController.modalTransitionStyle = .crossDissolve
-                        self.present(navigationController, animated: true, completion: nil)
-                        
-                    } else if json.resultCode == 500 {
-                        print("오백")
+        TodoService.shared.inquireGroupName() { result in
+            switch result {
+            case .success(let response):
+                if response.resultCode == 200 {
+                    print("이백")
+                    if let group1 = response.data["1"] {
+                        GroupData.shared.firstGroupName = group1
                     }
+                    if let group2 = response.data["2"] {
+                        GroupData.shared.secondGroupName = group2
+                    }
+                    if let group3 = response.data["3"] {
+                        GroupData.shared.thirdGroupName = group3
+                    }
+                    if let group4 = response.data["4"] {
+                        GroupData.shared.fourthGroupName = group4
+                    }
+                    if let group5 = response.data["5"] {
+                        GroupData.shared.fifthGroupName = group5
+                    }
+                    if let group6 = response.data["6"] {
+                        GroupData.shared.sixthGroupName = group6
+                    }
+                    
+                    let navigationController = UINavigationController(rootViewController: GroupSettingViewController())
+                    navigationController.modalPresentationStyle = .fullScreen
+                    navigationController.modalTransitionStyle = .crossDissolve
+                    self.present(navigationController, animated: true, completion: nil)
+                    
+                } else if response.resultCode == 500 {
+                    print("오백")
                 }
             case .failure(let err):
                 print(err)

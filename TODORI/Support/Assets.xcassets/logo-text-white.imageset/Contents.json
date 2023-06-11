@@ -1,15 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "TODORI-4 2.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "TODORI-4 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "logo-text-white.png",
+      "filename" : "TODORI-4.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

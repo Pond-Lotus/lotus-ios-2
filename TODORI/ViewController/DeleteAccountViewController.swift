@@ -24,13 +24,13 @@ class DeleteAccountViewController: UIViewController {
     
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.clipsToBounds = true
         return imageView
     }()
     
     private let nickNameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -43,7 +43,6 @@ class DeleteAccountViewController: UIViewController {
         }
         label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -65,7 +64,6 @@ class DeleteAccountViewController: UIViewController {
         
         let underlineView = UIView()
         underlineView.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
-        underlineView.translatesAutoresizingMaskIntoConstraints = false
         label.addSubview(underlineView)
         
         underlineView.snp.makeConstraints { make in
@@ -75,7 +73,6 @@ class DeleteAccountViewController: UIViewController {
             make.trailing.equalTo(label.snp.trailing)
         }
         
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -119,34 +116,31 @@ class DeleteAccountViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        guard let email = UserDefaults.standard.string(forKey: "email"),
+              let nickname = UserDefaults.standard.string(forKey: "nickname")
+        else { return }
+        
         DispatchQueue.main.async {
-            if let image = UserDefaults.standard.string(forKey: "image") {
-                if let originalImage = UserSession.shared.base64StringToImage(base64String: image) {
-                    let squareImage = originalImage.squareImage()
-                    let roundedImage = squareImage?.roundedImage()
-                    self.profileImageView.image = roundedImage
-                }
+            if let imageData = UserDefaults.standard.data(forKey: "image") {
+                self.profileImageView.image = UIImage(data: imageData)
             } else {
-                print("UserDefaults에 image 없음2.")
+                self.profileImageView.image = UIImage(named: "default-profile")
             }
         }
         
-        if let email = UserDefaults.standard.string(forKey: "email")  {
-            emailLabel.text = email
-        } else {
-            emailLabel.text = "(NONE)"
-        }
-        
-        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
-            nickNameLabel.text = nickname
-        } else {
-            nickNameLabel.text = "(NONE)"
-        }
+        emailLabel.text = email
+        nickNameLabel.text = nickname
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         NavigationBarManager.shared.removeSeparatorView()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let cornerRadius = min(self.profileImageView.bounds.width, self.profileImageView.bounds.height) / 2
+        self.profileImageView.layer.cornerRadius = cornerRadius
     }
     
     private func setupUI() {
@@ -243,7 +237,6 @@ class DeleteAccountViewController: UIViewController {
             dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
             dimmingView.alpha = 0
             keyWindow.addSubview(dimmingView)
-            
             let popupView = LogoutPopupView(title: "정말 떠나시나요?😢", message: "다음에 또 만나길 기대할게요.", buttonText1: "취소", buttonText2: "확인", dimmingView: dimmingView)
             popupView.delegate = self // 중요
             popupView.alpha = 0
@@ -253,7 +246,6 @@ class DeleteAccountViewController: UIViewController {
                 make.width.equalTo(264)
                 make.height.equalTo(167)
             }
-            
             UIView.animate(withDuration: 0.2) {
                 popupView.alpha = 1
                 dimmingView.alpha = 1
@@ -263,27 +255,15 @@ class DeleteAccountViewController: UIViewController {
 }
 
 extension DeleteAccountViewController {
-    
     func deleteAccount() {
-        UserService.shared.deleteAccount() {
-            response in
-            switch response {
-            case .success(let data):
-                if let json = data as? [String: Any],
-                   let resultCode = json["resultCode"] as? Int {
-                    if resultCode == 200 {
-                        print("이백")
-                        
-                        let domain = Bundle.main.bundleIdentifier!
-                        UserDefaults.standard.removePersistentDomain(forName: domain)
-                        UserDefaults.standard.synchronize()
-
-                        let viewControllerToPresent = LogInViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
-                    } else if resultCode == 500 {
-                        print("오백")
-                    }
+        UserService.shared.deleteAccount() { result in
+            switch result {
+            case .success(let response):
+                if response.resultCode == 200 {
+                    print("이백")
+                    SceneDelegate.logout()
+                } else if response.resultCode == 500 {
+                    print("오백")
                 }
             case .failure(_):
                 print("FUCKING fail")

@@ -29,7 +29,6 @@ class EnterProfileViewController: UIViewController {
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -40,7 +39,6 @@ class EnterProfileViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 28, weight: .bold)
         label.textColor = .black
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -50,7 +48,6 @@ class EnterProfileViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
         label.textColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -64,8 +61,6 @@ class EnterProfileViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 18, weight: .light)
         label.layer.cornerRadius = 8
         label.clipsToBounds = true
-        
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -75,12 +70,12 @@ class EnterProfileViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
         label.textColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let nickNameTextField: UITextField = {
         let textField = UITextField()
+        textField.tag = 1
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15, weight: .regular),
@@ -94,15 +89,12 @@ class EnterProfileViewController: UIViewController {
         
         let underlineView = UIView()
         underlineView.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
-        underlineView.translatesAutoresizingMaskIntoConstraints = false
         textField.addSubview(underlineView)
         underlineView.snp.makeConstraints { make in
             make.height.equalTo(1.5)
             make.top.equalTo(textField.snp.bottom).offset(7)
             make.leading.trailing.equalTo(textField)
         }
-        
-        textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
@@ -112,7 +104,6 @@ class EnterProfileViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
         return label
     }()
@@ -123,12 +114,12 @@ class EnterProfileViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
         label.textColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let passwordTextField: UITextField = {
         let textField = UITextField()
+        textField.tag = 2
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15, weight: .regular),
@@ -143,15 +134,12 @@ class EnterProfileViewController: UIViewController {
         
         let underlineView = UIView()
         underlineView.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
-        underlineView.translatesAutoresizingMaskIntoConstraints = false
         textField.addSubview(underlineView)
         underlineView.snp.makeConstraints { make in
             make.height.equalTo(1.5)
             make.top.equalTo(textField.snp.bottom).offset(7)
             make.leading.trailing.equalTo(textField)
         }
-        
-        textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
@@ -161,7 +149,6 @@ class EnterProfileViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
         return label
     }()
@@ -172,12 +159,12 @@ class EnterProfileViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
         label.textColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let checkPasswordTextField: UITextField = {
         let textField = UITextField()
+        textField.tag = 3
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15, weight: .regular),
@@ -192,15 +179,12 @@ class EnterProfileViewController: UIViewController {
         
         let underlineView = UIView()
         underlineView.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
-        underlineView.translatesAutoresizingMaskIntoConstraints = false
         textField.addSubview(underlineView)
         underlineView.snp.makeConstraints { make in
             make.height.equalTo(1.5)
             make.top.equalTo(textField.snp.bottom).offset(7)
             make.leading.trailing.equalTo(textField)
         }
-        
-        textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
@@ -209,8 +193,7 @@ class EnterProfileViewController: UIViewController {
         label.text = "비밀번호가 일치하지 않습니다."
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
-        label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1) 
         label.isHidden = true
         return label
     }()
@@ -235,7 +218,6 @@ class EnterProfileViewController: UIViewController {
         registerKeyboardNotifications()
     }
     
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         self.view.endEditing(true)
@@ -243,9 +225,6 @@ class EnterProfileViewController: UIViewController {
     
     private func setupUI() {
         NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction: #selector(backButtonTapped), title: "", showSeparator: false)
-        
-        navigationController?.navigationBar.backgroundColor = .red
-        
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.barTintColor = .white
     
@@ -253,17 +232,16 @@ class EnterProfileViewController: UIViewController {
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        scrollView.backgroundColor = .purple
-        contentView.backgroundColor = .blue
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            
-            if let topSafeAreaHeight = UIApplication.shared.windows.first?.safeAreaInsets.top {
-                // topSafeAreaHeight 변수에 상단 Safe Area의 높이가 저장됨
-                make.height.equalTo(view.frame.height - topSafeAreaHeight - (navigationController?.navigationBar.frame.height)!)
-                // 이곳에서 topSafeAreaHeight 값을 사용할 수 있습니다.
+            make.edges.equalToSuperview()
+            make.width.equalTo(scrollView.snp.width)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let topSafeAreaHeight = windowScene.windows.first?.safeAreaInsets.top,
+               let navigationBarHeight = navigationController?.navigationBar.frame.height {
+                let totalHeight = topSafeAreaHeight + navigationBarHeight
+                make.height.equalTo(UIScreen.main.bounds.height - totalHeight)
             }
-            make.left.right.top.bottom.equalToSuperview()
         }
 
         stackView = UIStackView(arrangedSubviews: [nickNameLabel, nickNameTextField, nickNameGenerationErrorLabel, passwordLabel, passwordTextField, passwordGenerationErrorLabel, checkPasswordLabel, checkPasswordTextField, passwordInconsistencyErrorLabel])
@@ -276,7 +254,6 @@ class EnterProfileViewController: UIViewController {
         stackView.setCustomSpacing(30, after: passwordTextField)
         stackView.setCustomSpacing(20, after: passwordGenerationErrorLabel)
         stackView.setCustomSpacing(10, after: checkPasswordLabel)
-        stackView.setCustomSpacing(30, after: checkPasswordTextField)
         
         contentView.addSubview(numberLabel)
         contentView.addSubview(titleLabel)
@@ -286,7 +263,12 @@ class EnterProfileViewController: UIViewController {
         contentView.addSubview(nextButton)
         
         numberLabel.snp.makeConstraints { make in
-                make.top.equalToSuperview().offset(40)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let topSafeAreaHeight = windowScene.windows.first?.safeAreaInsets.top,
+               let navigationBarHeight = navigationController?.navigationBar.frame.height {
+                let totalHeight = topSafeAreaHeight + navigationBarHeight
+                make.top.equalToSuperview().offset(111 - totalHeight)
+            }
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
         
@@ -313,56 +295,36 @@ class EnterProfileViewController: UIViewController {
             make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.06)
         }
         
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
         nextButton.snp.makeConstraints { make in
             let width = scrollView.frame.width - contentView.frame.width
             make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.04 + width)
             make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
         }
     }
-
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+//        nextButton.snp.makeConstraints { make in
+//            let width = scrollView.frame.width - contentView.frame.width
+//            make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.04 + width)
+//            make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
+//        }
+    }
+
     @objc func backButtonTapped() {
         navigationController?.popViewController(animated: true)
     }
     
     @objc func nextButtonTapped() {
         if let nickname = nickNameTextField.text, let password = passwordTextField.text {
-            if isValidNickName(nickname) {
-                nickNameGenerationErrorLabel.isHidden = true
-                UserSession.shared.nickname = nickname
-            } else {
-                nickNameGenerationErrorLabel.isHidden = false
-                stackView.setCustomSpacing(18, after: nickNameTextField)
-            }
-            
-            if isValidPassword(password) {
-                passwordGenerationErrorLabel.isHidden = true
-            } else {
-                passwordGenerationErrorLabel.isHidden = false
-                stackView.setCustomSpacing(18, after: passwordTextField)
-            }
-            
-            if passwordTextField.text == checkPasswordTextField.text {
-                passwordInconsistencyErrorLabel.isHidden = true
-            } else {
-                passwordInconsistencyErrorLabel.isHidden = false
-                stackView.setCustomSpacing(18, after: checkPasswordTextField)
-            }
-            
             if isValidNickName(nickname) && isValidPassword(password) && passwordTextField.text == checkPasswordTextField.text {
                 if let email = UserSession.shared.signUpEmail {
                     register(nickname: nickname, email: email, password: password)
-                    print("다음 OK")
                 }
             } else {
-                print("다음 NO")
+                print("조건 미충족")
             }
-            
         }
     }
     
@@ -375,7 +337,7 @@ class EnterProfileViewController: UIViewController {
     }
     
     func isValidPassword(_ password: String) -> Bool {
-        let passwordRegex = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$#!%*?&])[A-Za-z[0-9]$@$#!%*?&]{8,15}$"
+        let passwordRegex = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$#!%*?&/])[A-Za-z[0-9]$@$#!%*?&/]{8,15}$"
         let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
         
         return passwordPredicate.evaluate(with: password)
@@ -428,28 +390,16 @@ class EnterProfileViewController: UIViewController {
 }
 
 extension EnterProfileViewController {
-    
     func register(nickname: String, email: String, password: String) {
-        UserService.shared.register(nickname:nickname, email: email, password: password) {
-            response in
+        UserService.shared.register(nickname:nickname, email: email, password: password) { response in
             switch response {
             case .success(let data):
-                if let json = data as? [String: Any],
-                   let resultCode = json["resultCode"] as? Int {
-                    
-                    if resultCode == 200 {
-                        print("이백")
-                        
-                        self.navigationController?.modalPresentationStyle = .fullScreen
-                        self.navigationController?.pushViewController(FinishSignUpViewController(), animated: true)
-                        
-                        //                        let viewControllerToPresent = FinishSignUpViewController() // 이동할 뷰 컨트롤러 인스턴스 생성
-                        //                        viewControllerToPresent.modalPresentationStyle = .fullScreen // 화면 전체를 차지하도록 설정
-                        //                        viewControllerToPresent.modalTransitionStyle = .coverVertical // coverHorizontal 스타일 적용
-                        //                        self.present(viewControllerToPresent, animated: true, completion: nil) // 뷰 컨트롤러 이동
-                    } else if resultCode == 500 {
-                        print("오백")
-                    }
+                self.nextButton.isEnabled = true
+                if data.resultCode == 200 {
+                    print("이백")
+                    self.navigationController?.pushViewController(FinishSignUpViewController(), animated: true)
+                } else if data.resultCode == 500 {
+                    print("오백")
                 }
             case .failure:
                 print("FUCKING fail")
@@ -459,9 +409,9 @@ extension EnterProfileViewController {
 }
 
 extension EnterProfileViewController: UITextFieldDelegate {
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        return true
-    }
+//    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+//        return true
+//    }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         switch textField {
         case nickNameTextField:
@@ -474,25 +424,66 @@ extension EnterProfileViewController: UITextFieldDelegate {
         return true
     }
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-            // 텍스트 필드가 편집 상태로 변경되었을 때 호출되는 델리게이트 메서드
-            
-            // 현재 활성화된 텍스트 필드를 저장
-            activeTextField = textField
-            
-            // 스크롤 뷰의 컨텐트 오프셋을 조정하여 텍스트 필드를 가운데로 맞추기
-            if let activeTextField = activeTextField {
-                let contentOffsetY = activeTextField.frame.origin.y - (scrollView.frame.height - activeTextField.frame.height) / 2
-                scrollView.setContentOffset(CGPoint(x: 0, y: contentOffsetY), animated: true)
+//    func textFieldDidBeginEditing(_ textField: UITextField) {
+//        // 텍스트 필드가 편집 상태로 변경되었을 때 호출되는 델리게이트 메서드
+//
+//        // 현재 활성화된 텍스트 필드를 저장
+//        activeTextField = textField
+//
+//        // 스크롤 뷰의 컨텐트 오프셋을 조정하여 텍스트 필드를 가운데로 맞추기
+//        if let activeTextField = activeTextField {
+//            let contentOffsetY = activeTextField.frame.origin.y - (scrollView.frame.height - activeTextField.frame.height) / 2
+//            scrollView.setContentOffset(CGPoint(x: 0, y: contentOffsetY), animated: true)
+//        }
+//    }
+//
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        // 텍스트 필드의 편집이 종료되었을 때 호출되는 델리게이트 메서드
+        
+        // 현재 활성화된 텍스트 필드를 초기화
+        activeTextField = nil
+    }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        if textField.tag == 1 {
+            if let updatedText = textField.text {
+                if isValidNickName(updatedText) {
+                    stackView.setCustomSpacing(30, after: nickNameTextField)
+                    nickNameGenerationErrorLabel.isHidden = true
+                } else {
+                    stackView.setCustomSpacing(15, after: nickNameTextField)
+                    nickNameGenerationErrorLabel.isHidden = false
+                }
             }
         }
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
         
-        func textFieldDidEndEditing(_ textField: UITextField) {
-            // 텍스트 필드의 편집이 종료되었을 때 호출되는 델리게이트 메서드
-            
-            // 현재 활성화된 텍스트 필드를 초기화
-            activeTextField = nil
+        switch textField.tag {
+        case 2:
+            if isValidPassword(newText) {
+                stackView.setCustomSpacing(30, after: passwordTextField)
+                passwordGenerationErrorLabel.isHidden = true
+            } else {
+                stackView.setCustomSpacing(15, after: passwordTextField)
+                passwordGenerationErrorLabel.isHidden = false
+            }
+        case 3:
+            if newText == passwordTextField.text {
+                stackView.setCustomSpacing(30, after: checkPasswordTextField)
+                passwordInconsistencyErrorLabel.isHidden = true
+            } else {
+                stackView.setCustomSpacing(15, after: checkPasswordTextField)
+                passwordInconsistencyErrorLabel.isHidden = false
+            }
+        default:
+            break
         }
+        return true
+    }
 }
 
 extension EnterProfileViewController: UIScrollViewDelegate {
