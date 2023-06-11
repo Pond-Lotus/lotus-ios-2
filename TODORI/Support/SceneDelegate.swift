@@ -25,7 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mainViewController = LaunchScreenViewController()
         self.window?.rootViewController = mainViewController
         self.window?.makeKeyAndVisible()
-        UserDefaults.standard.set(false, forKey: "autoLogin")
+//        UserDefaults.standard.set(false, forKey: "autoLogin")
         
         if UserDefaults.standard.bool(forKey: "autoLogin") {
             print("isAutoLogin: true")
@@ -37,7 +37,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                         if let token = TokenManager.shared.getToken() {
                             print("토큰: \(token)")
                         }
-                        self.window?.rootViewController = TodoMainViewController()
+                        let navigationController = UINavigationController(rootViewController: TodoMainViewController())
+                        self.window?.rootViewController = navigationController
                         self.window?.makeKeyAndVisible()
                     } else if response.resultCode == 500{
                         print("오백 : 토큰 유효성 검증 실패")

@@ -170,7 +170,6 @@ class MyPageViewController: UIViewController {
         stackView1.spacing = 22
         stackView1.alignment = .leading
         
-        //        let stackView2 = UIStackView(arrangedSubviews: [])
         let stackView2 = UIStackView()
         colorViews.append(createColorView("red-circle"))
         colorViews.append(createColorView("yellow-circle"))
@@ -347,7 +346,7 @@ class MyPageViewController: UIViewController {
             
             if view.center.x > screenWidth / 2 {
                 // 오른쪽으로 당겨졌으므로 다시 들어가도록 애니메이션 처리
-                UIView.animate(withDuration: 0.2) {
+                UIView.animate(withDuration: 0.1) {
                     self.view.frame = CGRect(x: screenWidth, y: 0, width: screenWidth, height: self.view.frame.height)
                 } completion: { _ in
                     self.view.removeFromSuperview()
@@ -415,10 +414,7 @@ extension MyPageViewController {
                         GroupData.shared.sixthGroupName = group6
                     }
                     
-                    let navigationController = UINavigationController(rootViewController: GroupSettingViewController())
-                    navigationController.modalPresentationStyle = .fullScreen
-                    navigationController.modalTransitionStyle = .crossDissolve
-                    self.present(navigationController, animated: true, completion: nil)
+                    self.navigationController?.pushViewController(GroupSettingViewController(), animated: false)
                     
                 } else if response.resultCode == 500 {
                     print("오백")

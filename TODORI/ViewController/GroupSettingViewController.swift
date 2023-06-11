@@ -72,7 +72,7 @@ class GroupSettingViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NavigationBarManager.shared.removeSeparatorView()
+
         mainStackView.removeFromSuperview()
         underlineViews.forEach { $0.removeFromSuperview() }
         dump("viewWillDisappear임니다")
@@ -132,7 +132,7 @@ class GroupSettingViewController: UIViewController {
     }
     
     @objc func backButtonTapped() {
-        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
     }
     
     @objc func groupTapped(_ sender: UIButton) {

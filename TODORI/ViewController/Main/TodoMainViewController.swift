@@ -118,11 +118,8 @@ class TodoMainViewController : UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
-//        self.view.addGestureRecognizer(tapGesture)
-//
-//        let tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture2(_:)))
-//        tableView.addGestureRecognizer(tapGesture2)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
+        self.view.addGestureRecognizer(tapGesture)
                 
         todoArrayList = [redArray, yellowArray, greenArray, blueArray, pinkArray, purpleArray]
         getPriorityName()
@@ -791,7 +788,7 @@ class TodoMainViewController : UIViewController {
         }
         overlayViewController?.dimmingView = dimmingView
         DispatchQueue.main.async {
-            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: 0.2) {
                 self.overlayViewController?.view.frame = CGRect(x: 70, y: 0, width: self.view.frame.size.width - 70, height: self.view.frame.size.height)
                 self.dimmingView?.alpha = 1
             }
@@ -954,13 +951,13 @@ extension TodoMainViewController:UITableViewDelegate{
     
     @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
         print("TodoMainViewController의 handleTapGesture")
-        UIView.animate(withDuration: 0.3, animations: {
+        UIView.animate(withDuration: 0.2, animations: {
             self.overlayViewController?.view.frame = CGRect(x: self.view.frame.size.width, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
-//            self.dimmingView.alpha = 0
+            self.dimmingView?.alpha = 0
         }) { (_) in
             self.overlayViewController?.removeFromParent()
             self.overlayViewController?.view.removeFromSuperview()
-//            self.dimmingView.removeFromSuperview()
+            self.dimmingView?.removeFromSuperview()
         }
     }
 }

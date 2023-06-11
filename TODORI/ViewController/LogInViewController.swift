@@ -130,12 +130,25 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         return button
     }()
     
+    @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
+        print("LoginViewController의 handleTapGesture")
+        UIView.animate(withDuration: 0.2, animations: {
+            self.overlayViewController?.view.frame = CGRect(x: self.view.frame.size.width, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
+            self.dimmingView?.alpha = 0
+        }) { (_) in
+            self.overlayViewController?.removeFromParent()
+            self.overlayViewController?.view.removeFromSuperview()
+            self.dimmingView?.removeFromSuperview()
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
-//        self.view.addGestureRecognizer(tapGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
+        self.view.addGestureRecognizer(tapGesture)
+        
         navigationController?.delegate = self
         setupUI()
         

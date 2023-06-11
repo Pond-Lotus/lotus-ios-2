@@ -85,7 +85,6 @@ class EnterEmailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("viewDidLoad 입니다.")
         view.backgroundColor = .white
         
         setupUI()

@@ -134,7 +134,6 @@ class DeleteAccountViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NavigationBarManager.shared.removeSeparatorView()
     }
     
     override func viewDidLayoutSubviews() {

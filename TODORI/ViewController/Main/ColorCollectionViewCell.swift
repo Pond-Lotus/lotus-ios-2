@@ -8,7 +8,6 @@
 import UIKit
 
 class ColorCollectionViewCell: UICollectionViewCell {
-    
     var view:UIView = UIView()
         
         override init(frame: CGRect) {
@@ -18,7 +17,6 @@ class ColorCollectionViewCell: UICollectionViewCell {
             view.layer.cornerRadius = view.fs_width/2
         }
 
-        
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }

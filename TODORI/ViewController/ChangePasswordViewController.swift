@@ -157,7 +157,6 @@ class ChangePasswordViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NavigationBarManager.shared.removeSeparatorView()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
