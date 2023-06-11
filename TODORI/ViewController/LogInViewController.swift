@@ -123,13 +123,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         return button
     }()
     
-    private let testButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("마이페이지", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        return button
-    }()
-    
     @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
         print("LoginViewController의 handleTapGesture")
         UIView.animate(withDuration: 0.2, animations: {
@@ -159,7 +152,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         findPasswordButton.addTarget(self, action: #selector(findPasswordTapped), for: .touchUpInside)
         signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
         
-        testButton.addTarget(self, action: #selector(testButtonTapped), for: .touchUpInside)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -218,11 +210,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     private func setupUI() {
-        view.addSubview(testButton)
-        testButton.snp.makeConstraints { make in
-            make.top.equalTo(self.view.safeAreaLayoutGuide).offset(0)
-        }
-
         view.addSubview(logoImageView)
         view.addSubview(logoTextView)
         view.addSubview(emailTextField)
