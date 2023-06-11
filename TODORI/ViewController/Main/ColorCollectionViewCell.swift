@@ -8,6 +8,7 @@
 import UIKit
 
 class ColorCollectionViewCell: UICollectionViewCell {
+    
     var view:UIView = UIView()
         
         override init(frame: CGRect) {

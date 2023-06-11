@@ -111,6 +111,9 @@ class DeleteAccountViewController: UIViewController {
         
         checkLabelButton.addTarget(self, action: #selector(checkLabelTapped), for: .touchUpInside)
         deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
+        
+        navigationController?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -274,5 +277,23 @@ extension DeleteAccountViewController {
 extension DeleteAccountViewController: LogoutPopupViewDelegate {
     func logoutButtonTappedDelegate() {
         deleteAccount()
+    }
+}
+
+extension DeleteAccountViewController: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if viewController == self {
+//            print("현재 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        } else {
+//            print("다른 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        }
+    }
+}
+
+extension DeleteAccountViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

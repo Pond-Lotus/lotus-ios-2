@@ -148,7 +148,7 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
         self.view.addGestureRecognizer(tapGesture)
-        
+    
         navigationController?.delegate = self
         setupUI()
         
@@ -176,18 +176,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
 
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
-    
-//    @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-//        print("LogInViewController의 handleTapGesture")
-//        UIView.animate(withDuration: 0.3, animations: {
-//            self.overlayViewController?.view.frame = CGRect(x: self.view.frame.size.width, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
-//            self.dimmingView?.alpha = 0
-//        }) { (_) in
-//            self.overlayViewController?.removeFromParent()
-//            self.overlayViewController?.view.removeFromSuperview()
-//            self.dimmingView?.removeFromSuperview()
-//        }
-//    }
     
     @objc func testButtonTapped() {
         dimmingView = UIView(frame: UIScreen.main.bounds)
@@ -403,7 +391,7 @@ extension LogInViewController {
                     }
                     
                     DispatchQueue.main.async {
-                        let nextVC = UINavigationController(rootViewController: TodoMainViewController())
+                        let nextVC = UINavigationController(rootViewController: ToDoMainViewController())
                         nextVC.modalPresentationStyle = .fullScreen
                         self.present(nextVC, animated: false)
                     }

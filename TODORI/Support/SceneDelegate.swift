@@ -37,10 +37,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                         if let token = TokenManager.shared.getToken() {
                             print("토큰: \(token)")
                         }
-                        let navigationController = UINavigationController(rootViewController: TodoMainViewController())
+                        let navigationController = UINavigationController(rootViewController: ToDoMainViewController())
                         self.window?.rootViewController = navigationController
                         self.window?.makeKeyAndVisible()
-                    } else if response.resultCode == 500{
+                    } else if response.resultCode == 500 {
                         print("오백 : 토큰 유효성 검증 실패")
                     }
                 case .failure(_):

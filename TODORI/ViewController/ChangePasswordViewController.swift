@@ -149,6 +149,9 @@ class ChangePasswordViewController: UIViewController {
         checkNewPasswordTextField.delegate = self
         
         setupUI()
+
+        navigationController?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -310,5 +313,23 @@ extension ChangePasswordViewController {
                 print("FUCKING fail")
             }
         }
+    }
+}
+
+extension ChangePasswordViewController: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if viewController == self {
+//            print("현재 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        } else {
+//            print("다른 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        }
+    }
+}
+
+extension ChangePasswordViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

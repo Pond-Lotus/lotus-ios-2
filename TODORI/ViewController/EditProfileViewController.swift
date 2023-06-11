@@ -110,6 +110,9 @@ class EditProfileViewController: UIViewController {
         deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
         
         setupUI()
+        
+        navigationController?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -407,5 +410,23 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
         } else {
             // TODO: Handle empty results or item provider not being able load UIImage
         }
+    }
+}
+
+extension EditProfileViewController: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if viewController == self {
+//            print("현재 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        } else {
+//            print("다른 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = false
+        }
+    }
+}
+
+extension EditProfileViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

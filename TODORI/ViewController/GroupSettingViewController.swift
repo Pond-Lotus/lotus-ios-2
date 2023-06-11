@@ -59,23 +59,24 @@ class GroupSettingViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "그룹 설정")
-        dump("viewDidLoad임니다")
+        
+        setupUI()
+
+        navigationController?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     private var mainStackView = UIStackView()
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupUI()
-        dump("viewWillAppear임니다")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        mainStackView.removeFromSuperview()
-        underlineViews.forEach { $0.removeFromSuperview() }
-        dump("viewWillDisappear임니다")
+//        mainStackView.removeFromSuperview()
+//        underlineViews.forEach { $0.removeFromSuperview() }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -166,5 +167,23 @@ class GroupSettingViewController: UIViewController {
         let view = UIView()
         view.backgroundColor = UIColor(red: 0.851, green: 0.851, blue: 0.851, alpha: 1)
         return view
+    }
+}
+
+extension GroupSettingViewController: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if viewController == self {
+//            print("현재 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        } else {
+//            print("다른 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        }
+    }
+}
+
+extension GroupSettingViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

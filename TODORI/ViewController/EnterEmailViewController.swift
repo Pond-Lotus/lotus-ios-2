@@ -92,14 +92,8 @@ class EnterEmailViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
         emailTextField.delegate = self
-        navigationController?.delegate = self
+        navigationController?.delegate = self 
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-    }
-    
-    @objc func handleSwipeGesture(_ gesture: UISwipeGestureRecognizer) {
-        if gesture.direction == .right {
-            navigationController?.popViewController(animated: true)
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
