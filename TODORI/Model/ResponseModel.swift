@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 struct ResultCodeResponse: Decodable {
     let resultCode: Int
 }

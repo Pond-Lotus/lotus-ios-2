@@ -14,3 +14,4 @@ enum AFResult<T> {
     case success(T)
     case failure(T)
 }
+
