@@ -46,13 +46,19 @@ class DeleteAccountViewController: UIViewController {
         return label
     }()
     
-    private let titleLabel2: UILabel = {
+    private let titleLabel2: UIStackView = {
         let label = UILabel()
         label.text = "탈퇴 전 안내드려요"
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 14, weight: .heavy)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
-        return label
+        
+        let imageView = UIImageView(image: UIImage(named: "delete-icon")?.resize(to: CGSize(width: 16, height: 16)))
+        
+        let stackView = UIStackView(arrangedSubviews: [imageView, label])
+        stackView.alignment = .center
+        stackView.spacing = 3
+        
+        return stackView
     }()
     
     private let messageLabel: UILabel = {
@@ -239,7 +245,7 @@ class DeleteAccountViewController: UIViewController {
             dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
             dimmingView.alpha = 0
             keyWindow.addSubview(dimmingView)
-            let popupView = LogoutPopupView(title: "정말 떠나시나요?😢", message: "다음에 또 만나길 기대할게요.", buttonText1: "취소", buttonText2: "확인", dimmingView: dimmingView)
+            let popupView = CustomPopupView2(title: "정말 떠나시나요?😢", message: "다음에 또 만나길 기대할게요.", buttonText1: "취소", buttonText2: "확인", dimmingView: dimmingView)
             popupView.delegate = self // 중요
             popupView.alpha = 0
             keyWindow.addSubview(popupView)
@@ -274,10 +280,10 @@ extension DeleteAccountViewController {
     }
 }
 
-extension DeleteAccountViewController: LogoutPopupViewDelegate {
-    func logoutButtonTappedDelegate() {
+extension DeleteAccountViewController: CustomPopupView2Delegate {
+    func buttonTappedDelegate() {
         deleteAccount()
-    }
+    }    
 }
 
 extension DeleteAccountViewController: UINavigationControllerDelegate {

@@ -6,12 +6,8 @@
 //
 
 import UIKit
-// import SnapKit 없어도 적용이 되는 이유?
 
 class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
-    private var overlayViewController: MyPageViewController?
-    var dimmingView: UIView?
-    
     private let logoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "logo-image")
@@ -117,41 +113,25 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
     
     private let signupButton: UIButton = {
         let button = UIButton()
-        button.setTitle("회원 가입", for: .normal)
+        button.setTitle("회원가입", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         return button
     }()
     
-    @objc func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-        print("LoginViewController의 handleTapGesture")
-        UIView.animate(withDuration: 0.2, animations: {
-            self.overlayViewController?.view.frame = CGRect(x: self.view.frame.size.width, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
-            self.dimmingView?.alpha = 0
-        }) { (_) in
-            self.overlayViewController?.removeFromParent()
-            self.overlayViewController?.view.removeFromSuperview()
-            self.dimmingView?.removeFromSuperview()
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
-        self.view.addGestureRecognizer(tapGesture)
     
         navigationController?.delegate = self
-        setupUI()
-        
         emailTextField.delegate = self
-    
+        
         autoLoginButton.addTarget(self, action: #selector(autoLoginTapped), for: .touchUpInside)
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
         findPasswordButton.addTarget(self, action: #selector(findPasswordTapped), for: .touchUpInside)
         signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
         
+        setupUI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -169,44 +149,9 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
-    @objc func testButtonTapped() {
-        dimmingView = UIView(frame: UIScreen.main.bounds)
-        dimmingView?.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        dimmingView?.alpha = 0
-        if let dimmingView = dimmingView {
-            view.addSubview(dimmingView)
-        }
-        
-        overlayViewController = MyPageViewController()
-        overlayViewController?.view.frame = CGRect(x: view.frame.size.width, y: 0, width: view.frame.size.width, height: view.frame.size.height)
-        if let overlayViewController = overlayViewController {
-            addChild(overlayViewController)
-        }
-        if let x = overlayViewController?.view {
-            view.addSubview(x)
-        }
-        overlayViewController?.dimmingView = dimmingView
-        DispatchQueue.main.async {
-            UIView.animate(withDuration: 0.3) {
-                self.overlayViewController?.view.frame = CGRect(x: 70, y: 0, width: self.view.frame.size.width - 70, height: self.view.frame.size.height)
-                self.dimmingView?.alpha = 1
-            }
-        }
-    }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         self.view.endEditing(true)
-        
-        // MyPageViewController를 터치한 경우에는 아무 작업도 수행하지 않습니다.
-//        guard let touch = touches.first, let view = touch.view else {
-//            return
-//        }
-//        
-//        if view == overlayViewController?.view {
-//            print("FUCK")
-//            return
-//        }
     }
     
     private func setupUI() {

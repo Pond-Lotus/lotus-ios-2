@@ -169,6 +169,8 @@ class EnterCodeViewController: UIViewController {
         view.addGestureRecognizer(tap)
         
         codeTextField.delegate = self
+        navigationController?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         
         setupUI()
         
@@ -207,8 +209,12 @@ class EnterCodeViewController: UIViewController {
         view.addSubview(nextButton)
         
         numberLabel.snp.makeConstraints { make in
-//            make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.15)
-            make.top.equalToSuperview().offset(111)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let topSafeAreaHeight = windowScene.windows.first?.safeAreaInsets.top,
+               let navigationBarHeight = navigationController?.navigationBar.frame.height {
+                let totalHeight = topSafeAreaHeight + navigationBarHeight
+                make.top.equalToSuperview().offset(totalHeight + 40)
+            }
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
         
@@ -309,7 +315,6 @@ extension EnterCodeViewController: UITextFieldDelegate {
             sixthLabel.text = ""
         } else if updatedText.count == 6 {
             sixthLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 5)])
-            //            textField.resignFirstResponder()
         }
         return updatedText.count <= 6
     }
@@ -322,6 +327,24 @@ extension EnterCodeViewController: UITextFieldDelegate {
             print("Sixth")
             textField.resignFirstResponder()
         }
+        return true
+    }
+}
+
+extension EnterCodeViewController: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if viewController == self {
+//            print("현재 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        } else {
+//            print("다른 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = false
+        }
+    }
+}
+
+extension EnterCodeViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
 }

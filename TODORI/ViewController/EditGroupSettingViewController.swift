@@ -31,6 +31,7 @@ class EditGroupSettingViewController: UIViewController {
         }
         
         let textField = UITextField()
+        textField.becomeFirstResponder()
         textField.backgroundColor = UIColor(red: 0.954, green: 0.954, blue: 0.954, alpha: 1)
         textField.layer.cornerRadius = 8
         
@@ -183,6 +184,7 @@ extension EditGroupSettingViewController {
                 self.completeButton.isEnabled = true
                 if response.resultCode == 200 {
                     print("이백")
+                    NotificationCenter.default.post(name: NSNotification.Name("endEditGroupName"), object: nil)
                     self.navigationController?.popViewController(animated: true)
                 } else if response.resultCode == 500 {
                     print("오백")

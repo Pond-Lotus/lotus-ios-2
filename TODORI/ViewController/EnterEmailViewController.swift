@@ -11,7 +11,6 @@ class EnterEmailViewController: UIViewController {
     private let numberLabel: UILabel = {
         let label = UILabel()
         label.text = "1/3"
-        label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
         return label
@@ -40,10 +39,10 @@ class EnterEmailViewController: UIViewController {
         let textField = UITextField()
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 16, weight: .medium),
+            .font: UIFont.systemFont(ofSize: 18, weight: .light),
             .foregroundColor: UIColor(red: 0.663, green: 0.663, blue: 0.663, alpha: 1)
         ]
-        let attributedPlaceholder = NSAttributedString(string: "ex) example@todori.com", attributes: attributes)
+        let attributedPlaceholder = NSAttributedString(string: "example@todori.com", attributes: attributes)
         textField.attributedPlaceholder = attributedPlaceholder
         
         textField.keyboardType = .emailAddress
@@ -53,9 +52,8 @@ class EnterEmailViewController: UIViewController {
         let underlineView = UIView()
         underlineView.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
         textField.addSubview(underlineView)
-
         underlineView.snp.makeConstraints { make in
-            make.height.equalTo(1)
+            make.height.equalTo(1.5)
             make.top.equalTo(textField.snp.bottom).offset(7)
             make.leading.equalTo(textField.snp.leading)
             make.trailing.equalTo(textField.snp.trailing)
@@ -74,12 +72,9 @@ class EnterEmailViewController: UIViewController {
     }()
     
     private let nextButton: UIButton = {
-        let button = UIButton(type: .custom)
-        let image = UIImage(named: "next-button")?.resize(to: CGSize(width: UIScreen.main.bounds.width * 0.16, height: UIScreen.main.bounds.width * 0.16))
-        button.setImage(image, for: .normal)
+        let button = ButtonManager.shared.getNextButton()
         button.isEnabled = false
-        button.alpha = 0.5
-        
+        button.alpha = 0.75
         return button
     }()
     
@@ -117,7 +112,12 @@ class EnterEmailViewController: UIViewController {
         view.addSubview(nextButton)
 
         numberLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(111)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let topSafeAreaHeight = windowScene.windows.first?.safeAreaInsets.top,
+               let navigationBarHeight = navigationController?.navigationBar.frame.height {
+                let totalHeight = topSafeAreaHeight + navigationBarHeight
+                make.top.equalToSuperview().offset(totalHeight + 40)
+            }
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
 
@@ -132,7 +132,7 @@ class EnterEmailViewController: UIViewController {
         }
 
         emailTextField.snp.makeConstraints { make in
-            make.top.equalTo(subTitleLabel.snp.bottom).offset(10)
+            make.top.equalTo(subTitleLabel.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
             make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.06)
         }
@@ -182,6 +182,7 @@ extension EnterEmailViewController {
                     } else {
                         print("UserSession(signUpEmail): 이메일 저장 오류")
                     }
+                    
                     self.navigationController?.pushViewController(EnterCodeViewController(), animated: true)
                 }
                 else if data.resultCode == 500 {
@@ -214,7 +215,7 @@ extension EnterEmailViewController: UITextFieldDelegate {
             textField.rightViewMode = .never
             
             nextButton.isEnabled = false
-            nextButton.alpha = 0.5
+            nextButton.alpha = 0.7
         }
         return true
     }

@@ -136,6 +136,7 @@ class EditProfileViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        UserSession.shared.image = nil
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -165,7 +166,8 @@ class EditProfileViewController: UIViewController {
         ]
         completeButton.setTitleTextAttributes(completeButtonAttributes, for: .normal)
         navigationItem.rightBarButtonItem = completeButton
-        navigationItem.rightBarButtonItem?.tintColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
+        navigationItem.rightBarButtonItem?.tintColor = .black
+        
         
         view.addSubview(profileImageView)
         view.addSubview(editProfileImageButton)
@@ -220,7 +222,7 @@ class EditProfileViewController: UIViewController {
         }
         
         deleteAccountButton.snp.makeConstraints { make in
-            make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-35)
+            make.bottom.equalToSuperview().offset(-10)
             make.centerX.equalToSuperview()
             make.width.equalTo(93)
             make.height.equalTo(30)
@@ -242,16 +244,17 @@ class EditProfileViewController: UIViewController {
             return
         }
         
-        if let imageData = UserSession.shared.image {
-            if let image = UIImage(data: imageData) {
-                if enteredNickname == "" {
-                    self.editProfile(image: image, nickname: nickname, imdel: false)
-                } else {
-                    self.editProfile(image: image, nickname: enteredNickname, imdel: false)
+        if let originImageData = UserDefaults.standard.data(forKey: "image") {
+            if let imageData = UserSession.shared.image {
+                if let image = UIImage(data: imageData) {
+                    if enteredNickname == "" {
+                        self.editProfile(image: image, nickname: nickname, imdel: false)
+                    } else {
+                        self.editProfile(image: image, nickname: enteredNickname, imdel: false)
+                    }
                 }
-            }
-        } else {
-            if let image = UIImage(named: "default-profile") {
+            } else {
+                let image = UIImage(data: originImageData)
                 if enteredNickname == "" {
                     self.editProfile(image: image, nickname: nickname, imdel: false)
                 } else {
@@ -259,36 +262,6 @@ class EditProfileViewController: UIViewController {
                 }
             }
         }
-//        if let nickname = nickNameTextField.text {
-//            if let imageData = UserSession.shared.image {
-//                UserDefaults.standard.set(imageData, forKey: "image")
-//                let image = UIImage(data: imageData)
-//                if nickname == "" {
-//                    if let nickname = UserDefaults.standard.string(forKey: "nickname") {
-//                        navigationItem.rightBarButtonItem?.isEnabled = false
-//                        self.editProfile(image: image, nickname: nickname, imdel: false)
-//                    }
-//                } else {
-//                    navigationItem.rightBarButtonItem?.isEnabled = false
-//                    self.editProfile(image: image, nickname: nickname, imdel: false)
-//                }
-//            } else {
-//                if let image = UserDefaults.standard.string(forKey: "image") {
-//                    let image = UserSession.shared.base64StringToImage(base64String: image)
-//                    if nickname == "" {
-//                        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
-//                            navigationItem.rightBarButtonItem?.isEnabled = false
-//                            self.editProfile(image: image, nickname: nickname, imdel: false)
-//                        }
-//                    } else {
-//                        navigationItem.rightBarButtonItem?.isEnabled = false
-//                        self.editProfile(image: image, nickname: nickname, imdel: false)
-//                    }
-//                }
-//            }
-//        } else {
-//            print("완료 버튼 탭 에러")
-//        }
     }
 
     @objc func editProfileImageButtonTapped() {
@@ -305,8 +278,11 @@ class EditProfileViewController: UIViewController {
         }
         
         let defaultImageAction = UIAlertAction(title: "기본 이미지로 설정", style: .default) { _ in
-            self.profileImageView.image = UIImage(named: "default-profile")
-            UserSession.shared.image = nil
+            let image = UIImage(named: "default-profile")
+            if let imageData = image?.pngData() {
+                self.profileImageView.image = UIImage(data: imageData)
+                UserSession.shared.image = imageData
+            }
         }
         
         let cancelAction = UIAlertAction(title: "닫기", style: .cancel, handler: nil)
@@ -329,7 +305,7 @@ class EditProfileViewController: UIViewController {
 }
 
 extension EditProfileViewController {
-    func editProfile(image: UIImage, nickname: String, imdel: Bool) {
+    func editProfile(image: UIImage?, nickname: String, imdel: Bool) {
         UserService.shared.editProfile(image: image, nickname: nickname, imdel: imdel) { result in
             switch result {
             case .success(let response):
@@ -360,9 +336,7 @@ extension EditProfileViewController {
                             dimmingView.alpha = 1
                         }
                     } else {
-                        print("response.data[\"image\"] == nil")
-                        let imageData = UIImage(named: "default-profile")?.pngData()
-                        UserDefaults.standard.set(imageData, forKey: "image")
+                        UserDefaults.standard.set(nil, forKey: "image")
                     }
                 } else if response.resultCode == 500 {
                     print("오백")

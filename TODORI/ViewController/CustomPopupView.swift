@@ -8,6 +8,7 @@
 import UIKit
 
 class CustomPopupView: UIView {
+    weak var delegate: CustomPopupViewDelegate?
     
     var titleLabel: UILabel!
     var messageLabel: UILabel!
@@ -37,21 +38,25 @@ class CustomPopupView: UIView {
         titleLabel = UILabel()
         titleLabel.textAlignment = .center
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
-        titleLabel.textColor = UIColor(red: 0.171, green: 0.171, blue: 0.171, alpha: 1)
         addSubview(titleLabel)
-        titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(37)
-            $0.width.equalToSuperview()
-        }
         
         messageLabel = UILabel()
         messageLabel.textAlignment = .center
         messageLabel.numberOfLines = 0
         messageLabel.font = UIFont.systemFont(ofSize: 15, weight: .light)
         addSubview(messageLabel)
-        messageLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(11)
-            $0.width.equalToSuperview()
+        
+        let stackView = UIStackView()
+        stackView.spacing = 11
+        stackView.axis = .vertical
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(messageLabel)
+        
+        addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.width.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-22.5)
         }
         
         actionButton = UIButton(type: .system)
@@ -69,7 +74,12 @@ class CustomPopupView: UIView {
     }
     
     @objc func closeButtonTapped() {
+        delegate?.buttonTappedDelegate()
         self.dimmingView.isHidden = true
         self.removeFromSuperview()
       }
+}
+
+protocol CustomPopupViewDelegate: AnyObject {
+    func buttonTappedDelegate()
 }

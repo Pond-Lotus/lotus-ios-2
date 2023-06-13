@@ -26,7 +26,7 @@ class FindPasswordViewController: UIViewController {
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.text = "입력한 이메일 주소를 입력해주세요.\n해당 이메일로 비밀번호 재설정을 위한 링크를 보내드립니다."
+        label.text = "가입한 이메일 주소를 입력해주세요.\n해당 이메일로 비밀번호 재설정을 위한 링크를 보내드립니다."
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 14, weight: .light)
         label.textColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
@@ -81,6 +81,7 @@ class FindPasswordViewController: UIViewController {
     
     private let findPasswordButton: UIButton = {
         let button = UIButton()
+        button.applyColorAnimation()
         button.setTitle("비밀번호 찾기", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
@@ -166,6 +167,7 @@ class FindPasswordViewController: UIViewController {
     
     @objc func findButtonTapped() {
         if let email = emailTextField.text {
+            findPasswordButton.isEnabled = false
             findPassword(email: email)
         }
     }
@@ -179,9 +181,10 @@ class FindPasswordViewController: UIViewController {
 
 extension FindPasswordViewController {
     func findPassword(email: String) {
-        UserService.shared.findPassword(email: email) { result in
+        UserService.shared.findPassword(email: email) { [self] result in
             switch result {
             case .success(let response):
+                self.findPasswordButton.isEnabled = true
                 if response.resultCode == 200 {
                     print("이백")
                     self.errorLabel.isHidden = true
@@ -190,7 +193,7 @@ extension FindPasswordViewController {
                     dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
                     dimmingView.alpha = 0
                     self.view.addSubview(dimmingView)
-                    let popupView = CustomPopupView2(title: "메일 발송 완료", message: "재설정한 비밀번호로\n로그인 해주세요.", buttonText: "로그인", dimmingView: dimmingView)
+                    let popupView = CustomPopupView(title: "메일 발송 완료", message: "재설정한 비밀번호로\n로그인 해주세요.", buttonText: "로그인", buttonColor: UIColor.mainColor, dimmingView: dimmingView)
                     popupView.delegate = self // 중요
                     popupView.alpha = 0
                     self.view.addSubview(popupView)
@@ -214,8 +217,8 @@ extension FindPasswordViewController {
     }
 }
 
-extension FindPasswordViewController: CustomPopupView2Delegate {
-    func loginButtonTappedDelegate() {
+extension FindPasswordViewController: CustomPopupViewDelegate {
+    func buttonTappedDelegate() {
         navigationController?.popViewController(animated: true)
     }
 }

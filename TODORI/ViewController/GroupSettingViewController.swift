@@ -59,24 +59,23 @@ class GroupSettingViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "그룹 설정")
-        
-        setupUI()
 
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+    
     }
     
     private var mainStackView = UIStackView()
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setupUI()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-//        mainStackView.removeFromSuperview()
-//        underlineViews.forEach { $0.removeFromSuperview() }
+        mainStackView.removeFromSuperview()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

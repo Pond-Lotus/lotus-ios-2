@@ -18,7 +18,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window?.overrideUserInterfaceStyle = .light // light-mode
         
-        //        guard let _ = (scene as? UIWindowScene) else { return }
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         

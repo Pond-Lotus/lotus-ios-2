@@ -12,12 +12,11 @@ class NavigationBarManager {
     
     private init() {}
     
-    private var separatorView: UIView?
+    var separatorView: UIView?
     
     func setupNavigationBar(for viewController: UIViewController, backButtonAction: Selector?, title: String, showSeparator: Bool = true) {
         if showSeparator {
             if separatorView == nil {
-                print("separatorView == nil")
                 separatorView = UIView()
                 separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
                 viewController.navigationController?.navigationBar.addSubview(separatorView!)
@@ -27,12 +26,12 @@ class NavigationBarManager {
                     make.leading.trailing.equalToSuperview()
                     make.height.equalTo(1)
                 }
-            } else {
-                print("separatorView != nil")
             }
         } else {
-            separatorView?.removeFromSuperview()
-            separatorView = nil
+            if separatorView != nil {
+                separatorView?.removeFromSuperview()
+                separatorView = nil
+            }
         }
         
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: viewController, action: backButtonAction)

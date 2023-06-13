@@ -13,7 +13,12 @@ struct ResultCodeResponse: Decodable {
 
 struct RegisterResponse: Decodable {
     let resultCode: Int
-    let account: [String: String]
+    let account: [String: String]?
+    
+//    private enum CodingKeys: String, CodingKey {
+//        case resultCode
+//        case account = "account"
+//    }
 }
 
 struct LoginResponse: Decodable {
@@ -29,10 +34,7 @@ struct EditAccountResponse: Decodable {
     let data: [String: String]
 }
 
-
 struct ToDoResponse: Decodable {
     let resultCode: Int
     let data: [String: String]
 }
-
-

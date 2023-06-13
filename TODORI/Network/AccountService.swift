@@ -158,7 +158,7 @@ class UserService {
         }
     }
     
-    func editProfile(image: UIImage, nickname: String, imdel: Bool, completion: @escaping(Result<EditAccountResponse, Error>) -> Void) {
+    func editProfile(image: UIImage?, nickname: String, imdel: Bool, completion: @escaping(Result<EditAccountResponse, Error>) -> Void) {
         let url = APIConstant.Account.editProfile
         guard let token = TokenManager.shared.getToken() else {
             print("No token.")
@@ -168,17 +168,22 @@ class UserService {
             "Content-Type" : "multipart/form-data",
             "Authorization" : "Token " + token
         ]
-        let parameters: Parameters = [
-            "image": image,
+        var parameters: Parameters = [
             "nickname": nickname,
             "imdel": imdel
         ]
+        
+        if let image = image {
+             parameters["image"] = image
+         } else {
+             parameters["image"] = nil
+         }
         
         AF.upload(multipartFormData: { MultipartFormData in
             for (key, value) in parameters {
                 MultipartFormData.append("\(value)".data(using: .utf8)!, withName: key)
             }
-            if let img = image.pngData() {
+            if let img = image?.pngData() {
                 MultipartFormData.append(img, withName: "image", fileName: "\(String(describing: nickname)).jpg", mimeType: "image/jpg")
             }
         }, to: url, method: .post, headers: headers).responseDecodable(of: EditAccountResponse.self) { response in

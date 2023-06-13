@@ -210,16 +210,21 @@ class EnterProfileViewController: UIViewController {
         passwordTextField.delegate = self
         checkPasswordTextField.delegate = self
         scrollView.delegate = self
+        navigationController?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+        
+//        nickNameTextField.becomeFirstResponder()
         
         setupUI()
         
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
-        registerKeyboardNotifications()
+        registerKeyboardNotifications() // 키보드 올라온 상태로 위아래 스크롤 가능
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
+        // 터치 이벤트 발생 시 키보드 숨기기
         self.view.endEditing(true)
     }
     
@@ -263,12 +268,7 @@ class EnterProfileViewController: UIViewController {
         contentView.addSubview(nextButton)
         
         numberLabel.snp.makeConstraints { make in
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let topSafeAreaHeight = windowScene.windows.first?.safeAreaInsets.top,
-               let navigationBarHeight = navigationController?.navigationBar.frame.height {
-                let totalHeight = topSafeAreaHeight + navigationBarHeight
-                make.top.equalToSuperview().offset(111 - totalHeight)
-            }
+            make.top.equalToSuperview().offset(40)
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.06)
         }
         
@@ -300,16 +300,6 @@ class EnterProfileViewController: UIViewController {
             make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.04 + width)
             make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
         }
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-//        nextButton.snp.makeConstraints { make in
-//            let width = scrollView.frame.width - contentView.frame.width
-//            make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.04 + width)
-//            make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
-//        }
     }
 
     @objc func backButtonTapped() {
@@ -394,13 +384,14 @@ extension EnterProfileViewController {
         UserService.shared.register(nickname:nickname, email: email, password: password) { response in
             switch response {
             case .success(let data):
-                self.nextButton.isEnabled = true
+                print(data)
                 if data.resultCode == 200 {
                     print("이백")
                     self.navigationController?.pushViewController(FinishSignUpViewController(), animated: true)
                 } else if data.resultCode == 500 {
                     print("오백")
                 }
+                self.nextButton.isEnabled = true
             case .failure:
                 print("FUCKING fail")
             }
@@ -436,9 +427,10 @@ extension EnterProfileViewController: UITextFieldDelegate {
 //            scrollView.setContentOffset(CGPoint(x: 0, y: contentOffsetY), animated: true)
 //        }
 //    }
-//
+    
     func textFieldDidEndEditing(_ textField: UITextField) {
         // 텍스트 필드의 편집이 종료되었을 때 호출되는 델리게이트 메서드
+//        textField.resignFirstResponder()
         
         // 현재 활성화된 텍스트 필드를 초기화
         activeTextField = nil
@@ -494,5 +486,23 @@ extension EnterProfileViewController: UIScrollViewDelegate {
         let maxOffsetY = UIScreen.main.bounds.height * 0.15
         let alpha = 1 - min(1, max(0, offsetY / maxOffsetY))
         navigationBar?.alpha = alpha
+    }
+}
+
+extension EnterProfileViewController: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if viewController == self {
+//            print("현재 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        } else {
+//            print("다른 뷰 컨트롤러가 보이는 경우")
+            navigationController.interactivePopGestureRecognizer?.isEnabled = false
+        }
+    }
+}
+
+extension EnterProfileViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

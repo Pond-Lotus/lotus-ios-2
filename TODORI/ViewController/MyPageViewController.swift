@@ -43,7 +43,9 @@ class MyPageViewController: UIViewController {
     private let editProfileButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "edit-profile")?.resize(to: CGSize(width: 24, height: 24)), for: .normal)
-        button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+        button.configuration = configuration
         return button
     }()
     
@@ -86,9 +88,15 @@ class MyPageViewController: UIViewController {
     private let settingGroupButton: UIButton = {
         let button = UIButton()
         button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        
         let image = UIImage(systemName: "chevron.right")?.resize(to: CGSize(width: 10, height: 14))
-        button.setImage(image, for: .normal)
-        button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        let tintedImage = image?.withRenderingMode(.alwaysTemplate)
+        button.setImage(tintedImage, for: .normal)
+        button.tintColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
+        
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+        button.configuration = configuration
         return button
     }()
     
@@ -114,7 +122,7 @@ class MyPageViewController: UIViewController {
     private var colorViews: [UIImageView] = []
     
     private func createColorView(_ filename: String) -> UIImageView {
-        let imageView = UIImageView(image: UIImage(named: filename))
+        let imageView = UIImageView(image: UIImage(named: filename)?.resize(to: CGSize(width: 25, height: 25)))
         return imageView
     }
     
@@ -312,7 +320,7 @@ class MyPageViewController: UIViewController {
             dimmingView.alpha = 0
             keyWindow.addSubview(dimmingView)
             
-            let popupView = LogoutPopupView(title: "로그아웃", message: "로그아웃 하시겠습니까?", buttonText1: "취소", buttonText2: "로그아웃", dimmingView: dimmingView)
+            let popupView = CustomPopupView2(title: "로그아웃", message: "로그아웃 하시겠습니까?", buttonText1: "취소", buttonText2: "로그아웃", dimmingView: dimmingView)
             popupView.delegate = self // 중요
             popupView.alpha = 0
             keyWindow.addSubview(popupView)
@@ -426,8 +434,9 @@ extension MyPageViewController {
     }
 }
 
-extension MyPageViewController: LogoutPopupViewDelegate {
-    func logoutButtonTappedDelegate() {
+extension MyPageViewController: CustomPopupView2Delegate {
+    func buttonTappedDelegate() {
+        NavigationBarManager.shared.separatorView = nil
         logout()
     }
 }
