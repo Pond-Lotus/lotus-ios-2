@@ -630,7 +630,7 @@ class ToDoMainViewController : UIViewController {
     
     
     private func getPriorityName(){
-        TodoAPIConstant.shared.getPriorityName { (response) in
+        TodoService.shared.getPriorityName { (response) in
             switch(response){
             case .success(let resultData):
                 if let data = resultData as? PriorityResponseData{
@@ -702,7 +702,7 @@ class ToDoMainViewController : UIViewController {
     
     @objc private func handleBottomSheetBlackViewDismiss(){
         let description = descriptionTextView.text.replacingOccurrences(of: textviewPlaceholder, with: "")
-        TodoAPIConstant.shared.editTodo(title: titleTextFieldInBottomSheet.text ?? "", description:description, colorNum:nowColor, time: nowHour+nowMin,id: nowId) { (response) in
+        TodoService.shared.editTodo(title: titleTextFieldInBottomSheet.text ?? "", description:description, colorNum:nowColor, time: nowHour+nowMin,id: nowId) { (response) in
             switch(response){
             case .success(let resultData):
                 if let data = resultData as? TodoEditResponseData{
@@ -931,7 +931,7 @@ class ToDoMainViewController : UIViewController {
     
     private func searchTodo(date:Date) {
         let dateArr = DateFormat.shared.getYearMonthDay(date: date)
-        TodoAPIConstant.shared.searchTodo(year: dateArr[0], month: dateArr[1], day: dateArr[2]) {(response) in
+        TodoService.shared.searchTodo(year: dateArr[0], month: dateArr[1], day: dateArr[2]) {(response) in
             switch(response){
             case .success(let resultData):
                 if let data = resultData as? TodoSearchResponseData{
@@ -1009,7 +1009,7 @@ extension ToDoMainViewController:UITableViewDelegate{
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
             print(indexPath.section)
-            TodoAPIConstant.shared.deleteTodo(id: todoArrayList[existingColorArray[indexPath.section]][indexPath.row].id) { (resonse) in
+            TodoService.shared.deleteTodo(id: todoArrayList[existingColorArray[indexPath.section]][indexPath.row].id) { (resonse) in
                 switch(resonse){
                 case .success(let resultData):
                     if let data = resultData as? ResponseData{
@@ -1035,7 +1035,7 @@ extension ToDoMainViewController:UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = TodoTableViewCell()
+        let cell = ToDoTableViewCell()
         let todo = todoArrayList[existingColorArray[indexPath.section]][indexPath.row]
         cell.todo = todo
         cell.titleTextField.text = todo.title

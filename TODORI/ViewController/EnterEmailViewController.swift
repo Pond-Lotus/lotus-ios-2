@@ -37,14 +37,13 @@ class EnterEmailViewController: UIViewController {
 
     private let emailTextField: UITextField = {
         let textField = UITextField()
-        
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 18, weight: .light),
             .foregroundColor: UIColor(red: 0.663, green: 0.663, blue: 0.663, alpha: 1)
         ]
         let attributedPlaceholder = NSAttributedString(string: "example@todori.com", attributes: attributes)
         textField.attributedPlaceholder = attributedPlaceholder
-        
+
         textField.keyboardType = .emailAddress
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no

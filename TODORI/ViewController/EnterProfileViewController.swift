@@ -8,19 +8,20 @@
 import UIKit
 
 class EnterProfileViewController: UIViewController {
-    private var activeTextField: UITextField?
-    var stackView = UIStackView()
-    
-    private lazy var scrollView: UIScrollView = {
+    private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.delegate = self
         scrollView.keyboardDismissMode = .interactive
         return scrollView
     }()
-
-    private lazy var contentView: UIView = {
+    
+    private let contentView: UIView = {
         let view = UIView()
         return view
+    }()
+    
+    private var stackView: UIStackView = {
+        var stackView = UIStackView()
+        return stackView
     }()
     
     private let numberLabel: UILabel = {
@@ -193,7 +194,7 @@ class EnterProfileViewController: UIViewController {
         label.text = "비밀번호가 일치하지 않습니다."
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
-        label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1) 
+        label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
         label.isHidden = true
         return label
     }()
@@ -206,33 +207,27 @@ class EnterProfileViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        scrollView.delegate = self
         nickNameTextField.delegate = self
         passwordTextField.delegate = self
         checkPasswordTextField.delegate = self
-        scrollView.delegate = self
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         
-//        nickNameTextField.becomeFirstResponder()
-        
         setupUI()
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(scrollViewTapped))
+        scrollView.addGestureRecognizer(tapGesture)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
-        registerKeyboardNotifications() // 키보드 올라온 상태로 위아래 스크롤 가능
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
-        // 터치 이벤트 발생 시 키보드 숨기기
-        self.view.endEditing(true)
+        registerKeyboardNotifications()
     }
     
     private func setupUI() {
         NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction: #selector(backButtonTapped), title: "", showSeparator: false)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.barTintColor = .white
-    
+        
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -248,10 +243,9 @@ class EnterProfileViewController: UIViewController {
                 make.height.equalTo(UIScreen.main.bounds.height - totalHeight)
             }
         }
-
+        
         stackView = UIStackView(arrangedSubviews: [nickNameLabel, nickNameTextField, nickNameGenerationErrorLabel, passwordLabel, passwordTextField, passwordGenerationErrorLabel, checkPasswordLabel, checkPasswordTextField, passwordInconsistencyErrorLabel])
         stackView.axis = .vertical
-        
         stackView.setCustomSpacing(10, after: nickNameLabel)
         stackView.setCustomSpacing(30, after: nickNameTextField)
         stackView.setCustomSpacing(20, after: nickNameGenerationErrorLabel)
@@ -301,7 +295,11 @@ class EnterProfileViewController: UIViewController {
             make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
         }
     }
-
+    
+    @objc func scrollViewTapped() {
+        scrollView.endEditing(true)
+    }
+    
     @objc func backButtonTapped() {
         navigationController?.popViewController(animated: true)
     }
@@ -312,8 +310,6 @@ class EnterProfileViewController: UIViewController {
                 if let email = UserSession.shared.signUpEmail {
                     register(nickname: nickname, email: email, password: password)
                 }
-            } else {
-                print("조건 미충족")
             }
         }
     }
@@ -329,53 +325,29 @@ class EnterProfileViewController: UIViewController {
     func isValidPassword(_ password: String) -> Bool {
         let passwordRegex = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$#!%*?&/])[A-Za-z[0-9]$@$#!%*?&/]{8,15}$"
         let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
-        
         return passwordPredicate.evaluate(with: password)
     }
     
     // MARK: - Keyboard Handling
-
-      private func registerKeyboardNotifications() {
-          NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-          NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-      }
-
-      private func unregisterKeyboardNotifications() {
-          NotificationCenter.default.removeObserver(self)
-      }
-
-      @objc private func keyboardWillShow(_ notification: Notification) {
-          guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
-              return
-          }
-
-          let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
-          scrollView.contentInset = contentInsets
-          scrollView.scrollIndicatorInsets = contentInsets
-
-          // Scroll to the active text field if needed
-          if let activeTextField = findActiveTextField() {
-              scrollView.scrollRectToVisible(activeTextField.frame, animated: true)
-          }
-      }
-
-      @objc private func keyboardWillHide(_ notification: Notification) {
-          let contentInsets = UIEdgeInsets.zero
-          scrollView.contentInset = contentInsets
-          scrollView.scrollIndicatorInsets = contentInsets
-      }
-
-    private func findActiveTextField() -> UITextField? {
-        if nickNameTextField.isFirstResponder {
-            return nickNameTextField
+    
+    private func registerKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
         }
-        if passwordTextField.isFirstResponder {
-            return passwordTextField
-        }
-        if checkPasswordTextField.isFirstResponder {
-            return checkPasswordTextField
-        }
-        return nil
+        let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
+    }
+    
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        let contentInsets = UIEdgeInsets.zero
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
     }
 }
 
@@ -400,40 +372,18 @@ extension EnterProfileViewController {
 }
 
 extension EnterProfileViewController: UITextFieldDelegate {
-//    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-//        return true
-//    }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         switch textField {
         case nickNameTextField:
             passwordTextField.becomeFirstResponder()
         case passwordTextField:
             checkPasswordTextField.becomeFirstResponder()
-        default:
+        case checkPasswordTextField:
             textField.resignFirstResponder()
+        default:
+            break
         }
         return true
-    }
-    
-//    func textFieldDidBeginEditing(_ textField: UITextField) {
-//        // 텍스트 필드가 편집 상태로 변경되었을 때 호출되는 델리게이트 메서드
-//
-//        // 현재 활성화된 텍스트 필드를 저장
-//        activeTextField = textField
-//
-//        // 스크롤 뷰의 컨텐트 오프셋을 조정하여 텍스트 필드를 가운데로 맞추기
-//        if let activeTextField = activeTextField {
-//            let contentOffsetY = activeTextField.frame.origin.y - (scrollView.frame.height - activeTextField.frame.height) / 2
-//            scrollView.setContentOffset(CGPoint(x: 0, y: contentOffsetY), animated: true)
-//        }
-//    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        // 텍스트 필드의 편집이 종료되었을 때 호출되는 델리게이트 메서드
-//        textField.resignFirstResponder()
-        
-        // 현재 활성화된 텍스트 필드를 초기화
-        activeTextField = nil
     }
     
     func textFieldDidChangeSelection(_ textField: UITextField) {
@@ -482,7 +432,7 @@ extension EnterProfileViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
         let navigationBar = navigationController?.navigationBar
-        
+
         let maxOffsetY = UIScreen.main.bounds.height * 0.15
         let alpha = 1 - min(1, max(0, offsetY / maxOffsetY))
         navigationBar?.alpha = alpha
@@ -492,10 +442,8 @@ extension EnterProfileViewController: UIScrollViewDelegate {
 extension EnterProfileViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
         if viewController == self {
-//            print("현재 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         } else {
-//            print("다른 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = false
         }
     }

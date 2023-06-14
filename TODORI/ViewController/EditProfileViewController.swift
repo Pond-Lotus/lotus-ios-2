@@ -236,6 +236,9 @@ class EditProfileViewController: UIViewController {
     @objc func completeButtonTapped() {
         navigationItem.rightBarButtonItem?.isEnabled = false
         navigationItem.leftBarButtonItem?.isEnabled = false
+        editProfileImageButton.isEnabled = false
+        changePasswordButton.isEnabled = false
+        deleteAccountButton.isEnabled = false
         guard let enteredNickname = nickNameTextField.text,
               let nickname = UserDefaults.standard.string(forKey: "nickname")
         else {
@@ -311,6 +314,10 @@ extension EditProfileViewController {
             case .success(let response):
                 self.navigationItem.rightBarButtonItem?.isEnabled = true
                 self.navigationItem.leftBarButtonItem?.isEnabled = true
+                self.editProfileImageButton.isEnabled = true
+                self.changePasswordButton.isEnabled = true
+                self.deleteAccountButton.isEnabled = true
+
                 if response.resultCode == 200 {
                     print("이백")
                     UserDefaults.standard.set(response.data["nickname"] , forKey: "nickname")

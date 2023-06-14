@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class TodoTableViewCell: UITableViewCell {
+class ToDoTableViewCell: UITableViewCell {
     
     var checkbox: UIImageView = UIImageView()
     var titleTextField: UITextField = UITextField()
@@ -87,7 +87,7 @@ class TodoTableViewCell: UITableViewCell {
     }
     
     @objc private func tapCheckbox(){
-        TodoAPIConstant.shared.editDoneTodo(done: !todo.done, id: todo.id) { (response) in
+        TodoService.shared.editDoneTodo(done: !todo.done, id: todo.id) { (response) in
             switch(response){
             case .success(let resultData):
                 if let data = resultData as? TodoEditResponseData{
@@ -109,7 +109,7 @@ class TodoTableViewCell: UITableViewCell {
         if input.count == 0 {
             delegate?.writeNothing(section: todo.color-1, row: row)
         }else{
-            TodoAPIConstant.shared.writeTodo(year: todo.year, month: todo.month, day: todo.day, title: titleTextField.text ?? "", color: todo.color) { [self] (response) in
+            TodoService.shared.writeTodo(year: todo.year, month: todo.month, day: todo.day, title: titleTextField.text ?? "", color: todo.color) { [self] (response) in
                 switch(response){
                 case .success(let resultData):
                     if let data = resultData as? TodoWriteResponseData{
@@ -134,7 +134,7 @@ class TodoTableViewCell: UITableViewCell {
     }
 }
 
-extension TodoTableViewCell:UITextFieldDelegate{
+extension ToDoTableViewCell:UITextFieldDelegate{
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.endEditing(true)
         return true

@@ -7,7 +7,18 @@
 
 import UIKit
 
-class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
+class LogInViewController: UIViewController {
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.keyboardDismissMode = .interactive
+        return scrollView
+    }()
+    
+    private let contentView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
     private let logoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "logo-image")
@@ -38,7 +49,6 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         
         textField.backgroundColor = UIColor(red: 0.949, green: 0.949, blue: 0.949, alpha: 1)
         textField.layer.cornerRadius = 18
-        
         textField.keyboardType = .emailAddress
         textField.autocapitalizationType = .none // 기본값은 .sentences로 문장의 첫 글자를 자동으로 대문자로 변환
         textField.autocorrectionType = .no // 기본값은 .default로 기본 자동 교정 동작을 사용
@@ -58,10 +68,10 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 30))
         textField.leftView = paddingView
         textField.leftViewMode = .always
-                    
+        
         let passwordVisionButton = UIButton(type: .custom)
         passwordVisionButton.setImage(UIImage(named: "password-invision")?.resize(to: CGSize(width: 24, height: 24)), for: .normal)
-        passwordVisionButton.addTarget(nil, action: #selector(LogInViewController.passwordVisionButtonTapped), for: .touchUpInside)
+        passwordVisionButton.addTarget(nil, action: #selector(passwordVisionButtonTapped), for: .touchUpInside)
         passwordVisionButton.setImage(UIImage(named: "password-vision")?.resize(to: CGSize(width: 24, height: 24)), for: .selected)
         passwordVisionButton.frame = CGRect(x: 0, y: (30 - 24) / 2, width: 24, height: 24)
         
@@ -69,11 +79,10 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         textField.rightView = rightPaddingView
         textField.rightViewMode = .always
         rightPaddingView.addSubview(passwordVisionButton)
-                
+        
         textField.backgroundColor = UIColor(red: 0.949, green: 0.949, blue: 0.949, alpha: 1)
         textField.layer.cornerRadius = 18
         textField.isSecureTextEntry = true
-        
         return textField
     }()
     
@@ -82,13 +91,8 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         button.setTitle(" 자동 로그인", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        
-        // 1
-        let image = UIImage(named: "tick-circle")?.resize(to: CGSize(width: 17, height: 17))
-        button.setImage(image, for: .normal)
-        // 2
+        button.setImage(UIImage(named: "tick-circle")?.resize(to: CGSize(width: 17, height: 17)), for: .normal)
         button.setImage(UIImage(named: "tick-circle2")?.resize(to: CGSize(width: 17, height: 17)), for: .selected)
-        
         return button
     }()
     
@@ -98,7 +102,7 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         button.setTitle("로그인", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .heavy)
-        button.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
+        button.backgroundColor = UIColor.mainColor
         button.layer.cornerRadius = 18
         return button
     }()
@@ -125,44 +129,55 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
     
         navigationController?.delegate = self
         emailTextField.delegate = self
+        passwordTextField.delegate = self
         
         autoLoginButton.addTarget(self, action: #selector(autoLoginTapped), for: .touchUpInside)
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
         findPasswordButton.addTarget(self, action: #selector(findPasswordTapped), for: .touchUpInside)
         signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(scrollViewTapped))
+        scrollView.addGestureRecognizer(tapGesture)
         
         setupUI()
+        
+        registerKeyboardNotifications()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
         emailTextField.text = ""
         passwordTextField.text = ""
-
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
-        self.view.endEditing(true)
-    }
-    
     private func setupUI() {
-        view.addSubview(logoImageView)
-        view.addSubview(logoTextView)
-        view.addSubview(emailTextField)
-        view.addSubview(passwordTextField)
-        view.addSubview(autoLoginButton)
-        view.addSubview(loginButton)
-        view.addSubview(findPasswordButton)
-        view.addSubview(signupButton)
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalTo(scrollView.snp.width)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                let screenHeight = UIScreen.main.bounds.height - window.safeAreaInsets.top - window.safeAreaInsets.bottom
+                make.height.equalTo(screenHeight)
+            }
+        }
+        contentView.addSubview(logoImageView)
+        contentView.addSubview(logoTextView)
+        contentView.addSubview(emailTextField)
+        contentView.addSubview(passwordTextField)
+        contentView.addSubview(autoLoginButton)
+        contentView.addSubview(loginButton)
+        contentView.addSubview(findPasswordButton)
+        contentView.addSubview(signupButton)
         
         logoImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.17)
@@ -215,16 +230,17 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    @objc private func scrollViewTapped() {
+        scrollView.endEditing(true)
+    }
+    
     @objc private func loginButtonTapped() {
-        loginButton.isEnabled = false
-        
         if emailTextField.text != "", passwordTextField.text != "" {
             if let email = emailTextField.text, let password = passwordTextField.text {
+                loginButton.isEnabled = false
+                loginButton.alpha = 0.5
                 login(email: email, password: password)
             }
-        } else {
-            loginButton.isEnabled = true
-            print("로그인 탭 에러")
         }
     }
     
@@ -241,49 +257,35 @@ class LogInViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func closeCircleButtonTapped(_ sender: UIButton) {
-        sender.isSelected = !sender.isSelected
         emailTextField.text = ""
-        emailTextField.rightView?.isHidden = true
+        emailTextField.rightViewMode = .never
     }
     
     @objc private func passwordVisionButtonTapped(_ sender: UIButton) {
         sender.isSelected = !sender.isSelected
         passwordTextField.isSecureTextEntry = !sender.isSelected
     }
-}
-
-extension LogInViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let currentText = textField.text ?? ""
-        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
-        
-        if !newText.isEmpty {
-            let closeButton = UIButton(type: .custom)
-            closeButton.setImage(UIImage(named: "close-circle")?.resize(to: CGSize(width: 24, height: 24)), for: .normal)
-            closeButton.addTarget(self, action: #selector(closeCircleButtonTapped), for: .touchUpInside)
-            closeButton.frame = CGRect(x: 0, y: (30 - 24) / 2, width: 24, height: 24)
-            
-            let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 39, height: 30))
-            textField.rightView = rightPaddingView
-            textField.rightViewMode = .always
-            rightPaddingView.addSubview(closeButton)
-        } else {
-            textField.rightView = nil
-            textField.rightViewMode = .never
-        }
-        return true
+    
+    // MARK: - Keyboard Handling
+    
+    private func registerKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        switch textField {
-        case emailTextField:
-            passwordTextField.becomeFirstResponder()
-        case passwordTextField:
-            textField.resignFirstResponder()            
-        default:
-            textField.resignFirstResponder()
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
         }
-        return true
+        let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
+    }
+    
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        let contentInsets = UIEdgeInsets.zero
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
     }
 }
 
@@ -293,6 +295,7 @@ extension LogInViewController {
             switch result {
             case .success(let response):
                 self.loginButton.isEnabled = true
+                self.loginButton.alpha = 1
                 if response.resultCode == 200 {
                     print("이백")
                     guard let token = response.token,
@@ -351,19 +354,69 @@ extension LogInViewController {
             case .failure(let err):
                 print("FUCKING failure: \(err)")
                 self.loginButton.isEnabled = true
+                self.loginButton.alpha = 1
             }
         }
     }
 }
 
-extension LogInViewController: UINavigationControllerDelegate {
+extension LogInViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
+        
+        if !newText.isEmpty {
+            let closeButton = UIButton(type: .custom)
+            closeButton.setImage(UIImage(named: "close-circle")?.resize(to: CGSize(width: 24, height: 24)), for: .normal)
+            closeButton.addTarget(self, action: #selector(closeCircleButtonTapped), for: .touchUpInside)
+            closeButton.frame = CGRect(x: 0, y: (30 - 24) / 2, width: 24, height: 24)
+            
+            let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 39, height: 30))
+            textField.rightView = rightPaddingView
+            textField.rightViewMode = .always
+            rightPaddingView.addSubview(closeButton)
+        } else {
+            textField.rightView = nil
+            textField.rightViewMode = .never
+        }
+        return true
+    }
     
-    // Implement the willShow method of the UINavigationControllerDelegate
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        switch textField {
+        case emailTextField:
+            passwordTextField.becomeFirstResponder()
+        case passwordTextField:
+            textField.resignFirstResponder()
+        default:
+            break
+        }
+        return true
+    }
+}
+
+extension LogInViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let navigationBar = navigationController?.navigationBar
+
+        let maxOffsetY = UIScreen.main.bounds.height * 0.15
+        let alpha = 1 - min(1, max(0, offsetY / maxOffsetY))
+        navigationBar?.alpha = alpha
+    }
+}
+
+extension LogInViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-        // Check if the viewController is the rootViewController
-        let isRootViewController = viewController == navigationController.viewControllers.first
+        let isRootViewController = (viewController == navigationController.viewControllers.first)
         
         // Enable or disable the interactivePopGestureRecognizer based on the isRootViewController flag
         navigationController.interactivePopGestureRecognizer?.isEnabled = !isRootViewController
+    }
+}
+
+extension LogInViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }
