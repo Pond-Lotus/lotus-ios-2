@@ -8,7 +8,6 @@
 import UIKit
 
 class FinishSignUpViewController: UIViewController {
-    
     private let finishLabel: UILabel = {
         let label = UILabel()
         label.text = "회원가입 완료!"
@@ -43,12 +42,11 @@ class FinishSignUpViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
 
-        setUI()
-        
         loginButton.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
+        setupUI()
     }
     
-    private func setUI() {
+    private func setupUI() {
         navigationItem.setHidesBackButton(true, animated: false)
 
         view.addSubview(finishLabel)

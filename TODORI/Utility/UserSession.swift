@@ -8,7 +8,7 @@
 import UIKit
 
 class UserSession {
-    static let shared = UserSession() // Singleton 객체
+    static let shared = UserSession()
     
     private init() {}
  

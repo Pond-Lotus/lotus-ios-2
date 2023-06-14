@@ -214,13 +214,16 @@ class EnterProfileViewController: UIViewController {
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         
+        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+        setupTapGesture()
         setupUI()
-        
+                
+        registerKeyboardNotifications()
+    }
+    
+    private func setupTapGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(scrollViewTapped))
         scrollView.addGestureRecognizer(tapGesture)
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
-        
-        registerKeyboardNotifications()
     }
     
     private func setupUI() {
@@ -356,16 +359,16 @@ extension EnterProfileViewController {
         UserService.shared.register(nickname:nickname, email: email, password: password) { response in
             switch response {
             case .success(let data):
-                print(data)
+                self.nextButton.isEnabled = true
                 if data.resultCode == 200 {
                     print("이백")
                     self.navigationController?.pushViewController(FinishSignUpViewController(), animated: true)
                 } else if data.resultCode == 500 {
                     print("오백")
                 }
-                self.nextButton.isEnabled = true
             case .failure:
-                print("FUCKING fail")
+                print("failure")
+                self.nextButton.isEnabled = true
             }
         }
     }

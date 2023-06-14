@@ -131,13 +131,8 @@ class LogInViewController: UIViewController {
         emailTextField.delegate = self
         passwordTextField.delegate = self
         
-        autoLoginButton.addTarget(self, action: #selector(autoLoginTapped), for: .touchUpInside)
-        loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
-        findPasswordButton.addTarget(self, action: #selector(findPasswordTapped), for: .touchUpInside)
-        signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(scrollViewTapped))
-        scrollView.addGestureRecognizer(tapGesture)
-        
+        setupButton()
+        setupTapGesture()
         setupUI()
         
         registerKeyboardNotifications()
@@ -153,6 +148,18 @@ class LogInViewController: UIViewController {
         emailTextField.text = ""
         passwordTextField.text = ""
         navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
+    private func setupButton() {
+        autoLoginButton.addTarget(self, action: #selector(autoLoginTapped), for: .touchUpInside)
+        loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        findPasswordButton.addTarget(self, action: #selector(findPasswordTapped), for: .touchUpInside)
+        signupButton.addTarget(self, action: #selector(signupTapped), for: .touchUpInside)
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(scrollViewTapped))
+        scrollView.addGestureRecognizer(tapGesture)
     }
     
     private func setupUI() {
@@ -238,7 +245,7 @@ class LogInViewController: UIViewController {
         if emailTextField.text != "", passwordTextField.text != "" {
             if let email = emailTextField.text, let password = passwordTextField.text {
                 loginButton.isEnabled = false
-                loginButton.alpha = 0.5
+                loginButton.alpha = 0.7
                 login(email: email, password: password)
             }
         }
@@ -325,11 +332,9 @@ extension LogInViewController {
                         print("자동로그인 X : \(UserDefaults.standard.bool(forKey: "autoLogin"))")
                     }
                     
-                    DispatchQueue.main.async {
-                        let nextVC = UINavigationController(rootViewController: ToDoMainViewController())
-                        nextVC.modalPresentationStyle = .fullScreen
-                        self.present(nextVC, animated: false)
-                    }
+                    let nextVC = UINavigationController(rootViewController: ToDoMainViewController())
+                    nextVC.modalPresentationStyle = .fullScreen
+                    self.present(nextVC, animated: false)
                     
                 } else if response.resultCode == 500 {
                     print("오백")
@@ -352,7 +357,7 @@ extension LogInViewController {
                     }
                 }
             case .failure(let err):
-                print("FUCKING failure: \(err)")
+                print("failure: \(err)")
                 self.loginButton.isEnabled = true
                 self.loginButton.alpha = 1
             }

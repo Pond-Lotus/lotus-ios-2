@@ -81,13 +81,13 @@ class EnterEmailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        setupUI()
+        emailTextField.delegate = self
+        navigationController?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
-        emailTextField.delegate = self
-        navigationController?.delegate = self 
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
+        setupUI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -169,7 +169,7 @@ extension EnterEmailViewController {
     func emailCheck(email: String) {
         UserService.shared.emailCheck(email: email) { result in
             switch result {
-            case .success(let data ):
+            case .success(let data):
                 self.nextButton.isEnabled = true
                 if data.resultCode == 200 {
                     print("이백")
@@ -177,9 +177,6 @@ extension EnterEmailViewController {
                     
                     if let email = self.emailTextField.text {
                         UserSession.shared.signUpEmail = email
-                        print("UserSession(signUpEmail): 이메일 저장 완료")
-                    } else {
-                        print("UserSession(signUpEmail): 이메일 저장 오류")
                     }
                     
                     self.navigationController?.pushViewController(EnterCodeViewController(), animated: true)
@@ -189,7 +186,8 @@ extension EnterEmailViewController {
                     self.errorLabel.isHidden = false
                 }
             case .failure:
-                print("FUCKING failure")
+                print("failure")
+                self.errorLabel.isHidden = false
             }
         }
     }
@@ -228,10 +226,8 @@ extension EnterEmailViewController: UITextFieldDelegate {
 extension EnterEmailViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
         if viewController == self {
-//            print("현재 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         } else {
-//            print("다른 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = false
         }
     }

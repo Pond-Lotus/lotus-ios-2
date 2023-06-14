@@ -42,6 +42,7 @@ class EnterCodeViewController: UIViewController {
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         textField.keyboardType = .numberPad
+        textField.becomeFirstResponder()
         return textField
     }()
     
@@ -165,30 +166,30 @@ class EnterCodeViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
-        view.addGestureRecognizer(tap)
-        
         codeTextField.delegate = self
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         
-        setupUI()
-        
-        codeTextField.becomeFirstResponder()
-        let inputlabels = [firstLabel, secondLabel, thirdLabel, fourthLabel, fifthLabel, sixthLabel]
-        inputlabels.forEach { label in
-            label.isUserInteractionEnabled = true
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped)) // 모든 라벨에 대해 제스처를 추가하기 위해서는 tapGesture 객체를 라벨마다 새로 생성해야 합니다.
-            label.addGestureRecognizer(tapGesture)
-        }
-        
-        //        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+        setupTapGesture()
+        setupUI()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         self.view.endEditing(true)
+    }
+    
+    private func setupTapGesture() {
+        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
+        
+        let inputlabels = [firstLabel, secondLabel, thirdLabel, fourthLabel, fifthLabel, sixthLabel]
+        inputlabels.forEach { label in
+            label.isUserInteractionEnabled = true
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
+            label.addGestureRecognizer(tapGesture)
+        }
     }
     
     private func setupUI() {
@@ -284,7 +285,9 @@ extension EnterCodeViewController {
                     self.errorLabel.isHidden = false
                 }
             case .failure:
-                print("FUCKING failure")
+                print("failure")
+                self.nextButton.isEnabled = true
+                self.errorLabel.isHidden = false
             }
         }
     }    
@@ -293,9 +296,7 @@ extension EnterCodeViewController {
 extension EnterCodeViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let updatedText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
-        
-        print("updatedText : \(updatedText)")
-        
+                
         if updatedText.isEmpty {
             firstLabel.text = ""
         } else if updatedText.count == 1 {
@@ -315,29 +316,17 @@ extension EnterCodeViewController: UITextFieldDelegate {
             sixthLabel.text = ""
         } else if updatedText.count == 6 {
             sixthLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 5)])
-        }
-        return updatedText.count <= 6
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if fifthLabel.text != "" {
-            print("Fifth")
-        }
-        if sixthLabel.text !=  "" {
-            print("Sixth")
             textField.resignFirstResponder()
         }
-        return true
+        return updatedText.count <= 6
     }
 }
 
 extension EnterCodeViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
         if viewController == self {
-//            print("현재 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         } else {
-//            print("다른 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = false
         }
     }
