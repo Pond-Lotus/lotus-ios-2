@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window?.rootViewController = mainViewController
         self.window?.makeKeyAndVisible()
 //        UserDefaults.standard.set(false, forKey: "autoLogin")
-        UserDefaults.standard.removeObject(forKey: "autoLogin")
+//        UserDefaults.standard.removeObject(forKey: "autoLogin")
         
         if UserDefaults.standard.bool(forKey: "autoLogin") {
             print("isAutoLogin: true")
