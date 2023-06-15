@@ -174,7 +174,6 @@ class UserService {
         if let image = image {
             parameters["image"] = image
         }
-        print("parameters: \(parameters)")
         
         AF.upload(multipartFormData: { MultipartFormData in
             for (key, value) in parameters {

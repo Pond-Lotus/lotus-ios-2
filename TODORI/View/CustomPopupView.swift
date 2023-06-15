@@ -76,7 +76,6 @@ class CustomPopupView: UIView {
     @objc func closeButtonTapped() {
         delegate?.buttonTappedDelegate()
         self.removeFromSuperview()
-        //        self.dimmingView.isHidden = true
         self.dimmingView.removeFromSuperview()
       }
 }

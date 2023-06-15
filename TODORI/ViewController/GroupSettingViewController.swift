@@ -8,20 +8,13 @@
 import UIKit
 
 class GroupSettingViewController: UIViewController {
+    private var mainStackView = UIStackView()
+    
     private func createStackView(image: String, text: String, tag: Int) -> UIStackView {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        view.addSubview(stackView)
-        stackView.snp.makeConstraints() { make in
-            make.width.equalToSuperview()
-            make.height.equalTo(60)
-        }
-        
         let imageView = UIImageView(image: UIImage(named: image))
         imageView.contentMode = .scaleAspectFit
         imageView.snp.makeConstraints { make in
             make.width.equalTo(23)
-            make.height.equalTo(23)
         }
         
         let label = UILabel()
@@ -34,6 +27,13 @@ class GroupSettingViewController: UIViewController {
         button.addTarget(self, action: #selector(groupTapped), for: .touchUpInside)
         button.contentHorizontalAlignment = .trailing
         
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        view.addSubview(stackView)
+        stackView.snp.makeConstraints() { make in
+            make.width.equalToSuperview()
+            make.height.equalTo(60)
+        }
         stackView.addArrangedSubview(imageView)
         stackView.addArrangedSubview(label)
         stackView.addArrangedSubview(button)
@@ -56,21 +56,25 @@ class GroupSettingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
-        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "그룹 설정", showSeparator: false)
-
+        
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+        
+        print("viewDidLoad!")
     }
-    
-    private var mainStackView = UIStackView()
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupUI()
+        print("viewWillAppear!")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        print("viewWillDisappear!")
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+        print("viewDidDisappear!")
         mainStackView.removeFromSuperview()
     }
     
@@ -80,6 +84,8 @@ class GroupSettingViewController: UIViewController {
     }
     
     private func setupUI() {
+        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "그룹 설정", showSeparator: false)
+        
         guard let first = GroupData.shared.firstGroupName,
               let second = GroupData.shared.secondGroupName,
               let third = GroupData.shared.thirdGroupName,
@@ -95,9 +101,10 @@ class GroupSettingViewController: UIViewController {
         let fifthStackView = createStackView(image: "pink-circle", text: fifth, tag: 5)
         let sixthStackView = createStackView(image: "purple-circle", text: sixth, tag: 6)
         
+        var underlineViews: [UIView] = []
         for _ in 1...6 { underlineViews.append(createUnderlineView()) }
         underlineViews.forEach { view.addSubview($0) }
-        
+
         mainStackView = UIStackView() // 있고 없고 차이 발생
         mainStackView.axis = .vertical
         mainStackView.addArrangedSubview(firstStackView)
@@ -117,13 +124,7 @@ class GroupSettingViewController: UIViewController {
         mainStackView.snp.makeConstraints { make in
             make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(14)
             make.leading.equalToSuperview().offset(28)
-            make.trailing.equalToSuperview().offset(-28)
-        }
-        
-        underlineViews.forEach { underline in
-            underline.snp.makeConstraints { make in
-                make.height.equalTo(1.0)
-            }
+            make.centerX.equalToSuperview()
         }
     }
     
@@ -142,25 +143,16 @@ class GroupSettingViewController: UIViewController {
             editGroupSettingVC.color = color
             editGroupSettingVC.label = label
             editGroupSettingVC.index = index
-            
-            //            editGroupSettingVC.firstGroupName = self.firstGroupName
-            //            editGroupSettingVC.secondGroupName = self.secondGroupName
-            //            editGroupSettingVC.thirdGroupName = self.thirdGroupName
-            //            editGroupSettingVC.fourthGroupName = self.fourthGroupName
-            //            editGroupSettingVC.fifthGroupName = self.fifthGroupName
-            //            editGroupSettingVC.sixthGroupName = self.sixthGroupName
-            
             navigationController?.pushViewController(editGroupSettingVC, animated: true)
-        } else {
-            print("문자열 에러")
         }
     }
-    
-    private var underlineViews: [UIView] = []
     
     private func createUnderlineView() -> UIView {
         let view = UIView()
         view.backgroundColor = UIColor(red: 0.851, green: 0.851, blue: 0.851, alpha: 1)
+        view.snp.makeConstraints { make in
+            make.height.equalTo(1.0)
+        }
         return view
     }
 }
@@ -168,10 +160,8 @@ class GroupSettingViewController: UIViewController {
 extension GroupSettingViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
         if viewController == self {
-//            print("현재 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         } else {
-//            print("다른 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         }
     }

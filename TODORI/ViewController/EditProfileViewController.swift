@@ -110,7 +110,6 @@ class EditProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         UserSession.shared.image = nil
         UserSession.shared.isChangedImage = false
         
@@ -125,7 +124,6 @@ class EditProfileViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-
         if let nickname = UserDefaults.standard.string(forKey: "nickname") {
             nickNameTextField.text = nickname
         }
@@ -322,26 +320,24 @@ extension EditProfileViewController {
                     if let image = responseData.image {
                         let imageData = UserSession.shared.base64StringToImage(base64String: image)?.pngData()
                         UserDefaults.standard.set(imageData, forKey: "image")
-                        
-                        let dimmingView = UIView(frame: UIScreen.main.bounds)
-                        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-                        dimmingView.alpha = 0
-                        self.view.addSubview(dimmingView)
-                        let popupView = CustomPopupView(title: "프로필 수정", message: "프로필 수정이 완료되었습니다.", buttonText: "확인", buttonColor: UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1), dimmingView: dimmingView)
-                        popupView.alpha = 0
-                        self.view.addSubview(popupView)
-                        popupView.snp.makeConstraints { make in
-                            make.center.equalToSuperview()
-                            make.width.equalTo(264)
-                            make.height.equalTo(167)
-                        }
-                        UIView.animate(withDuration: 0.3) {
-                            popupView.alpha = 1
-                            dimmingView.alpha = 1
-                        }
                     } else {
-                        print("응답 기본이미지")
                         UserDefaults.standard.set(nil, forKey: "image")
+                    }
+                    let dimmingView = UIView(frame: UIScreen.main.bounds)
+                    dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+                    dimmingView.alpha = 0
+                    self.view.addSubview(dimmingView)
+                    let popupView = CustomPopupView(title: "프로필 수정", message: "프로필 수정이 완료되었습니다.", buttonText: "확인", buttonColor: UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1), dimmingView: dimmingView)
+                    popupView.alpha = 0
+                    self.view.addSubview(popupView)
+                    popupView.snp.makeConstraints { make in
+                        make.center.equalToSuperview()
+                        make.width.equalTo(264)
+                        make.height.equalTo(167)
+                    }
+                    UIView.animate(withDuration: 0.3) {
+                        popupView.alpha = 1
+                        dimmingView.alpha = 1
                     }
                 } else if response.resultCode == 500 {
                     print("오백")
@@ -355,28 +351,14 @@ extension EditProfileViewController {
 
 extension EditProfileViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true) // 1
-        
+        picker.dismiss(animated: true)
         guard let itemProvider = results.first?.itemProvider else {
-            // 선택된 항목이 없을 경우 처리
+            // 선택된 항목이 없을 경우 
             return
         }
         
-//        if let image = UIImage(named: "exampleImage"),
-//           let imageData = image.pngData() {
-//            // 데이터를 UserDefaults에 저장
-//            UserDefaults.standard.set(imageData, forKey: "imageData")
-//        }
-//
-//        // 이미지 데이터를 가져옴
-//        if let imageData = UserDefaults.standard.data(forKey: "imageData"),
-//           let image = UIImage(data: imageData) {
-//            // 가져온 이미지 사용
-//            imageView.image = image
-//        }
-        
-        if itemProvider.canLoadObject(ofClass: UIImage.self) { // 3
-            itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in // 4
+        if itemProvider.canLoadObject(ofClass: UIImage.self) {
+            itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in
                 DispatchQueue.main.async {
                     if let image = image as? UIImage {
                         if let imageData = image.pngData() {
@@ -387,8 +369,6 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
                     }
                 }
             }
-        } else {
-            // TODO: Handle empty results or item provider not being able load UIImage
         }
     }
 }

@@ -36,11 +36,7 @@ class DeleteAccountViewController: UIViewController {
     
     private let emailLabel: UILabel = {
         let label = UILabel()
-        if let email = UserSession.shared.email {
-            label.text = email
-        } else {
-            label.text = "(NONE)"
-        }
+        label.text = UserSession.shared.email ?? "(NONE)"
         label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
         return label
@@ -51,13 +47,9 @@ class DeleteAccountViewController: UIViewController {
         label.text = "탈퇴 전 안내드려요"
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
-        
         let imageView = UIImageView(image: UIImage(named: "delete-icon")?.resize(to: CGSize(width: 16, height: 16)))
-        
         let stackView = UIStackView(arrangedSubviews: [imageView, label])
-        stackView.alignment = .center
         stackView.spacing = 3
-        
         return stackView
     }()
     
@@ -66,19 +58,15 @@ class DeleteAccountViewController: UIViewController {
         label.numberOfLines = 0
         label.text = "계정 탈퇴 시 모든 정보와 데이터가 삭제됩니다.\n복구 및 백업이 불가능하오니, 신중히 생각해 주세요."
         label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .black
-        
         let underlineView = UIView()
         underlineView.backgroundColor = UIColor(red: 0.913, green: 0.913, blue: 0.913, alpha: 1)
         label.addSubview(underlineView)
-        
         underlineView.snp.makeConstraints { make in
             make.height.equalTo(1)
             make.top.equalTo(label.snp.bottom).offset(27)
             make.leading.equalTo(label.snp.leading)
             make.trailing.equalTo(label.snp.trailing)
         }
-        
         return label
     }()
     
@@ -86,15 +74,10 @@ class DeleteAccountViewController: UIViewController {
         let button = UIButton()
         button.setTitle("  안내사항을 모두 확인하였으며, 탈퇴를 진행합니다.", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .light)
-        
-        // 1
         button.setTitleColor(UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1), for: .normal)
         button.setImage(UIImage(named: "checkbox-off")?.resize(to: CGSize(width: 16, height: 16)), for: .normal)
-        // 2
-        
         button.setTitleColor(.black, for: .selected)
         button.setImage(UIImage(named: "checkbox-on")?.resize(to: CGSize(width: 16, height: 16)), for: .selected)
-        
         return button
     }()
     
@@ -113,22 +96,29 @@ class DeleteAccountViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
-        setupUI()
-        
-        checkLabelButton.addTarget(self, action: #selector(checkLabelTapped), for: .touchUpInside)
-        deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
-        
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+                
+        setupButton()
+        setupUI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        guard let email = UserDefaults.standard.string(forKey: "email"),
-              let nickname = UserDefaults.standard.string(forKey: "nickname")
-        else { return }
-        
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let cornerRadius = min(self.profileImageView.bounds.width, self.profileImageView.bounds.height) / 2
+        self.profileImageView.layer.cornerRadius = cornerRadius
+    }
+
+    private func setupButton() {
+        checkLabelButton.addTarget(self, action: #selector(checkLabelTapped), for: .touchUpInside)
+        deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
+    }
+    
+    private func setupUI() {
         DispatchQueue.main.async {
             if let imageData = UserDefaults.standard.data(forKey: "image") {
                 self.profileImageView.image = UIImage(data: imageData)
@@ -136,29 +126,19 @@ class DeleteAccountViewController: UIViewController {
                 self.profileImageView.image = UIImage(named: "default-profile")
             }
         }
-        
+        guard let email = UserDefaults.standard.string(forKey: "email"),
+              let nickname = UserDefaults.standard.string(forKey: "nickname")
+        else { return }
         emailLabel.text = email
         nickNameLabel.text = nickname
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let cornerRadius = min(self.profileImageView.bounds.width, self.profileImageView.bounds.height) / 2
-        self.profileImageView.layer.cornerRadius = cornerRadius
-    }
-    
-    private func setupUI() {
+        
         NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "계정 탈퇴", showSeparator: false)
         
         view.addSubview(titleLabel1)
         view.addSubview(accountInfo)
-        view.addSubview(profileImageView)
-        view.addSubview(emailLabel)
-        view.addSubview(nickNameLabel)
+        accountInfo.addSubview(profileImageView)
+        accountInfo.addSubview(nickNameLabel)
+        accountInfo.addSubview(emailLabel)
         view.addSubview(titleLabel2)
         view.addSubview(messageLabel)
         view.addSubview(checkLabelButton)
@@ -176,7 +156,6 @@ class DeleteAccountViewController: UIViewController {
             make.height.equalTo(63)
         }
         
-        accountInfo.addSubview(profileImageView)
         profileImageView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.leading.equalTo(accountInfo.snp.leading).offset(15)
@@ -184,13 +163,11 @@ class DeleteAccountViewController: UIViewController {
             make.height.equalTo(41)
         }
         
-        accountInfo.addSubview(nickNameLabel)
         nickNameLabel.snp.makeConstraints { make in
             make.top.equalTo(accountInfo.snp.top).offset(15)
             make.leading.equalTo(profileImageView.snp.trailing).offset(8)
         }
 
-        accountInfo.addSubview(emailLabel)
         emailLabel.snp.makeConstraints { make in
             make.leading.equalTo(profileImageView.snp.trailing).offset(8)
             make.bottom.equalTo(accountInfo.snp.bottom).offset(-15)
@@ -284,10 +261,8 @@ extension DeleteAccountViewController: CustomPopupView2Delegate {
 extension DeleteAccountViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
         if viewController == self {
-//            print("현재 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         } else {
-//            print("다른 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         }
     }
