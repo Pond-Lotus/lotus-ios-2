@@ -369,19 +369,21 @@ extension LogInViewController: UITextFieldDelegate {
         let currentText = textField.text ?? ""
         let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
         
-        if !newText.isEmpty {
-            let closeButton = UIButton(type: .custom)
-            closeButton.setImage(UIImage(named: "close-circle")?.resize(to: CGSize(width: 24, height: 24)), for: .normal)
-            closeButton.addTarget(self, action: #selector(closeCircleButtonTapped), for: .touchUpInside)
-            closeButton.frame = CGRect(x: 0, y: (30 - 24) / 2, width: 24, height: 24)
-            
-            let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 39, height: 30))
-            textField.rightView = rightPaddingView
-            textField.rightViewMode = .always
-            rightPaddingView.addSubview(closeButton)
-        } else {
-            textField.rightView = nil
-            textField.rightViewMode = .never
+        if textField == emailTextField {
+            if !newText.isEmpty {
+                let closeButton = UIButton(type: .custom)
+                closeButton.setImage(UIImage(named: "close-circle")?.resize(to: CGSize(width: 24, height: 24)), for: .normal)
+                closeButton.addTarget(self, action: #selector(closeCircleButtonTapped), for: .touchUpInside)
+                closeButton.frame = CGRect(x: 0, y: (30 - 24) / 2, width: 24, height: 24)
+                
+                let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 39, height: 30))
+                textField.rightView = rightPaddingView
+                textField.rightViewMode = .always
+                rightPaddingView.addSubview(closeButton)
+            } else {
+                textField.rightView = nil
+                textField.rightViewMode = .never
+            }
         }
         return true
     }
