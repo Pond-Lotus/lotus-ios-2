@@ -16,21 +16,14 @@ class NavigationBarManager {
     
     func setupNavigationBar(for viewController: UIViewController, backButtonAction: Selector?, title: String, showSeparator: Bool = true) {
         if showSeparator {
-            if separatorView == nil {
-                separatorView = UIView()
-                separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
-                viewController.navigationController?.navigationBar.addSubview(separatorView!)
-                
-                separatorView?.snp.makeConstraints { make in
-                    make.top.equalTo(viewController.navigationController!.navigationBar.snp.bottom)
-                    make.leading.trailing.equalToSuperview()
-                    make.height.equalTo(1)
-                }
-            }
-        } else {
-            if separatorView != nil {
-                separatorView?.removeFromSuperview()
-                separatorView = nil
+            separatorView = UIView()
+            separatorView?.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.15)
+            viewController.navigationController?.navigationBar.addSubview(separatorView!)
+            
+            separatorView?.snp.makeConstraints { make in
+                make.top.equalTo(viewController.navigationController!.navigationBar.snp.bottom)
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(1)
             }
         }
         

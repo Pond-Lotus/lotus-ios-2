@@ -9,8 +9,6 @@ import UIKit
 import PhotosUI
 
 class EditProfileViewController: UIViewController {
-    var tmpImage: UIImage?
-    
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.clipsToBounds = true
@@ -45,11 +43,9 @@ class EditProfileViewController: UIViewController {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 30))
         textField.leftView = paddingView
         textField.leftViewMode = .always
-        
-        textField.borderStyle = .none
+
         textField.layer.borderWidth = 1.0
         textField.layer.borderColor = UIColor(red: 0.817, green: 0.817, blue: 0.817, alpha: 1).cgColor
-        
         textField.layer.cornerRadius = 8
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
@@ -71,7 +67,6 @@ class EditProfileViewController: UIViewController {
             label.text = "   " + "(NONE)"
         }
         
-        label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 18, weight: .light)
         label.textColor = UIColor(red: 0.617, green: 0.617, blue: 0.617, alpha: 1)
         label.backgroundColor = UIColor(red: 0.946, green: 0.946, blue: 0.946, alpha: 1)
@@ -82,6 +77,7 @@ class EditProfileViewController: UIViewController {
     
     private let changePasswordButton: UIButton = {
         let button = UIButton()
+        button.applyColorAnimation()
         button.setTitle("비밀번호 변경", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
@@ -105,24 +101,19 @@ class EditProfileViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
-        editProfileImageButton.addTarget(self, action: #selector(editProfileImageButtonTapped), for: .touchUpInside)
-        changePasswordButton.addTarget(self, action: #selector(changePasswordButtonTapped), for: .touchUpInside)
-        deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
-        
-        setupUI()
-        
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+        setupButton()
+        setupUI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        guard let email = UserDefaults.standard.string(forKey: "email")
-        else {
-            print("가드 오류")
-            return
-        }
-
+        
+        UserSession.shared.image = nil
+        UserSession.shared.isChangedImage = false
+        
         DispatchQueue.main.async {
             if let imageData = UserDefaults.standard.data(forKey: "image") {
                 self.profileImageView.image = UIImage(data: imageData)
@@ -130,44 +121,43 @@ class EditProfileViewController: UIViewController {
                 self.profileImageView.image = UIImage(named: "default-profile")
             }
         }
-                
-        emailLabel.text = "   " + email
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        UserSession.shared.image = nil
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        if let nickname = UserDefaults.standard.string(forKey: "nickname") {
+            nickNameTextField.text = nickname
+        }
     }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-            super.touchesBegan(touches, with: event)
-            self.view.endEditing(true)
-    }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let cornerRadius = min(self.profileImageView.bounds.width, self.profileImageView.bounds.height) / 2
         self.profileImageView.layer.cornerRadius = cornerRadius
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        self.view.endEditing(true)
+    }
+    
+    private func setupButton() {
+        editProfileImageButton.addTarget(self, action: #selector(editProfileImageButtonTapped), for: .touchUpInside)
+        changePasswordButton.addTarget(self, action: #selector(changePasswordButtonTapped), for: .touchUpInside)
+        deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
+    }
+    
     private func setupUI() {
-        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "프로필 수정", showSeparator: true)
+        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "프로필 수정", showSeparator: false)
 
         let completeButton = UIBarButtonItem(title: "완료", style: .plain, target: self, action: #selector(completeButtonTapped))
-//        if 조건 {
-//            let attributes: [NSAttributedString.Key: Any] = [
-//                .foregroundColor: UIColor.red, // 원하는 폰트 컬러로 설정
-//                // 다른 원하는 속성들도 추가 가능
-//            ]
-//            button.setTitleTextAttributes(attributes, for: .normal)
-//        }
         let completeButtonAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 16, weight: .medium) ,
+            .font: UIFont.systemFont(ofSize: 16, weight: .medium)
         ]
         completeButton.setTitleTextAttributes(completeButtonAttributes, for: .normal)
         navigationItem.rightBarButtonItem = completeButton
         navigationItem.rightBarButtonItem?.tintColor = .black
-        
         
         view.addSubview(profileImageView)
         view.addSubview(editProfileImageButton)
@@ -222,7 +212,7 @@ class EditProfileViewController: UIViewController {
         }
         
         deleteAccountButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-10)
+            make.bottom.equalToSuperview().offset(-35)
             make.centerX.equalToSuperview()
             make.width.equalTo(93)
             make.height.equalTo(30)
@@ -234,20 +224,21 @@ class EditProfileViewController: UIViewController {
     }
     
     @objc func completeButtonTapped() {
+        guard let enteredNickname = nickNameTextField.text,
+              let nickname = UserDefaults.standard.string(forKey: "nickname"),
+              let isChanged = UserSession.shared.isChangedImage
+        else {
+            print("가드 오류")
+            return
+        }
+        
         navigationItem.rightBarButtonItem?.isEnabled = false
         navigationItem.leftBarButtonItem?.isEnabled = false
         editProfileImageButton.isEnabled = false
         changePasswordButton.isEnabled = false
         deleteAccountButton.isEnabled = false
-        guard let enteredNickname = nickNameTextField.text,
-              let nickname = UserDefaults.standard.string(forKey: "nickname")
-        else {
-            navigationItem.rightBarButtonItem?.isEnabled = true
-            print("가드 오류")
-            return
-        }
         
-        if let originImageData = UserDefaults.standard.data(forKey: "image") {
+        if isChanged {
             if let imageData = UserSession.shared.image {
                 if let image = UIImage(data: imageData) {
                     if enteredNickname == "" {
@@ -257,19 +248,22 @@ class EditProfileViewController: UIViewController {
                     }
                 }
             } else {
-                let image = UIImage(data: originImageData)
                 if enteredNickname == "" {
-                    self.editProfile(image: image, nickname: nickname, imdel: false)
+                    self.editProfile(image: nil, nickname: nickname, imdel: true)
                 } else {
-                    self.editProfile(image: image, nickname: enteredNickname, imdel: false)
+                    self.editProfile(image: nil, nickname: enteredNickname, imdel: true)
                 }
+            }
+        } else {
+            if enteredNickname == "" {
+                self.editProfile(image: nil, nickname: nickname, imdel: false)
+            } else {
+                self.editProfile(image: nil, nickname: enteredNickname, imdel: false)
             }
         }
     }
 
     @objc func editProfileImageButtonTapped() {
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-
         let albumAction = UIAlertAction(title: "앨범에서 선택", style: .default) { [weak self] _ in
             var configurcation = PHPickerConfiguration()
             configurcation.selectionLimit = 1
@@ -284,16 +278,17 @@ class EditProfileViewController: UIViewController {
             let image = UIImage(named: "default-profile")
             if let imageData = image?.pngData() {
                 self.profileImageView.image = UIImage(data: imageData)
-                UserSession.shared.image = imageData
+                UserSession.shared.image = nil
+                UserSession.shared.isChangedImage = true
             }
         }
         
         let cancelAction = UIAlertAction(title: "닫기", style: .cancel, handler: nil)
         
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alertController.addAction(albumAction)
         alertController.addAction(defaultImageAction)
         alertController.addAction(cancelAction)
-        
         present(alertController, animated: true, completion: nil)
     }
     
@@ -320,10 +315,12 @@ extension EditProfileViewController {
 
                 if response.resultCode == 200 {
                     print("이백")
-                    UserDefaults.standard.set(response.data["nickname"] , forKey: "nickname")
+                    guard let responseData = response.data else { return }
                     
-                    if let base64Image = response.data["image"] {
-                        let imageData = UserSession.shared.base64StringToImage(base64String: base64Image)?.pngData()
+                    UserDefaults.standard.set(responseData.nickname, forKey: "nickname")
+                
+                    if let image = responseData.image {
+                        let imageData = UserSession.shared.base64StringToImage(base64String: image)?.pngData()
                         UserDefaults.standard.set(imageData, forKey: "image")
                         
                         let dimmingView = UIView(frame: UIScreen.main.bounds)
@@ -343,13 +340,14 @@ extension EditProfileViewController {
                             dimmingView.alpha = 1
                         }
                     } else {
+                        print("응답 기본이미지")
                         UserDefaults.standard.set(nil, forKey: "image")
                     }
                 } else if response.resultCode == 500 {
                     print("오백")
                 }
             case .failure(let err):
-                print("FUCKING failure: \(err)")
+                print("failure: \(err)")
             }
         }
     }
@@ -384,6 +382,7 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
                         if let imageData = image.pngData() {
                             self.profileImageView.image = UIImage(data: imageData)
                             UserSession.shared.image = imageData
+                            UserSession.shared.isChangedImage = true
                         }
                     }
                 }
@@ -397,10 +396,8 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
 extension EditProfileViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
         if viewController == self {
-//            print("현재 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         } else {
-//            print("다른 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = false
         }
     }

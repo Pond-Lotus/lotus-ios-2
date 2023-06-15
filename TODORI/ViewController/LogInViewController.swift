@@ -338,7 +338,6 @@ extension LogInViewController {
                     
                 } else if response.resultCode == 500 {
                     print("오백")
-                    
                     let dimmingView = UIView(frame: UIScreen.main.bounds)
                     dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
                     dimmingView.alpha = 0

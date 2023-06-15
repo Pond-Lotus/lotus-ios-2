@@ -13,7 +13,7 @@ class ToDoTableViewCell: UITableViewCell {
     var checkbox: UIImageView = UIImageView()
     var titleTextField: UITextField = UITextField()
     var cellBackgroundView: UIView = UIView()
-    var todo: Todo = .init(year: "", month: "", day: "", title: "", done: false, isNew: false, writer: "", color: 0, id: 0, time: "0000", description: "")
+    var todo: ToDo = .init(year: "", month: "", day: "", title: "", done: false, isNew: false, writer: "", color: 0, id: 0, time: "0000", description: "")
     var section: Int = 0
     var row: Int = 0
     var delegate: TodoTableViewCellDelegate?
@@ -142,7 +142,7 @@ extension ToDoTableViewCell:UITextFieldDelegate{
 }
 
 protocol TodoTableViewCellDelegate:AnyObject{
-    func sendTodoData(section:Int, row:Int, todo:Todo)
-    func editDone(section:Int,row:Int,todo:Todo)
+    func sendTodoData(section:Int, row:Int, todo:ToDo)
+    func editDone(section:Int,row:Int,todo:ToDo)
     func writeNothing(section:Int, row:Int)
 }

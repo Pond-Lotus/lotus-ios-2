@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Todo {
+struct ToDo {
     var year: String
     var month: String
     var day: String

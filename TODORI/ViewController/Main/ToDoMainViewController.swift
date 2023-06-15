@@ -100,13 +100,13 @@ class ToDoMainViewController : UIViewController {
     
     let textviewPlaceholder:String = "+ 메모하고 싶은 내용이 있나요?"
     
-    var redArray:[Todo] = []
-    var yellowArray:[Todo] = []
-    var greenArray:[Todo] = []
-    var blueArray:[Todo] = []
-    var pinkArray:[Todo] = []
-    var purpleArray:[Todo] = []
-    var todoArrayList:[[Todo]] = []
+    var redArray:[ToDo] = []
+    var yellowArray:[ToDo] = []
+    var greenArray:[ToDo] = []
+    var blueArray:[ToDo] = []
+    var pinkArray:[ToDo] = []
+    var purpleArray:[ToDo] = []
+    var todoArrayList:[[ToDo]] = []
     var titleOfSectionArray:[String] = ["","","","","",""]
     var existingColorArray:[Int] = []
     var isCollectionViewShowing = false
@@ -156,6 +156,8 @@ class ToDoMainViewController : UIViewController {
         setComponentAppearence() //컴포넌트 외형 설정
         setAutoLayout() //오토 레이아웃 설정
         searchTodo(date: calendarView.selectedDate!) //투두 조회
+        
+        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction: nil, title: "")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -945,7 +947,7 @@ class ToDoMainViewController : UIViewController {
                         self.existingColorArray.removeAll()
                         
                         for i in data.data{
-                            self.todoArrayList[i.color - 1].append(Todo(year: String(i.year), month: String(i.month), day: String(i.day), title: i.title, done: i.done, isNew: false, writer: i.writer, color: i.color, id: i.id, time: i.time, description: i.description))
+                            self.todoArrayList[i.color - 1].append(ToDo(year: String(i.year), month: String(i.month), day: String(i.day), title: i.title, done: i.done, isNew: false, writer: i.writer, color: i.color, id: i.id, time: i.time, description: i.description))
                         }
                         
                         for i in 0 ..< 6{
@@ -1056,7 +1058,7 @@ extension ToDoMainViewController:UITableViewDataSource{
         self.view.addSubview(bottomSheetView)
         setBottomSheetAutoLayout()
         
-        let todo:Todo = todoArrayList[existingColorArray[indexPath.section]][indexPath.row]
+        let todo:ToDo = todoArrayList[existingColorArray[indexPath.section]][indexPath.row]
         
         //bottom sheet 내부 컬러바 색상 설정
         colorBarViewInBottomsheet.backgroundColor = Color.shared.UIColorArray[todo.color-1]
@@ -1216,7 +1218,7 @@ extension ToDoMainViewController:UICollectionViewDelegate{
         }else {
             index = todoArrayList[indexPath.row].count
         }
-        todoArrayList[indexPath.row].insert(Todo(year: date[0] , month: date[1], day: date[2], title: "", done: false, isNew: true, writer: "", color: indexPath.row + 1, id: 0, time: "0000", description: ""), at: index)
+        todoArrayList[indexPath.row].insert(ToDo(year: date[0] , month: date[1], day: date[2], title: "", done: false, isNew: true, writer: "", color: indexPath.row + 1, id: 0, time: "0000", description: ""), at: index)
         setExistArray()
         tableView.reloadData()
         
@@ -1307,14 +1309,14 @@ extension ToDoMainViewController: TodoTableViewCellDelegate {
         tableView.reloadData()
     }
     
-    func sendTodoData(section: Int, row: Int, todo: Todo) {
+    func sendTodoData(section: Int, row: Int, todo: ToDo) {
         todoArrayList[todo.color-1][row] = todo
         todoSortById(section: section)
         todoSortByDone(section: section)
         tableView.reloadData()
     }
     
-    func editDone(section: Int, row: Int, todo: Todo) {
+    func editDone(section: Int, row: Int, todo: ToDo) {
         todoArrayList[todo.color-1][row] = todo
         todoSortById(section: todo.color-1)
         todoSortByDone(section: todo.color-1)

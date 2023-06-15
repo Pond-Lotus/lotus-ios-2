@@ -171,12 +171,10 @@ class UserService {
             "nickname": nickname,
             "imdel": imdel
         ]
-        
         if let image = image {
-             parameters["image"] = image
-         } else {
-             parameters["image"] = nil
-         }
+            parameters["image"] = image
+        }
+        print("parameters: \(parameters)")
         
         AF.upload(multipartFormData: { MultipartFormData in
             for (key, value) in parameters {

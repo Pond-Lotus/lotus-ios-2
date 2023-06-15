@@ -20,7 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mainViewController = LaunchScreenViewController()
         self.window?.rootViewController = mainViewController
         self.window?.makeKeyAndVisible()
-        UserDefaults.standard.set(false, forKey: "autoLogin")
+//        UserDefaults.standard.set(false, forKey: "autoLogin")
+//        UserDefaults.standard.removeObject(forKey: "autoLogin")
         
         if UserDefaults.standard.bool(forKey: "autoLogin") {
             print("isAutoLogin: true")
@@ -53,34 +54,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         print("여기는 SceneDelegate 입니다.")
     }
     
-    static func logout() {
+    static func reset() {
         let domain = Bundle.main.bundleIdentifier!
         UserDefaults.standard.removePersistentDomain(forName: domain)
         UserDefaults.standard.synchronize()
+        TokenManager.shared.deleteToken()
 
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
             let sceneDelegate = windowScene.delegate as? SceneDelegate
-        else {
-            return
-        }
-        
-        let loginViewController = UINavigationController(rootViewController: LogInViewController())
-        let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = loginViewController
-        sceneDelegate.window = window
-        window.makeKeyAndVisible()
-    }
-    
-    static func withdrawal() {
-        let domain = Bundle.main.bundleIdentifier!
-        UserDefaults.standard.removePersistentDomain(forName: domain)
-        UserDefaults.standard.synchronize()
-        
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-            let sceneDelegate = windowScene.delegate as? SceneDelegate
-        else {
-            return
-        }
+        else { return }
         
         let loginViewController = UINavigationController(rootViewController: LogInViewController())
         let window = UIWindow(windowScene: windowScene)

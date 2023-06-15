@@ -20,6 +20,7 @@ class UserSession {
     var email: String?
     var profileImage: String?
     var image: Data?
+    var isChangedImage: Bool?
     
     func imageToBase64String(image: UIImage) -> String? {
         guard let imageData = image.jpegData(compressionQuality: 1.0) else {

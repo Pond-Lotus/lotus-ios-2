@@ -8,18 +8,13 @@
 import UIKit
 
 class FindPasswordViewController: UIViewController {
-    
     private let titleLabel: UIStackView = {
         let imageView = UIImageView(image: UIImage(named: "sms")?.resize(to: CGSize(width: 18, height: 18)))
-        
         let label = UILabel()
         label.text = "안내드려요"
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        
         let stackView = UIStackView(arrangedSubviews: [imageView, label])
-        stackView.alignment = .center
         stackView.spacing = 5
-
         return stackView
     }()
     
@@ -27,7 +22,6 @@ class FindPasswordViewController: UIViewController {
         let label = UILabel()
         label.numberOfLines = 0
         label.text = "가입한 이메일 주소를 입력해주세요.\n해당 이메일로 비밀번호 재설정을 위한 링크를 보내드립니다."
-        label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 14, weight: .light)
         label.textColor = UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1)
         
@@ -46,24 +40,19 @@ class FindPasswordViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.text = "이메일"
-        label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
-        label.textColor = .black
         return label
     }()
-
+    
     private let emailTextField: UITextField = {
         let textField = UITextField()
-        
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 30))
         textField.leftView = paddingView
         textField.leftViewMode = .always
-        
-        textField.borderStyle = .none
         textField.layer.borderWidth = 1.0
         textField.layer.borderColor = UIColor(red: 0.817, green: 0.817, blue: 0.817, alpha: 1).cgColor
-        
         textField.layer.cornerRadius = 8
+        textField.keyboardType = .emailAddress
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         return textField
@@ -72,7 +61,6 @@ class FindPasswordViewController: UIViewController {
     private let errorLabel: UILabel = {
         let label = UILabel()
         label.text = "유효한 이메일이 아닙니다."
-        label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         label.textColor = UIColor(red: 1, green: 0.616, blue: 0.302, alpha: 1)
         label.isHidden = true
@@ -93,28 +81,24 @@ class FindPasswordViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
-
-        findPasswordButton.addTarget(self, action: #selector(findButtonTapped), for: .touchUpInside)
-    
-        setupUI()
         
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+        
+        findPasswordButton.addTarget(self, action: #selector(findButtonTapped), for: .touchUpInside)
+        setupUI()
     }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        NavigationBarManager.shared.removeSeparatorView()
     }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-    }
-
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-            super.touchesBegan(touches, with: event)
-            self.view.endEditing(true)
+        super.touchesBegan(touches, with: event)
+        self.view.endEditing(true)
     }
-
+    
     private func setupUI() {
         NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "비밀번호 찾기", showSeparator: true)
         
@@ -188,24 +172,26 @@ extension FindPasswordViewController {
                     dimmingView.alpha = 0
                     self.view.addSubview(dimmingView)
                     let popupView = CustomPopupView(title: "메일 발송 완료", message: "재설정한 비밀번호로\n로그인 해주세요.", buttonText: "로그인", buttonColor: UIColor.mainColor, dimmingView: dimmingView)
-                    popupView.delegate = self // 중요
+                    popupView.delegate = self
                     popupView.alpha = 0
                     self.view.addSubview(popupView)
-                    UIView.animate(withDuration: 0.3) {
-                        popupView.alpha = 1
-                        dimmingView.alpha = 1
-                    }
                     popupView.snp.makeConstraints { make in
                         make.center.equalToSuperview()
                         make.width.equalTo(264)
                         make.height.equalTo(167)
+                    }
+                    UIView.animate(withDuration: 0.2) {
+                        popupView.alpha = 1
+                        dimmingView.alpha = 1
                     }
                 } else if response.resultCode == 500 {
                     print("오백")
                     self.errorLabel.isHidden = false
                 }
             case .failure(_):
-                print("FUCKING fail")
+                print("failure")
+                self.findPasswordButton.isEnabled = true
+                self.errorLabel.isHidden = false
             }
         }
     }
@@ -213,17 +199,15 @@ extension FindPasswordViewController {
 
 extension FindPasswordViewController: CustomPopupViewDelegate {
     func buttonTappedDelegate() {
-        navigationController?.popViewController(animated: true)
+        navigationController?.popToRootViewController(animated: true)
     }
 }
 
 extension FindPasswordViewController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
         if viewController == self {
-//            print("현재 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = true
         } else {
-//            print("다른 뷰 컨트롤러가 보이는 경우")
             navigationController.interactivePopGestureRecognizer?.isEnabled = false
         }
     }
@@ -234,4 +218,3 @@ extension FindPasswordViewController: UIGestureRecognizerDelegate {
         return true
     }
 }
-

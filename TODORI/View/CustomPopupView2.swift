@@ -74,7 +74,7 @@ class CustomPopupView2: UIView {
         actionButton2.backgroundColor = UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1)
         actionButton2.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         actionButton2.setTitleColor(UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1), for: .normal)
-        actionButton2.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
+        actionButton2.addTarget(self, action: #selector(okButtonTapped), for: .touchUpInside)
         
         addSubview(actionButton2)
         actionButton2.snp.makeConstraints {
@@ -91,7 +91,7 @@ class CustomPopupView2: UIView {
         self.removeFromSuperview()
     }
 
-    @objc func logoutButtonTapped() {
+    @objc func okButtonTapped() {
         delegate?.buttonTappedDelegate()
         self.dimmingView.isHidden = true
         self.removeFromSuperview()

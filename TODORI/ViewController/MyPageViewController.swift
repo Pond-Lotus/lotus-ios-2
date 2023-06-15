@@ -8,7 +8,7 @@
 import UIKit
 
 class MyPageViewController: UIViewController {
-    private var initialPosition: CGPoint = .zero
+//    private var initialPosition: CGPoint = .zero
     var dimmingView: UIView?
     
     private let profileImageView: UIImageView = {
@@ -87,13 +87,10 @@ class MyPageViewController: UIViewController {
     
     private let settingGroupButton: UIButton = {
         let button = UIButton()
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        
         let image = UIImage(systemName: "chevron.right")?.resize(to: CGSize(width: 10, height: 14))
         let tintedImage = image?.withRenderingMode(.alwaysTemplate)
         button.setImage(tintedImage, for: .normal)
         button.tintColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
-        
         var configuration = UIButton.Configuration.plain()
         configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
         button.configuration = configuration
@@ -105,17 +102,20 @@ class MyPageViewController: UIViewController {
         button.setTitle(" 로그아웃", for: .normal)
         button.setTitleColor(UIColor(red: 0.258, green: 0.258, blue: 0.258, alpha: 1), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        
         let image = UIImage(named: "logout")?.resize(to: CGSize(width: 18, height: 18))
         button.setImage(image, for: .normal)
         return button
     }()
     
-    private var underlineViews: [UIView] = []
-    
     private func createUnderlineView() -> UIView {
         let view = UIView()
         view.backgroundColor = UIColor(red: 0.851, green: 0.851, blue: 0.851, alpha: 1)
+        self.view.addSubview(view)
+        view.snp.makeConstraints { make in
+            make.height.equalTo(1.0)
+            make.leading.equalToSuperview().offset(22)
+            make.centerX.equalToSuperview()
+        }
         return view
     }
     
@@ -130,12 +130,7 @@ class MyPageViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
-        view.addGestureRecognizer(panGesture)
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
-        view.addGestureRecognizer(tapGesture)
-        
+        view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:))))
         editProfileButton.addTarget(self, action: #selector(editProfileButtonTapped), for: .touchUpInside)
         changePasswordButton.addTarget(self, action: #selector(changePasswordButtonTapped), for: .touchUpInside)
         settingGroupButton.addTarget(self, action: #selector(settingGroupButtonTapped), for: .touchUpInside)
@@ -172,7 +167,7 @@ class MyPageViewController: UIViewController {
         super.viewWillDisappear(animated)
     }
     
-    private func setupUI() {
+    private func setupUI() {        
         let stackView1 = UIStackView(arrangedSubviews: [changePasswordButton, notificationButton])
         stackView1.axis = .vertical
         stackView1.spacing = 22
@@ -202,32 +197,20 @@ class MyPageViewController: UIViewController {
         view.addSubview(settingGroupButton)
         view.addSubview(logoutButton)
         
+        var underlineViews: [UIView] = []
         for _ in 1...4 { underlineViews.append(createUnderlineView()) }
-        underlineViews.forEach { view.addSubview($0) }
         
         underlineViews[0].snp.makeConstraints { make in
             make.top.equalTo(profileImageView.snp.bottom).offset(21)
-            make.leading.equalToSuperview().offset(22)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(1.0)
         }
         underlineViews[1].snp.makeConstraints { make in
             make.top.equalTo(stackView1.snp.bottom).offset(28)
-            make.leading.equalToSuperview().offset(22)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(1.0)
         }
         underlineViews[2].snp.makeConstraints { make in
             make.top.equalTo(stackView2.snp.bottom).offset(28)
-            make.leading.equalToSuperview().offset(22)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(1.0)
         }
         underlineViews[3].snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(-64)
-            make.leading.equalToSuperview().offset(22)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(1.0)
         }
         
         profileImageView.snp.makeConstraints { make in
@@ -249,7 +232,7 @@ class MyPageViewController: UIViewController {
         
         editProfileButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(84 - 10)
-            make.trailing.equalToSuperview().offset(-18 + 10)
+            make.trailing.equalToSuperview().offset(-22 + 10)
         }
         
         titleLabel1.snp.makeConstraints { make in
@@ -284,27 +267,12 @@ class MyPageViewController: UIViewController {
         }
     }
     
-    @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
-        // MyPageViewController의 뷰를 터치한 경우에만 아래 코드가 실행됩니다.
-        // 터치 이벤트를 소비하여 상위 뷰 컨트롤러로 전달되지 않도록 합니다.
-        gesture.cancelsTouchesInView = true
-    }
-    
     @objc func editProfileButtonTapped() {
         navigationController?.pushViewController(EditProfileViewController(), animated: false)
-//        let navigationController = UINavigationController(rootViewController: nextViewController)
-//        navigationController.modalPresentationStyle = .fullScreen
-//        navigationController.modalTransitionStyle = .crossDissolve
-//        present(navigationController, animated: true, completion: nil)
     }
         
     @objc func changePasswordButtonTapped() {
         navigationController?.pushViewController(ChangePasswordViewController(), animated: false)
-//        let nextViewController = ChangePasswordViewController()
-//        let navigationController = UINavigationController(rootViewController: nextViewController)
-//        navigationController.modalPresentationStyle = .fullScreen
-//        navigationController.modalTransitionStyle = .crossDissolve
-//        present(navigationController, animated: true, completion: nil)
     }
     
     @objc func settingGroupButtonTapped() {
@@ -312,16 +280,15 @@ class MyPageViewController: UIViewController {
     }
     
     @objc func logoutButtonTapped() {
+        // MyPageViewController가 아닌 화면 전체를 기준으로 팝업뷰를 띄우기 위함
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) {
-            
             let dimmingView = UIView(frame: keyWindow.bounds)
             dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
             dimmingView.alpha = 0
             keyWindow.addSubview(dimmingView)
-            
             let popupView = CustomPopupView2(title: "로그아웃", message: "로그아웃 하시겠습니까?", buttonText1: "취소", buttonText2: "로그아웃", dimmingView: dimmingView)
-            popupView.delegate = self // 중요
+            popupView.delegate = self
             popupView.alpha = 0
             keyWindow.addSubview(popupView)
             popupView.snp.makeConstraints { make in
@@ -329,7 +296,6 @@ class MyPageViewController: UIViewController {
                 make.width.equalTo(264)
                 make.height.equalTo(167)
             }
-            
             UIView.animate(withDuration: 0.2) {
                 popupView.alpha = 1
                 dimmingView.alpha = 1
@@ -337,6 +303,8 @@ class MyPageViewController: UIViewController {
         }
     }
     
+    
+    private var initialPosition: CGPoint = .zero
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
         
@@ -344,26 +312,22 @@ class MyPageViewController: UIViewController {
         case .began:
             initialPosition = view.center
         case .changed:
-            //            view.center = CGPoint(x: initialPosition.x + translation.x, y: initialPosition.y)
             let newX = initialPosition.x + translation.x
             if newX > initialPosition.x {
                 view.center = CGPoint(x: newX, y: initialPosition.y)
             }
         case .ended, .cancelled:
-            let screenWidth = UIScreen.main.bounds.width
-            
-            if view.center.x > screenWidth / 2 {
-                // 오른쪽으로 당겨졌으므로 다시 들어가도록 애니메이션 처리
+            if view.frame.minX > 100 {
+                let screenWidth = UIScreen.main.bounds.width
                 UIView.animate(withDuration: 0.1) {
                     self.view.frame = CGRect(x: screenWidth, y: 0, width: screenWidth, height: self.view.frame.height)
                 } completion: { _ in
                     self.view.removeFromSuperview()
                     self.removeFromParent()
-                    self.dimmingView?.isHidden = true
+                    self.dimmingView?.removeFromSuperview()
                 }
             } else {
-                // 왼쪽으로 당겨지지 않았으므로 초기 위치로 되돌림
-                UIView.animate(withDuration: 0.3) {
+                UIView.animate(withDuration: 0.1) {
                     self.view.center = self.initialPosition
                 }
             }
@@ -379,20 +343,14 @@ extension MyPageViewController {
             switch result {
             case .success(let response):
                 if response.resultCode == 200 {
-                    print("로그아웃 이백")
-                    UserDefaults.standard.set(false, forKey: "autoLogin")
-                    
-                    let domain = Bundle.main.bundleIdentifier!
-                    UserDefaults.standard.removePersistentDomain(forName: domain)
-                    UserDefaults.standard.synchronize()
-                    
-                    SceneDelegate.logout()
+                    print("이백")
+                    NavigationBarManager.shared.removeSeparatorView()
+                    SceneDelegate.reset()
                 } else if response.resultCode == 500 {
                     print("오백")
-                    print("로그아웃 실패")
                 }
             case .failure:
-                print("FUCKING fail")
+                print("failure")
             }
         }
     }
@@ -423,12 +381,11 @@ extension MyPageViewController {
                     }
                     
                     self.navigationController?.pushViewController(GroupSettingViewController(), animated: false)
-                    
                 } else if response.resultCode == 500 {
                     print("오백")
                 }
-            case .failure(let err):
-                print(err)
+            case .failure:
+                print("failure")
             }
         }
     }
@@ -436,16 +393,6 @@ extension MyPageViewController {
 
 extension MyPageViewController: CustomPopupView2Delegate {
     func buttonTappedDelegate() {
-        NavigationBarManager.shared.separatorView = nil
         logout()
-    }
-}
-
-private class ExpandableButton: UIButton {
-    private let touchAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10) // 터치 영역 확장할 여백
-    
-    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        let expandedBounds = bounds.inset(by: touchAreaInsets)
-        return expandedBounds.contains(point)
     }
 }

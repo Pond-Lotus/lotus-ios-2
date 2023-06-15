@@ -141,8 +141,8 @@ class DeleteAccountViewController: UIViewController {
         nickNameLabel.text = nickname
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
     }
     
     override func viewDidLayoutSubviews() {
@@ -152,7 +152,7 @@ class DeleteAccountViewController: UIViewController {
     }
     
     private func setupUI() {
-        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "계정 탈퇴", showSeparator: true)
+        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "계정 탈퇴", showSeparator: false)
         
         view.addSubview(titleLabel1)
         view.addSubview(accountInfo)
@@ -172,8 +172,7 @@ class DeleteAccountViewController: UIViewController {
         accountInfo.snp.makeConstraints { make in
             make.top.equalTo(titleLabel1.snp.bottom).offset(7)
             make.leading.equalToSuperview().offset(34)
-            make.trailing.equalToSuperview().offset(-34)
-            make.width.equalTo(500)
+            make.centerX.equalToSuperview()
             make.height.equalTo(63)
         }
         
@@ -238,26 +237,22 @@ class DeleteAccountViewController: UIViewController {
     }
     
     @objc func deleteAccountButtonTapped() {
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) {
-            
-            let dimmingView = UIView(frame: keyWindow.bounds)
-            dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-            dimmingView.alpha = 0
-            keyWindow.addSubview(dimmingView)
-            let popupView = CustomPopupView2(title: "정말 떠나시나요?😢", message: "다음에 또 만나길 기대할게요.", buttonText1: "취소", buttonText2: "확인", dimmingView: dimmingView)
-            popupView.delegate = self // 중요
-            popupView.alpha = 0
-            keyWindow.addSubview(popupView)
-            popupView.snp.makeConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(264)
-                make.height.equalTo(167)
-            }
-            UIView.animate(withDuration: 0.2) {
-                popupView.alpha = 1
-                dimmingView.alpha = 1
-            }
+        let dimmingView = UIView(frame: UIScreen.main.bounds)
+        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        dimmingView.alpha = 0
+        self.view.addSubview(dimmingView)
+        let popupView = CustomPopupView2(title: "정말 떠나시나요?😢", message: "다음에 또 만나길 기대할게요.", buttonText1: "취소", buttonText2: "확인", dimmingView: dimmingView)
+        popupView.delegate = self
+        popupView.alpha = 0
+        self.view.addSubview(popupView)
+        popupView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.equalTo(264)
+            make.height.equalTo(167)
+        }
+        UIView.animate(withDuration: 0.2) {
+            popupView.alpha = 1
+            dimmingView.alpha = 1
         }
     }
 }
@@ -269,12 +264,12 @@ extension DeleteAccountViewController {
             case .success(let response):
                 if response.resultCode == 200 {
                     print("이백")
-                    SceneDelegate.logout()
+                    SceneDelegate.reset()
                 } else if response.resultCode == 500 {
                     print("오백")
                 }
-            case .failure(_):
-                print("FUCKING fail")
+            case .failure:
+                print("failure")
             }
         }
     }

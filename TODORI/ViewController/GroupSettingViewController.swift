@@ -29,12 +29,10 @@ class GroupSettingViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         
         let button = UIButton()
-        button.setImage(UIImage(named: "edit-group")?.resize(to: CGSize(width: 19, height: 19)), for: .normal)
         button.titleLabel?.text = image + "," + text + "," + String(tag)
+        button.setImage(UIImage(named: "edit-group")?.resize(to: CGSize(width: 19, height: 19)), for: .normal)
         button.addTarget(self, action: #selector(groupTapped), for: .touchUpInside)
         button.contentHorizontalAlignment = .trailing
-        // 스택 뷰의 distribution을 .fill로 설정
-//        stackView.distribution = .fill
         
         stackView.addArrangedSubview(imageView)
         stackView.addArrangedSubview(label)
@@ -58,11 +56,10 @@ class GroupSettingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
-        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "그룹 설정")
+        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction:  #selector(backButtonTapped), title: "그룹 설정", showSeparator: false)
 
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-    
     }
     
     private var mainStackView = UIStackView()
@@ -72,9 +69,8 @@ class GroupSettingViewController: UIViewController {
         setupUI()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
         mainStackView.removeFromSuperview()
     }
     

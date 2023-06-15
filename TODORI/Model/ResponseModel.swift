@@ -31,7 +31,12 @@ struct LoginResponse: Decodable {
 
 struct EditAccountResponse: Decodable {
     let resultCode: Int
-    let data: [String: String]
+    let data: DataResponse?
+}
+
+struct DataResponse: Decodable {
+    let nickname: String
+    let image: String?
 }
 
 struct ToDoResponse: Decodable {

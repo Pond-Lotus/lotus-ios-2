@@ -92,7 +92,7 @@ class EditGroupSettingViewController: UIViewController {
     var completeButton: UIBarButtonItem!
     
     private func setupUI() {
-        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction: #selector(backButtonTapped), title: "그룹 설정")
+        NavigationBarManager.shared.setupNavigationBar(for: self, backButtonAction: #selector(backButtonTapped), title: "그룹 설정", showSeparator: false)
         completeButton = UIBarButtonItem(title: "완료", style: .plain, target: self, action: #selector(completeButtonTapped))
 //        if 조건 {
 //            let attributes: [NSAttributedString.Key: Any] = [
