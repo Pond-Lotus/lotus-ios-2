@@ -175,20 +175,13 @@ class EnterCodeViewController: UIViewController {
         setupUI()
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
-        self.view.endEditing(true)
-    }
-    
     private func setupTapGesture() {
-        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
-        view.addGestureRecognizer(tap)
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing)))
         
         let inputlabels = [firstLabel, secondLabel, thirdLabel, fourthLabel, fifthLabel, sixthLabel]
         inputlabels.forEach { label in
             label.isUserInteractionEnabled = true
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(labelTapped))
-            label.addGestureRecognizer(tapGesture)
+            label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(labelTapped)))
         }
     }
     
@@ -263,9 +256,8 @@ class EnterCodeViewController: UIViewController {
     @objc func nextButtonTapped() {
         if let code = codeTextField.text, let email = UserSession.shared.signUpEmail {
             self.nextButton.isEnabled = false
+            print(code)
             codeCheck(email: email, code: code)
-        } else {
-            print("이메일 또는 코드 값이 없습니다.")
         }
     }
 }
@@ -316,7 +308,9 @@ extension EnterCodeViewController: UITextFieldDelegate {
             sixthLabel.text = ""
         } else if updatedText.count == 6 {
             sixthLabel.text = String(updatedText[updatedText.index(updatedText.startIndex, offsetBy: 5)])
-            textField.resignFirstResponder()
+            DispatchQueue.main.async {
+                textField.resignFirstResponder()
+            }
         }
         return updatedText.count <= 6
     }

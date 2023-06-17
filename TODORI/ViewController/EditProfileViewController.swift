@@ -97,6 +97,11 @@ class EditProfileViewController: UIViewController {
         return button
     }()
     
+    private let indicatorView: UIActivityIndicatorView = {
+        let indicatorView = UIActivityIndicatorView(style: .large)
+         return indicatorView
+     }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
@@ -165,6 +170,7 @@ class EditProfileViewController: UIViewController {
         view.addSubview(emailLabel)
         view.addSubview(changePasswordButton)
         view.addSubview(deleteAccountButton)
+        view.addSubview(indicatorView)
         
         profileImageView.snp.makeConstraints { make in
             make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(26)
@@ -215,6 +221,11 @@ class EditProfileViewController: UIViewController {
             make.width.equalTo(93)
             make.height.equalTo(30)
         }
+        
+        indicatorView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-50)
+        }
     }
     
     @objc func backButtonTapped() {
@@ -235,6 +246,7 @@ class EditProfileViewController: UIViewController {
         editProfileImageButton.isEnabled = false
         changePasswordButton.isEnabled = false
         deleteAccountButton.isEnabled = false
+        indicatorView.startAnimating()
         
         if isChanged {
             if let imageData = UserSession.shared.image {
@@ -305,6 +317,7 @@ extension EditProfileViewController {
         UserService.shared.editProfile(image: image, nickname: nickname, imdel: imdel) { result in
             switch result {
             case .success(let response):
+                self.indicatorView.stopAnimating()
                 self.navigationItem.rightBarButtonItem?.isEnabled = true
                 self.navigationItem.leftBarButtonItem?.isEnabled = true
                 self.editProfileImageButton.isEnabled = true

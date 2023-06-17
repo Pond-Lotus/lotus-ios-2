@@ -123,6 +123,11 @@ class LogInViewController: UIViewController {
         return button
     }()
     
+    private let indicatorView: UIActivityIndicatorView = {
+        let indicatorView = UIActivityIndicatorView(style: .large)
+        return indicatorView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -185,6 +190,7 @@ class LogInViewController: UIViewController {
         contentView.addSubview(loginButton)
         contentView.addSubview(findPasswordButton)
         contentView.addSubview(signupButton)
+        contentView.addSubview(indicatorView)
         
         logoImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.17)
@@ -235,6 +241,10 @@ class LogInViewController: UIViewController {
             make.top.equalTo(loginButton.snp.bottom).offset(10)
             make.trailing.equalTo(loginButton.snp.trailing).offset(0)
         }
+        
+        indicatorView.snp.makeConstraints { make in
+            make.centerX.centerY.equalToSuperview()
+        }
     }
     
     @objc private func scrollViewTapped() {
@@ -246,6 +256,7 @@ class LogInViewController: UIViewController {
             if let email = emailTextField.text, let password = passwordTextField.text {
                 loginButton.isEnabled = false
                 loginButton.alpha = 0.7
+                indicatorView.startAnimating()
                 login(email: email, password: password)
             }
         }
@@ -301,6 +312,7 @@ extension LogInViewController {
         UserService.shared.login(email: email, password: password) { result in
             switch result {
             case .success(let response):
+                self.indicatorView.stopAnimating()
                 self.loginButton.isEnabled = true
                 self.loginButton.alpha = 1
                 if response.resultCode == 200 {

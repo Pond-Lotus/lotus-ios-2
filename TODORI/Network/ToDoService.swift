@@ -80,21 +80,10 @@ class TodoService {
         ]
         AF.request(url, method: .get,parameters: parameter, headers: header)
             .validate(statusCode: 200..<300)
-            .responseJSON { response in
+            .responseDecodable(of: TodoSearchResponseData.self) { response in
                 switch response.result {
-                case .success(let value):
-                    if let json = value as? [String:Any] {
-                        do {
-                            let data = try JSONSerialization.data(withJSONObject: json, options: [])
-                            let decodedData = try JSONDecoder().decode(TodoSearchResponseData.self, from: data)
-                            completion(.success(decodedData))
-                        } catch {
-                            completion(.failure("decode error"))
-                        }
-                        
-                    } else {
-                        completion(.failure("data error"))
-                    }
+                case .success(let response):
+                    completion(.success(response))
                 case .failure(let error):
                     completion(.failure(error))
                 }
@@ -117,21 +106,10 @@ class TodoService {
         
         AF.request(url, method: .delete,headers: header)
             .validate(statusCode: 200..<300)
-            .responseJSON { response in
+            .responseDecodable(of: ResponseData.self) { response in
                 switch response.result {
-                case .success(let value):
-                    if let json = value as? [String:Any] {
-                        do{
-                            let data = try JSONSerialization.data(withJSONObject: json, options: [])
-                            let decodedData = try JSONDecoder().decode(ResponseData.self, from: data)
-                            completion(.success(decodedData))
-                        }catch{
-                            completion(.failure("decode error"))
-                        }
-                        
-                    } else {
-                        completion(.failure("data error"))
-                    }
+                case .success(let response):
+                    completion(.success(response))
                 case .failure(let error):
                     completion(.failure(error))
                 }
@@ -163,21 +141,10 @@ class TodoService {
                    encoding: JSONEncoding.default,
                    headers: header)
         .validate(statusCode: 200..<300)
-        .responseJSON { response in
+        .responseDecodable(of: TodoWriteResponseData.self) { response in
             switch response.result {
-            case .success(let value):
-                if let json = value as? [String:Any] {
-                    do{
-                        let data = try JSONSerialization.data(withJSONObject: json, options: [])
-                        let decodedData = try JSONDecoder().decode(TodoWriteResponseData.self, from: data)
-                        completion(.success(decodedData))
-                    }catch{
-                        completion(.failure("decode error"))
-                    }
-                    
-                } else {
-                    completion(.failure("data error"))
-                }
+            case .success(let response):
+                completion(.success(response))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -207,21 +174,10 @@ class TodoService {
                    encoding: JSONEncoding.default,
                    headers: header)
         .validate(statusCode: 200..<300)
-        .responseJSON { response in
+        .responseDecodable(of: TodoEditResponseData.self) { response in
             switch response.result {
-            case .success(let value):
-                if let json = value as? [String:Any] {
-                    do{
-                        let data = try JSONSerialization.data(withJSONObject: json, options: [])
-                        let decodedData = try JSONDecoder().decode(TodoEditResponseData.self, from: data)
-                        completion(.success(decodedData))
-                    }catch{
-                        completion(.failure("decode error"))
-                    }
-                    
-                } else {
-                    completion(.failure("data error"))
-                }
+            case .success(let response):
+                completion(.success(response))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -245,21 +201,10 @@ class TodoService {
                    encoding: JSONEncoding.default,
                    headers: header)
         .validate(statusCode: 200..<300)
-        .responseJSON { response in
+        .responseDecodable(of: PriorityResponseData.self) { response in
             switch response.result {
-            case .success(let value):
-                if let json = value as? [String:Any] {
-                    do{
-                        let data = try JSONSerialization.data(withJSONObject: json, options: [])
-                        let decodedData = try JSONDecoder().decode(PriorityResponseData.self, from: data)
-                        completion(.success(decodedData))
-                    }catch{
-                        completion(.failure("decode error"))
-                    }
-                    
-                } else {
-                    completion(.failure("data error"))
-                }
+            case .success(let response):
+                completion(.success(response))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -285,21 +230,10 @@ class TodoService {
                    encoding: JSONEncoding.default,
                    headers: header)
         .validate(statusCode: 200..<300)
-        .responseJSON { response in
+        .responseDecodable(of: TodoEditResponseData.self) { response in
             switch response.result {
-            case .success(let value):
-                if let json = value as? [String:Any] {
-                    do{
-                        let data = try JSONSerialization.data(withJSONObject: json, options: [])
-                        let decodedData = try JSONDecoder().decode(TodoEditResponseData.self, from: data)
-                        completion(.success(decodedData))
-                    }catch{
-                        completion(.failure("decode error"))
-                    }
-                    
-                } else {
-                    completion(.failure("data error"))
-                }
+            case .success(let response):
+                completion(.success(response))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -307,4 +241,3 @@ class TodoService {
         
     }
 }
-

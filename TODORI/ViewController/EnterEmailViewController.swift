@@ -77,6 +77,11 @@ class EnterEmailViewController: UIViewController {
         return button
     }()
     
+    private let indicatorView: UIActivityIndicatorView = {
+        let indicatorView = UIActivityIndicatorView(style: .large)
+        return indicatorView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -113,6 +118,7 @@ class EnterEmailViewController: UIViewController {
         view.addSubview(emailTextField)
         view.addSubview(errorLabel)
         view.addSubview(nextButton)
+        view.addSubview(indicatorView)
 
         numberLabel.snp.makeConstraints { make in
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -149,6 +155,11 @@ class EnterEmailViewController: UIViewController {
             make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.04)
             make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
         }
+        
+        indicatorView.snp.makeConstraints { make in
+            make.centerX.centerY.equalToSuperview()
+        }
+
     }
     
     @objc func backButtonTapped() {
@@ -158,6 +169,7 @@ class EnterEmailViewController: UIViewController {
     @objc func nextButtonTapped() {
         if let email = emailTextField.text {
             nextButton.isEnabled = false
+            indicatorView.startAnimating()
             emailCheck(email: email)
         }
     }
@@ -174,6 +186,7 @@ extension EnterEmailViewController {
         UserService.shared.emailCheck(email: email) { result in
             switch result {
             case .success(let data):
+                self.indicatorView.stopAnimating()
                 self.nextButton.isEnabled = true
                 if data.resultCode == 200 {
                     print("이백")

@@ -59,22 +59,14 @@ class GroupSettingViewController: UIViewController {
         
         navigationController?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-        
-        print("viewDidLoad!")
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupUI()
-        print("viewWillAppear!")
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        print("viewWillDisappear!")
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        print("viewDidDisappear!")
         mainStackView.removeFromSuperview()
     }
     

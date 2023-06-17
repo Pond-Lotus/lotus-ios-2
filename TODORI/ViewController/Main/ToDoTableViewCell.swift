@@ -32,6 +32,7 @@ class ToDoTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    //view에 컴포넌트 추가
     private func addComponent(){
         cellBackgroundView.addSubview(titleTextField)
         cellBackgroundView.addSubview(checkbox)
@@ -39,13 +40,14 @@ class ToDoTableViewCell: UITableViewCell {
 
     }
     
+    //컴포넌트에 기능 추가
     private func addTarget(){
         titleTextField.addTarget(self, action: #selector(textFieldEndEdit), for: .editingDidEnd)
         checkbox.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapCheckbox)))
         checkbox.isUserInteractionEnabled = true
-
     }
     
+    //오토 레이아웃 적용
     private func setAutoLayout(){
         cellBackgroundView.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(20)
@@ -66,6 +68,8 @@ class ToDoTableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
     }
+    
+    //컴포넌트 외형 설정
     private func setAppearence(){
         cellBackgroundView.backgroundColor = .white
         cellBackgroundView.layer.cornerRadius = 10
@@ -77,6 +81,7 @@ class ToDoTableViewCell: UITableViewCell {
         
     }
     
+    //새로 작성된 투두 외에는 수정 불가능 하게 하는 코드
     override func setSelected(_ selected: Bool, animated: Bool) {
         if todo.isNew{
             titleTextField.isEnabled = true
@@ -86,6 +91,7 @@ class ToDoTableViewCell: UITableViewCell {
         }
     }
     
+    //체크 박스 터치 기능
     @objc private func tapCheckbox(){
         TodoService.shared.editDoneTodo(done: !todo.done, id: todo.id) { (response) in
             switch(response){
@@ -104,6 +110,7 @@ class ToDoTableViewCell: UITableViewCell {
         }
     }
     
+    //텍스트 필드 edit 완료시 실행되는 동작
     @objc private func textFieldEndEdit(){
         guard let input = titleTextField.text?.replacing(" ", with: "") else {return}
         if input.count == 0 {
@@ -135,12 +142,14 @@ class ToDoTableViewCell: UITableViewCell {
 }
 
 extension ToDoTableViewCell:UITextFieldDelegate{
+    //리턴 버튼 눌렀을 때 실행되는 동작
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.endEditing(true)
         return true
     }
 }
 
+//프로토콜 정의
 protocol TodoTableViewCellDelegate:AnyObject{
     func sendTodoData(section:Int, row:Int, todo:ToDo)
     func editDone(section:Int,row:Int,todo:ToDo)
