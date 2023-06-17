@@ -8,11 +8,11 @@
 import UIKit
 
 class MyPageViewController: UIViewController {
-//    private var initialPosition: CGPoint = .zero
     var dimmingView: UIView?
     
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
     }()

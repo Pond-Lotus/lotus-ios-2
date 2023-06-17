@@ -37,7 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                         self.window?.rootViewController = navigationController
                         self.window?.makeKeyAndVisible()
                     } else if response.resultCode == 500 {
-                        print("오백 : 토큰 유효성 검증 실패")
+                        print("오백")
                     }
                 case .failure(_):
                     print("failure")

@@ -11,6 +11,7 @@ import PhotosUI
 class EditProfileViewController: UIViewController {
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
     }()
@@ -374,7 +375,17 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
             itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in
                 DispatchQueue.main.async {
                     if let image = image as? UIImage {
-                        if let imageData = image.pngData() {
+                        var fixedImage: UIImage?
+                        if image.imageOrientation != .up {
+                            UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+                            image.draw(in: CGRect(origin: .zero, size: image.size))
+                            fixedImage = UIGraphicsGetImageFromCurrentImageContext()
+                            UIGraphicsEndImageContext()
+                        } else {
+                            fixedImage = image
+                        }
+                        
+                        if let imageData = fixedImage?.pngData() {
                             self.profileImageView.image = UIImage(data: imageData)
                             UserSession.shared.image = imageData
                             UserSession.shared.isChangedImage = true

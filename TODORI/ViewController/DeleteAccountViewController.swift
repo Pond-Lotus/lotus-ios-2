@@ -24,6 +24,7 @@ class DeleteAccountViewController: UIViewController {
     
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
     }()
