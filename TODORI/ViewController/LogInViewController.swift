@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 class LogInViewController: UIViewController {
     private let scrollView: UIScrollView = {
@@ -111,7 +112,7 @@ class LogInViewController: UIViewController {
         let button = UIButton()
         button.setTitle("비밀번호 찾기", for: .normal)
         button.setTitleColor(UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1), for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         return button
     }()
     
@@ -141,6 +142,43 @@ class LogInViewController: UIViewController {
         setupUI()
         
         registerKeyboardNotifications()
+        
+        scheduleNotification()
+    }
+    
+    func scheduleNotification() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("알림 권한 요청 에러: \(error.localizedDescription)")
+            } else if granted {
+                print("사용자가 알림 권한을 허용했습니다.")
+            } else {
+                print("사용자가 알림 권한을 거부했습니다.")
+            }
+        }
+        
+        let center = UNUserNotificationCenter.current()
+        
+        // 알림 콘텐츠 생성
+        let content = UNMutableNotificationContent()
+        content.title = "알림 제목"
+        content.body = "알림 내용"
+        content.sound = UNNotificationSound.default
+        
+        // 알림 트리거 생성
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3, repeats: false) // 5초 후에 알림 발송
+        
+        // 알림 요청 생성
+        let request = UNNotificationRequest(identifier: "NotificationIdentifier", content: content, trigger: trigger)
+        
+        // 알림 예약
+        center.add(request) { error in
+            if let error = error {
+                print("알림 예약 에러: \(error.localizedDescription)")
+            } else {
+                print("알림이 예약되었습니다.")
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -193,7 +231,7 @@ class LogInViewController: UIViewController {
         contentView.addSubview(indicatorView)
         
         logoImageView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.17)
+            make.top.equalToSuperview().offset(UIScreen.main.bounds.height * 0.13)
             make.centerX.equalToSuperview()
             make.width.equalTo(67)
             make.height.equalTo(90)
@@ -207,7 +245,7 @@ class LogInViewController: UIViewController {
         }
         
         emailTextField.snp.makeConstraints { make in
-            make.top.equalTo(logoTextView.snp.bottom).offset(67)
+            make.top.equalTo(logoTextView.snp.bottom).offset(35)
             make.centerX.equalToSuperview()
             make.leading.equalToSuperview().offset(UIScreen.main.bounds.width * 0.1)
             make.height.equalTo(54)

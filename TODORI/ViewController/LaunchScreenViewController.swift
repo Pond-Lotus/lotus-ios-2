@@ -9,7 +9,6 @@ import UIKit
 import SnapKit
 
 class LaunchScreenViewController: UIViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -37,21 +36,9 @@ class LaunchScreenViewController: UIViewController {
         logoView.contentMode = .scaleAspectFit
         self.view.addSubview(logoView)
         logoView.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.centerY.equalToSuperview().offset(-37)
+            $0.centerX.centerY.equalToSuperview()
             $0.width.equalTo(67)
             $0.height.equalTo(93)
-        }
-        
-        let logoText = UIImage(named: "logo-text-white")
-        let logoTextView = UIImageView(image: logoText)
-        logoTextView.contentMode = .scaleAspectFit
-        self.view.addSubview(logoTextView)
-        logoTextView.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.centerY.equalToSuperview().offset(37)
-            $0.width.equalTo(103)
-            $0.height.equalTo(40)
         }
     }
 }

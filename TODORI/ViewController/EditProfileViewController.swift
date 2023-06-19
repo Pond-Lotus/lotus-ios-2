@@ -31,6 +31,8 @@ class EditProfileViewController: UIViewController {
     
     private let nickNameTextField: UITextField = {
         let textField = UITextField()
+        textField.font = UIFont.systemFont(ofSize: 16, weight: .light)
+        textField.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.85)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16, weight: .light),
             .foregroundColor:  UIColor(red: 0, green: 0, blue: 0, alpha: 0.85)
@@ -242,9 +244,12 @@ class EditProfileViewController: UIViewController {
             return
         }
         
-        navigationItem.rightBarButtonItem?.isEnabled = false
-        navigationItem.leftBarButtonItem?.isEnabled = false
-        editProfileImageButton.isEnabled = false
+        let customButton = UIButton(type: .custom)
+        customButton.isEnabled = false
+        let customBarButtonItem = UIBarButtonItem(customView: customButton)
+        navigationItem.rightBarButtonItem = customBarButtonItem
+        navigationItem.leftBarButtonItem = customBarButtonItem
+        editProfileImageButton.isUserInteractionEnabled = false
         changePasswordButton.isEnabled = false
         deleteAccountButton.isEnabled = false
         indicatorView.startAnimating()
@@ -319,9 +324,7 @@ extension EditProfileViewController {
             switch result {
             case .success(let response):
                 self.indicatorView.stopAnimating()
-                self.navigationItem.rightBarButtonItem?.isEnabled = true
-                self.navigationItem.leftBarButtonItem?.isEnabled = true
-                self.editProfileImageButton.isEnabled = true
+                self.editProfileImageButton.isUserInteractionEnabled = true
                 self.changePasswordButton.isEnabled = true
                 self.deleteAccountButton.isEnabled = true
 
@@ -342,6 +345,7 @@ extension EditProfileViewController {
                     dimmingView.alpha = 0
                     self.view.addSubview(dimmingView)
                     let popupView = CustomPopupView(title: "프로필 수정", message: "프로필 수정이 완료되었습니다.", buttonText: "확인", buttonColor: UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1), dimmingView: dimmingView)
+                    popupView.delegate = self
                     popupView.alpha = 0
                     self.view.addSubview(popupView)
                     popupView.snp.makeConstraints { make in
@@ -384,7 +388,6 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
                         } else {
                             fixedImage = image
                         }
-                        
                         if let imageData = fixedImage?.pngData() {
                             self.profileImageView.image = UIImage(data: imageData)
                             UserSession.shared.image = imageData
@@ -395,6 +398,14 @@ extension EditProfileViewController: PHPickerViewControllerDelegate {
             }
         }
     }
+}
+
+extension EditProfileViewController: CustomPopupViewDelegate {
+    func buttonTappedDelegate() {
+        navigationController?.popToRootViewController(animated: true)
+    }
+    
+    
 }
 
 extension EditProfileViewController: UINavigationControllerDelegate {

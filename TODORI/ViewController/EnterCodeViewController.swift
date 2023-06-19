@@ -241,7 +241,7 @@ class EnterCodeViewController: UIViewController {
         
         nextButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.04)
-            make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
+            make.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
         }
     }
     

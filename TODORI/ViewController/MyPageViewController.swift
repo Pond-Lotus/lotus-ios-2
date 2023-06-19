@@ -61,7 +61,6 @@ class MyPageViewController: UIViewController {
         button.setTitle(" 비밀번호 변경", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        
         let image = UIImage(named: "setting")?.resize(to: CGSize(width: 18, height: 18))
         button.setImage(image, for: .normal)
         return button
@@ -72,7 +71,6 @@ class MyPageViewController: UIViewController {
         button.setTitle(" 알림 설정", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        
         let image = UIImage(named: "setting")?.resize(to: CGSize(width: 18, height: 18))
         button.setImage(image, for: .normal)
         return button
@@ -91,9 +89,8 @@ class MyPageViewController: UIViewController {
         let tintedImage = image?.withRenderingMode(.alwaysTemplate)
         button.setImage(tintedImage, for: .normal)
         button.tintColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
-        var configuration = UIButton.Configuration.plain()
-        configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
-        button.configuration = configuration
+        button.contentHorizontalAlignment = .right
+        button.contentVerticalAlignment = .top
         return button
     }()
     
@@ -118,8 +115,6 @@ class MyPageViewController: UIViewController {
         }
         return view
     }
-    
-    private var colorViews: [UIImageView] = []
     
     private func createColorView(_ filename: String) -> UIImageView {
         let imageView = UIImageView(image: UIImage(named: filename)?.resize(to: CGSize(width: 25, height: 25)))
@@ -174,6 +169,7 @@ class MyPageViewController: UIViewController {
         stackView1.alignment = .leading
         
         let stackView2 = UIStackView()
+        var colorViews: [UIImageView] = []
         colorViews.append(createColorView("red-circle"))
         colorViews.append(createColorView("yellow-circle"))
         colorViews.append(createColorView("green-circle"))
@@ -231,7 +227,7 @@ class MyPageViewController: UIViewController {
         }
         
         editProfileButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(84 - 10)
+            make.centerY.equalTo(profileImageView.snp.centerY)
             make.trailing.equalToSuperview().offset(-22 + 10)
         }
         
@@ -251,8 +247,10 @@ class MyPageViewController: UIViewController {
         }
         
         settingGroupButton.snp.makeConstraints { make in
-            make.top.equalTo(underlineViews[1].snp.bottom).offset(21 - 10)
-            make.trailing.equalToSuperview().offset(-22 + 10)
+            make.top.equalTo(underlineViews[1].snp.bottom).offset(21)
+            make.bottom.equalTo(underlineViews[2].snp.bottom).offset(-21)
+            make.trailing.equalToSuperview().offset(-22)
+            make.centerX.equalToSuperview()
         }
         
         stackView2.snp.makeConstraints { make in
@@ -268,11 +266,11 @@ class MyPageViewController: UIViewController {
     }
     
     @objc func editProfileButtonTapped() {
-        navigationController?.pushViewController(EditProfileViewController(), animated: false)
+        navigationController?.pushViewController(EditProfileViewController(), animated: true)
     }
         
     @objc func changePasswordButtonTapped() {
-        navigationController?.pushViewController(ChangePasswordViewController(), animated: false)
+        navigationController?.pushViewController(ChangePasswordViewController(), animated: true)
     }
     
     @objc func settingGroupButtonTapped() {
@@ -280,7 +278,6 @@ class MyPageViewController: UIViewController {
     }
     
     @objc func logoutButtonTapped() {
-        // MyPageViewController가 아닌 화면 전체를 기준으로 팝업뷰를 띄우기 위함
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) {
             let dimmingView = UIView(frame: keyWindow.bounds)
@@ -302,7 +299,6 @@ class MyPageViewController: UIViewController {
             }
         }
     }
-    
     
     private var initialPosition: CGPoint = .zero
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
@@ -380,7 +376,7 @@ extension MyPageViewController {
                         GroupData.shared.sixthGroupName = group6
                     }
                     
-                    self.navigationController?.pushViewController(GroupSettingViewController(), animated: false)
+                    self.navigationController?.pushViewController(GroupSettingViewController(), animated: true)
                 } else if response.resultCode == 500 {
                     print("오백")
                 }

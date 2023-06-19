@@ -295,7 +295,7 @@ class EnterProfileViewController: UIViewController {
         nextButton.snp.makeConstraints { make in
             let width = scrollView.frame.width - contentView.frame.width
             make.trailing.equalToSuperview().offset(-UIScreen.main.bounds.width * 0.04 + width)
-            make.bottom.equalToSuperview().offset(-UIScreen.main.bounds.height * 0.02)
+            make.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-10)
         }
     }
     

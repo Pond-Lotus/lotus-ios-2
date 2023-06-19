@@ -146,7 +146,7 @@ class DeleteAccountViewController: UIViewController {
         view.addSubview(deleteAccountButton)
         
         titleLabel1.snp.makeConstraints { make in
-            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(47)
+            make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(32)
             make.leading.equalToSuperview().offset(34)
         }
         
