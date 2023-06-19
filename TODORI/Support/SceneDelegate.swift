@@ -3,7 +3,7 @@
 //  TODORI
 //
 //  Created by Dasol on 2023/04/18.
-//          
+//
 
 import UIKit
 
@@ -15,10 +15,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         window?.overrideUserInterfaceStyle = .light // light-mode
-        
+
         let LaunchScreenViewController = LaunchScreenViewController()
         self.window?.rootViewController = LaunchScreenViewController
         self.window?.makeKeyAndVisible()
+        UserDefaults.standard.removeObject(forKey: "autoLogin")
         
         if UserDefaults.standard.bool(forKey: "autoLogin") {
             print("isAutoLogin: true")
@@ -52,7 +53,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     static func reset() {
-        UserDefaults.standard.set(false, forKey: "autoLogin")
+        let domain = Bundle.main.bundleIdentifier!
+        UserDefaults.standard.removePersistentDomain(forName: domain)
         UserDefaults.standard.synchronize()
         TokenManager.shared.deleteToken()
         

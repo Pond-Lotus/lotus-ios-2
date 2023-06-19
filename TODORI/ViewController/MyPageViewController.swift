@@ -19,22 +19,14 @@ class MyPageViewController: UIViewController {
     
     private let nickNameLabel: UILabel = {
         let label = UILabel()
-        if let nickname = UserDefaults.standard.string(forKey: "nickname")  {
-            label.text = nickname
-        } else {
-            label.text = "(NONE)"
-        }
+        label.text = UserDefaults.standard.string(forKey: "nickname")
         label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         return label
     }()
     
     private let emailLabel: UILabel = {
         let label = UILabel()
-        if let email = UserDefaults.standard.string(forKey: "email")  {
-            label.text = email
-        } else {
-            label.text = "(NONE)"
-        }
+        label.text = UserDefaults.standard.string(forKey: "email")
         label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
         return label
@@ -52,7 +44,7 @@ class MyPageViewController: UIViewController {
     private let titleLabel1: UILabel = {
         let label = UILabel()
         label.text = "환경 설정"
-        label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         return label
     }()
     
@@ -60,7 +52,7 @@ class MyPageViewController: UIViewController {
         let button = UIButton()
         button.setTitle(" 비밀번호 변경", for: .normal)
         button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         let image = UIImage(named: "setting")?.resize(to: CGSize(width: 18, height: 18))
         button.setImage(image, for: .normal)
         return button
@@ -70,7 +62,7 @@ class MyPageViewController: UIViewController {
         let button = UIButton()
         button.setTitle(" 알림 설정", for: .normal)
         button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         let image = UIImage(named: "setting")?.resize(to: CGSize(width: 18, height: 18))
         button.setImage(image, for: .normal)
         return button
@@ -79,7 +71,7 @@ class MyPageViewController: UIViewController {
     private let titleLabel2: UILabel = {
         let label = UILabel()
         label.text = "그룹 설정"
-        label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         return label
     }()
     
@@ -163,7 +155,7 @@ class MyPageViewController: UIViewController {
     }
     
     private func setupUI() {        
-        let stackView1 = UIStackView(arrangedSubviews: [changePasswordButton, notificationButton])
+        let stackView1 = UIStackView(arrangedSubviews: [changePasswordButton])
         stackView1.axis = .vertical
         stackView1.spacing = 22
         stackView1.alignment = .leading
