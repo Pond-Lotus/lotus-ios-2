@@ -20,9 +20,9 @@ class FinishSignUpViewController: UIViewController {
 
     private let welcomeLabel: UILabel = {
         let label = UILabel()
-        if let nickname = UserSession.shared.nickname {
-            label.text = "\(nickname)님, 환영합니다!"
-        }
+//        if let nickname = UserSession.shared.nickname {
+//            label.text = "\(nickname)님, 환영합니다!"
+//        }
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         label.textColor = .black

@@ -15,10 +15,6 @@ class UserSession {
     var signUpEmail: String?
     var signUpNickname: String?
     
-    var token: String?
-    var nickname: String?
-    var email: String?
-    var profileImage: String?
     var image: Data?
     var isChangedImage: Bool?
     

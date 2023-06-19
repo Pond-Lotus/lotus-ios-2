@@ -37,7 +37,7 @@ class DeleteAccountViewController: UIViewController {
     
     private let emailLabel: UILabel = {
         let label = UILabel()
-        label.text = UserSession.shared.email ?? "(NONE)"
+        label.text = UserDefaults.standard.string(forKey: "email")
         label.font = UIFont.systemFont(ofSize: 11, weight: .regular)
         label.textColor = UIColor(red: 0.621, green: 0.621, blue: 0.621, alpha: 1)
         return label
