@@ -198,7 +198,7 @@ class MyPageViewController: UIViewController {
             make.top.equalTo(stackView2.snp.bottom).offset(28)
         }
         underlineViews[3].snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-64)
+            make.bottom.equalToSuperview().offset(-70)
         }
         
         profileImageView.snp.makeConstraints { make in
