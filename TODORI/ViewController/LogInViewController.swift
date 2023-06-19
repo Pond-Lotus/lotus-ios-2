@@ -142,43 +142,6 @@ class LogInViewController: UIViewController {
         setupUI()
         
         registerKeyboardNotifications()
-        
-        scheduleNotification()
-    }
-    
-    func scheduleNotification() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error {
-                print("알림 권한 요청 에러: \(error.localizedDescription)")
-            } else if granted {
-                print("사용자가 알림 권한을 허용했습니다.")
-            } else {
-                print("사용자가 알림 권한을 거부했습니다.")
-            }
-        }
-        
-        let center = UNUserNotificationCenter.current()
-        
-        // 알림 콘텐츠 생성
-        let content = UNMutableNotificationContent()
-        content.title = "알림 제목"
-        content.body = "알림 내용"
-        content.sound = UNNotificationSound.default
-        
-        // 알림 트리거 생성
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3, repeats: false) // 5초 후에 알림 발송
-        
-        // 알림 요청 생성
-        let request = UNNotificationRequest(identifier: "NotificationIdentifier", content: content, trigger: trigger)
-        
-        // 알림 예약
-        center.add(request) { error in
-            if let error = error {
-                print("알림 예약 에러: \(error.localizedDescription)")
-            } else {
-                print("알림이 예약되었습니다.")
-            }
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -382,10 +345,11 @@ extension LogInViewController {
                         print("자동로그인 X : \(UserDefaults.standard.bool(forKey: "autoLogin"))")
                     }
                     
-                    let nextVC = UINavigationController(rootViewController: ToDoMainViewController())
-                    nextVC.modalPresentationStyle = .fullScreen
-                    self.present(nextVC, animated: false)
-                    
+                    DispatchQueue.main.async {
+                        let nextVC = UINavigationController(rootViewController: ToDoMainViewController())
+                        nextVC.modalPresentationStyle = .fullScreen
+                        self.present(nextVC, animated: false)
+                    }
                 } else if response.resultCode == 500 {
                     print("오백")
                     let dimmingView = UIView(frame: UIScreen.main.bounds)

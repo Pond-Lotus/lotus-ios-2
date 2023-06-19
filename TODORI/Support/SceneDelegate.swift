@@ -3,7 +3,7 @@
 //  TODORI
 //
 //  Created by Dasol on 2023/04/18.
-//
+//          
 
 import UIKit
 
@@ -11,15 +11,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        window?.overrideUserInterfaceStyle = .light // light-mode
-        
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
+        
+        window?.overrideUserInterfaceStyle = .light // light-mode
         
         let LaunchScreenViewController = LaunchScreenViewController()
         self.window?.rootViewController = LaunchScreenViewController
         self.window?.makeKeyAndVisible()
-//        UserDefaults.standard.removeObject(forKey: "autoLogin")
         
         if UserDefaults.standard.bool(forKey: "autoLogin") {
             print("isAutoLogin: true")
@@ -53,16 +52,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     static func reset() {
-        let domain = Bundle.main.bundleIdentifier!
-        UserDefaults.standard.removePersistentDomain(forName: domain)
+        UserDefaults.standard.set(false, forKey: "autoLogin")
         UserDefaults.standard.synchronize()
         TokenManager.shared.deleteToken()
         
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let sceneDelegate = windowScene.delegate as? SceneDelegate
-        else { return }
-        
         DispatchQueue.main.async {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let sceneDelegate = windowScene.delegate as? SceneDelegate
+            else { return }
+            
             let loginViewController = UINavigationController(rootViewController: LogInViewController())
             let window = UIWindow(windowScene: windowScene)
             window.rootViewController = loginViewController
