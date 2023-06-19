@@ -326,6 +326,14 @@ extension LogInViewController {
                         return
                     }
                     
+                    if self.autoLoginButton.isSelected {
+                        UserDefaults.standard.set(true, forKey: "autoLogin")
+                        print("자동로그인 O : \(UserDefaults.standard.bool(forKey: "autoLogin"))")
+                    } else {
+                        UserDefaults.standard.set(false, forKey: "autoLogin")
+                        print("자동로그인 X : \(UserDefaults.standard.bool(forKey: "autoLogin"))")
+                    }
+                    
                     if let base64Image = response.image {
                         let imageData = UserSession.shared.base64StringToImage(base64String: base64Image)?.pngData()
                         UserDefaults.standard.set(imageData, forKey: "image")
@@ -336,14 +344,6 @@ extension LogInViewController {
                     TokenManager.shared.saveToken(token)
                     UserDefaults.standard.set(email, forKey: "email")
                     UserDefaults.standard.set(nickname, forKey: "nickname")
-                    
-                    if self.autoLoginButton.isSelected {
-                        UserDefaults.standard.set(true, forKey: "autoLogin")
-                        print("자동로그인 O : \(UserDefaults.standard.bool(forKey: "autoLogin"))")
-                    } else {
-                        UserDefaults.standard.set(false, forKey: "autoLogin")
-                        print("자동로그인 X : \(UserDefaults.standard.bool(forKey: "autoLogin"))")
-                    }
                     
                     DispatchQueue.main.async {
                         let nextVC = UINavigationController(rootViewController: ToDoMainViewController())

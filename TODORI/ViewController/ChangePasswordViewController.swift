@@ -132,6 +132,11 @@ class ChangePasswordViewController: UIViewController {
         return button
     }()
     
+    private let indicatorView: UIActivityIndicatorView = {
+        let indicatorView = UIActivityIndicatorView(style: .large)
+        return indicatorView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
@@ -165,6 +170,7 @@ class ChangePasswordViewController: UIViewController {
         
         view.addSubview(stackView)
         view.addSubview(finishButton)
+        view.addSubview(indicatorView)
         
         stackView.snp.makeConstraints { make in
             make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).offset(32)
@@ -178,6 +184,10 @@ class ChangePasswordViewController: UIViewController {
             make.trailing.equalToSuperview().offset(-20)
             make.height.equalTo(50)
         }
+        
+        indicatorView.snp.makeConstraints { make in
+            make.centerX.centerY.equalToSuperview()
+        }
     }
     
     @objc func backButtonTapped() {
@@ -188,6 +198,7 @@ class ChangePasswordViewController: UIViewController {
         if let password = presentPasswordTextField.text, let newPassword = newPasswordTextField.text {
             if isValidPassword(newPassword) && newPassword == checkNewPasswordTextField.text {
                 finishButton.isEnabled = false
+                indicatorView.startAnimating()
                 changePassword(originPassword: password, newPassword: newPassword)
             }
         }
@@ -245,6 +256,7 @@ extension ChangePasswordViewController {
                 self.finishButton.isEnabled = true
                 if response.resultCode == 200 {
                     print("이백")
+                    self.indicatorView.stopAnimating()
                     self.stackView.setCustomSpacing(20, after: self.presentPasswordTextField)
                     self.presentPasswordErrorLabel.isHidden = true
                     
@@ -253,7 +265,7 @@ extension ChangePasswordViewController {
                     dimmingView.alpha = 0
                     self.view.addSubview(dimmingView)
                     
-                    let popupView = CustomPopupView(title: "비밀번호 변경", message: "비밀번호 변경이 완료되었습니다.", buttonText: "확인", buttonColor: UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1), dimmingView: dimmingView)
+                    let popupView = CustomPopupView(title: "비밀번호 변경", message: "비밀번호 변경이 완료되었습니다.\n다시 로그인 해주세요.", buttonText: "확인", buttonColor: UIColor(red: 1, green: 0.855, blue: 0.725, alpha: 1), dimmingView: dimmingView)
                     popupView.delegate = self
                     popupView.alpha = 0
                     self.view.addSubview(popupView)
